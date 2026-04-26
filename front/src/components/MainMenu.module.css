@@ -1,0 +1,35 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--esp-normal);
+  font-style: normal;
+  background-color: #f9fafb;
+  padding-bottom: 80px;
+}
+
+.main .sub_titulo {
+  font-size: var(--fonte-media);
+}
+
+.main .sub_sub_titulo {
+  font-size: var(--fonte-menor);
+}
+
+.main .aviso {
+  background-color: white;
+  width: 400px;
+  border: 1px solid var(--cor-detalhes-fundo);
+  padding: var(--esp-normal);
+  border-radius: var(--esp-menor);
+}
+
+.cardapio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-normal);
+  padding: var(--esp-normal);
+  width: 400px;
+}
