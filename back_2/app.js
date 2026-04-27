@@ -31,7 +31,7 @@ app.get(["/", "/bemvindo"], (req, res) => {
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>API Cantina SENAC</title>
+        <title>API Cantina GO</title>
         <style>
           body { margin: 0; font-family: Arial, sans-serif; background: #eef3fb; color: #1f2937; }
           .page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
@@ -45,7 +45,7 @@ app.get(["/", "/bemvindo"], (req, res) => {
       <body>
         <div class="page">
           <div class="card">
-            <h1>Bem-vindo à API Cantina SENAC</h1>
+            <h1>Bem-vindo à API Cantina GO</h1>
             <p>A API está funcionando corretamente no backend.</p>
             <p>Use estas rotas para testar:</p>
             <ul>
