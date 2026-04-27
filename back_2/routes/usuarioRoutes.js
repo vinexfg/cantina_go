@@ -3,6 +3,9 @@ import express from "express";
 const router = express.Router();
 import UsuarioController from "../controllers/usuarioController.js";
 
+// POST /api/usuarios/login - Login de usuário
+router.post("/login", UsuarioController.login);
+
 // GET /api/usuarios - Listar todos
 router.get("/", UsuarioController.obterTodos);
 

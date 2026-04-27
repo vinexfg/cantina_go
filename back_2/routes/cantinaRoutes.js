@@ -3,6 +3,9 @@ import express from "express";
 const router = express.Router();
 import CantinaController from "../controllers/cantinaController.js";
 
+// POST /api/cantinas/login - Login de cantina
+router.post("/login", CantinaController.login);
+
 // GET /api/cantinas - Listar todas
 router.get("/", CantinaController.obterTodos);
 
