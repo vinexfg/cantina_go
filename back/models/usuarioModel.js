@@ -1,9 +1,13 @@
 import pool from "../db.js";
 import crypto from "crypto";
 
+console.log('UsuarioModel: pool imported');
+
 const UsuarioModel = {
   async obterTodos() {
+    console.log('UsuarioModel.obterTodos: executing query');
     const { rows } = await pool.query("SELECT * FROM usuarios");
+    console.log('UsuarioModel.obterTodos: query executed successfully');
     return rows;
   },
 
