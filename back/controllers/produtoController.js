@@ -1,55 +1,73 @@
-import produtoModel from "../models/produtoModel.js";
+import ProdutoService from '../services/ProdutoService.js';
+import Result from '../valueObjects/Result.js';
+import ValidationException from '../exceptions/ValidationException.js';
+import NotFoundException from '../exceptions/NotFoundException.js';
 
 class ProdutoController {
   static async obterTodos(req, res) {
-    const produtos = await produtoModel.obterTodos();
-    res.json(produtos);
+    try {
+      const produtos = await ProdutoService.obterTodos();
+      Result.ok(produtos).send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
+    }
   }
 
   static async obterPorId(req, res) {
-    const { id } = req.params;
-    const produto = await produtoModel.obterPorId(id);
-
-    if (produto) {
-      res.json(produto);
-    } else {
-      res.status(404).json({ message: "Produto não encontrado" });
+    try {
+      const { id } = req.params;
+      const produto = await ProdutoService.obterPorId(id);
+      Result.ok(produto).send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
     }
   }
 
   static async obterDisponiveis(req, res) {
-    const produtos = await produtoModel.obterDisponiveis();
-    res.json(produtos);
+    try {
+      const produtos = await ProdutoService.obterDisponiveis();
+      Result.ok(produtos).send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
+    }
   }
 
   static async criar(req, res) {
-    const novoProduto = req.body;
-    const produtoCriado = await produtoModel.criar(novoProduto);
-    res.status(201).json(produtoCriado);
+    try {
+      const produtoCriado = await ProdutoService.criar(req.body);
+      Result.created(produtoCriado, 'Produto criado com sucesso').send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
+    }
   }
 
   static async atualizar(req, res) {
-    const { id } = req.params;
-    const atualizacoes = req.body;
-
-    const atualizado = await produtoModel.atualizar(id, atualizacoes);
-
-    if (atualizado) {
-      res.json({ message: "Produto atualizado" });
-    } else {
-      res.status(404).json({ message: "Produto não encontrado" });
+    try {
+      const { id } = req.params;
+      const atualizado = await ProdutoService.atualizar(id, req.body);
+      Result.ok(atualizado, 'Produto atualizado com sucesso').send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
     }
   }
 
   static async remover(req, res) {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
+      await ProdutoService.remover(id);
+      Result.ok(null, 'Produto removido com sucesso').send(res);
+    } catch (erro) {
+      ProdutoController.tratarErro(erro, res);
+    }
+  }
 
-    const removido = await produtoModel.remover(id);
-
-    if (removido) {
-      res.json({ message: "Produto removido" });
+  static tratarErro(erro, res) {
+    if (erro instanceof ValidationException) {
+      Result.badRequest(erro.message).send(res);
+    } else if (erro instanceof NotFoundException) {
+      Result.notFound(erro.message).send(res);
     } else {
-      res.status(404).json({ message: "Produto não encontrado" });
+      Result.internalError(erro.message).send(res);
     }
   }
 }

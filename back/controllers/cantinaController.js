@@ -1,61 +1,74 @@
-import cantinaModel from "../models/cantinaModel.js";
+import CantinaService from '../services/CantinaService.js';
+import Result from '../valueObjects/Result.js';
+import ValidationException from '../exceptions/ValidationException.js';
+import NotFoundException from '../exceptions/NotFoundException.js';
 
 class CantinaController {
   static async obterTodos(req, res) {
-    const cantinas = await cantinaModel.obterTodos();
-    res.json(cantinas);
+    try {
+      const cantinas = await CantinaService.obterTodos();
+      Result.ok(cantinas).send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
+    }
   }
 
   static async obterPorId(req, res) {
-    const { id } = req.params;
-    const cantina = await cantinaModel.obterPorId(id);
-
-    if (cantina) {
-      res.json(cantina);
-    } else {
-      res.status(404).json({ message: "Cantina não encontrada" });
+    try {
+      const { id } = req.params;
+      const cantina = await CantinaService.obterPorId(id);
+      Result.ok(cantina).send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
     }
   }
 
   static async obterPorEmail(req, res) {
-    const { email } = req.params;
-    const cantina = await cantinaModel.obterPorEmail(email);
-
-    if (cantina) {
-      res.json(cantina);
-    } else {
-      res.status(404).json({ message: "Cantina não encontrada" });
+    try {
+      const { email } = req.params;
+      const cantina = await CantinaService.obterPorEmail(email);
+      Result.ok(cantina).send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
     }
   }
 
   static async criar(req, res) {
-    const novaCantina = req.body;
-    const cantinaCriada = await cantinaModel.criar(novaCantina);
-    res.status(201).json(cantinaCriada);
+    try {
+      const cantinaCriada = await CantinaService.criar(req.body);
+      Result.created(cantinaCriada, 'Cantina criada com sucesso').send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
+    }
   }
 
   static async atualizar(req, res) {
-    const { id } = req.params;
-    const atualizacoes = req.body;
-
-    const atualizado = await cantinaModel.atualizar(id, atualizacoes);
-
-    if (atualizado) {
-      res.json({ message: "Cantina atualizada" });
-    } else {
-      res.status(404).json({ message: "Cantina não encontrada" });
+    try {
+      const { id } = req.params;
+      const atualizado = await CantinaService.atualizar(id, req.body);
+      Result.ok(atualizado, 'Cantina atualizada com sucesso').send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
     }
   }
 
   static async remover(req, res) {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
+      await CantinaService.remover(id);
+      Result.ok(null, 'Cantina removida com sucesso').send(res);
+    } catch (erro) {
+      CantinaController.tratarErro(erro, res);
+    }
+  }
 
-    const removido = await cantinaModel.remover(id);
-
-    if (removido) {
-      res.json({ message: "Cantina removida" });
+  static tratarErro(erro, res) {
+    if (erro instanceof ValidationException) {
+      Result.badRequest(erro.message).send(res);
+    } else if (erro instanceof NotFoundException) {
+      Result.notFound(erro.message).send(res);
     } else {
-      res.status(404).json({ message: "Cantina não encontrada" });
+      Result.internalError(erro.message).send(res);
     }
   }
 }

@@ -1,77 +1,84 @@
-import usuarioModel from "../models/usuarioModel.js";
+import UsuarioService from '../services/UsuarioService.js';
+import Result from '../valueObjects/Result.js';
+import ValidationException from '../exceptions/ValidationException.js';
+import NotFoundException from '../exceptions/NotFoundException.js';
 
 class UsuarioController {
   static async obterTodos(req, res) {
-    const usuarios = await usuarioModel.obterTodos();
-    res.json(usuarios);
+    try {
+      const usuarios = await UsuarioService.obterTodos();
+      Result.ok(usuarios).send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
+    }
   }
 
   static async obterPorId(req, res) {
-    const { id } = req.params;
-    const usuario = await usuarioModel.obterPorId(id);
-
-    if (usuario) {
-      res.json(usuario);
-    } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+    try {
+      const { id } = req.params;
+      const usuario = await UsuarioService.obterPorId(id);
+      Result.ok(usuario).send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
     }
   }
 
   static async obterPorEmail(req, res) {
-    const { email } = req.params;
-    const usuario = await usuarioModel.obterPorEmail(email);
-
-    if (usuario) {
-      res.json(usuario);
-    } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+    try {
+      const { email } = req.params;
+      const usuario = await UsuarioService.obterPorEmail(email);
+      Result.ok(usuario).send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
     }
   }
 
   static async criar(req, res) {
-    const novoUsuario = req.body;
-    const usuarioCriado = await usuarioModel.criar(novoUsuario);
-    res.status(201).json(usuarioCriado);
+    try {
+      const usuarioCriado = await UsuarioService.criar(req.body);
+      Result.created(usuarioCriado, 'Usuário criado com sucesso').send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
+    }
   }
 
   static async atualizar(req, res) {
-    const { id } = req.params;
-    const atualizacoes = req.body;
-
-    const atualizado = await usuarioModel.atualizar(id, atualizacoes);
-
-    if (atualizado) {
-      res.json({ message: "Usuário atualizado" });
-    } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+    try {
+      const { id } = req.params;
+      const atualizado = await UsuarioService.atualizar(id, req.body);
+      Result.ok(atualizado, 'Usuário atualizado com sucesso').send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
     }
   }
 
   static async atualizarPorEmail(req, res) {
-    const { email } = req.params;
-    const atualizacoes = req.body;
-
-    const atualizado = await usuarioModel.atualizarPorEmail(
-      email,
-      atualizacoes
-    );
-
-    if (atualizado) {
-      res.json({ message: "Usuário atualizado" });
-    } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+    try {
+      const { email } = req.params;
+      const atualizado = await UsuarioService.atualizarPorEmail(email, req.body);
+      Result.ok(atualizado, 'Usuário atualizado com sucesso').send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
     }
   }
 
   static async remover(req, res) {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
+      await UsuarioService.remover(id);
+      Result.ok(null, 'Usuário removido com sucesso').send(res);
+    } catch (erro) {
+      UsuarioController.tratarErro(erro, res);
+    }
+  }
 
-    const removido = await usuarioModel.remover(id);
-
-    if (removido) {
-      res.json({ message: "Usuário removido" });
+  static tratarErro(erro, res) {
+    if (erro instanceof ValidationException) {
+      Result.badRequest(erro.message).send(res);
+    } else if (erro instanceof NotFoundException) {
+      Result.notFound(erro.message).send(res);
     } else {
-      res.status(404).json({ message: "Usuário não encontrado" });
+      Result.internalError(erro.message).send(res);
     }
   }
 }
