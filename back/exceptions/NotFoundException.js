@@ -1,8 +1,14 @@
-class NotFoundException extends Error {
+import AppException from './AppException.js';
+import Result from '../valueObjects/Result.js';
+
+class NotFoundException extends AppException {
   constructor(message) {
     super(message);
     this.name = 'NotFoundException';
-    this.statusCode = 404;
+  }
+
+  toResult() {
+    return Result.notFound(this.message);
   }
 }
 

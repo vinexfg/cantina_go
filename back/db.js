@@ -10,21 +10,12 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-const config = {
+const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 5432,
   user: process.env.DB_USER || 'postgres',
-  password: 'BemVindo!',
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || 'cantina'
-};
-
-console.log('Pool config:', {
-  ...config,
-  password: config.password ? '***' : 'NOT SET'
 });
 
-const pool = new Pool(config);
-
 export default pool;
-
-

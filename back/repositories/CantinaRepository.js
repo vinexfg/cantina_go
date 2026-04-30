@@ -20,16 +20,16 @@ class CantinaRepository {
   }
 
   static async create(data) {
-    const { id, nome, email } = data;
-    const query = 'INSERT INTO cantinas (id, nome, email) VALUES ($1, $2, $3) RETURNING *';
-    const { rows } = await pool.query(query, [id, nome, email]);
+    const { id, nome, email, senha } = data;
+    const query = 'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) RETURNING *';
+    const { rows } = await pool.query(query, [id, nome, email, senha]);
     return rows[0];
   }
 
   static async update(id, data) {
-    const { nome, email } = data;
-    const query = 'UPDATE cantinas SET nome = $1, email = $2 WHERE id = $3 RETURNING *';
-    const result = await pool.query(query, [nome, email, id]);
+    const { nome, email, senha } = data;
+    const query = 'UPDATE cantinas SET nome = $1, email = $2, senha = $3 WHERE id = $4 RETURNING *';
+    const result = await pool.query(query, [nome, email, senha, id]);
     return result.rowCount > 0;
   }
 

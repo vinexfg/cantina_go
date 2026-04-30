@@ -13,23 +13,29 @@ class ProdutoRepository {
     return rows[0] || null;
   }
 
+  static async findByCantina(cantina_id) {
+    const query = 'SELECT * FROM produtos WHERE cantina_id = $1';
+    const { rows } = await pool.query(query, [cantina_id]);
+    return rows;
+  }
+
   static async findDisponiveis() {
-    const query = "SELECT * FROM produtos WHERE status = $1";
-    const { rows } = await pool.query(query, ['disponivel']);
+    const query = 'SELECT * FROM produtos WHERE disponivel = true';
+    const { rows } = await pool.query(query);
     return rows;
   }
 
   static async create(data) {
-    const { id, nome, descricao, preco, status } = data;
-    const query = 'INSERT INTO produtos (id, nome, descricao, preco, status) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-    const { rows } = await pool.query(query, [id, nome, descricao, preco, status]);
+    const { id, cantina_id, nome, descricao, preco, disponivel } = data;
+    const query = 'INSERT INTO produtos (id, cantina_id, nome, descricao, preco, disponivel) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+    const { rows } = await pool.query(query, [id, cantina_id, nome, descricao, preco, disponivel]);
     return rows[0];
   }
 
   static async update(id, data) {
-    const { nome, descricao, preco, status } = data;
-    const query = 'UPDATE produtos SET nome = $1, descricao = $2, preco = $3, status = $4 WHERE id = $5 RETURNING *';
-    const result = await pool.query(query, [nome, descricao, preco, status, id]);
+    const { nome, descricao, preco, disponivel } = data;
+    const query = 'UPDATE produtos SET nome = $1, descricao = $2, preco = $3, disponivel = $4 WHERE id = $5 RETURNING *';
+    const result = await pool.query(query, [nome, descricao, preco, disponivel, id]);
     return result.rowCount > 0;
   }
 

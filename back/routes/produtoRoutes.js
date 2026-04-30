@@ -9,6 +9,9 @@ router.get("/", ProdutoController.obterTodos);
 // GET /api/produtos/disponiveis - Listar disponíveis
 router.get("/disponiveis", ProdutoController.obterDisponiveis);
 
+// GET /api/produtos/cantina/:cantina_id - Listar por cantina
+router.get("/cantina/:cantina_id", ProdutoController.obterPorCantina);
+
 // GET /api/produtos/:id - Buscar por ID
 router.get("/:id", ProdutoController.obterPorId);
 

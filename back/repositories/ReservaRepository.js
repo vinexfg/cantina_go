@@ -1,0 +1,92 @@
+import pool from '../db.js';
+
+class ReservaRepository {
+  static async findAll() {
+    const { rows } = await pool.query('SELECT * FROM reservas ORDER BY created_at DESC');
+    return rows;
+  }
+
+  static async findById(id) {
+    const { rows } = await pool.query('SELECT * FROM reservas WHERE id = $1', [id]);
+    return rows[0] || null;
+  }
+
+  static async findItensByReserva(reserva_id) {
+    const { rows } = await pool.query(
+      'SELECT * FROM reserva_itens WHERE reserva_id = $1',
+      [reserva_id]
+    );
+    return rows;
+  }
+
+  static async findByCantina(cantina_id) {
+    const { rows } = await pool.query(
+      'SELECT * FROM reservas WHERE cantina_id = $1 ORDER BY created_at DESC',
+      [cantina_id]
+    );
+    return rows;
+  }
+
+  static async findByUsuario(usuario_id) {
+    const { rows } = await pool.query(
+      'SELECT * FROM reservas WHERE usuario_id = $1 ORDER BY created_at DESC',
+      [usuario_id]
+    );
+    return rows;
+  }
+
+  static async createComItens(reservaData, itensData) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const { rows: [reserva] } = await client.query(
+        'INSERT INTO reservas (id, cantina_id, usuario_id, status) VALUES ($1, $2, $3, $4) RETURNING *',
+        [reservaData.id, reservaData.cantina_id, reservaData.usuario_id, reservaData.status]
+      );
+
+      const itens = [];
+      for (const item of itensData) {
+        const { rows: [novoItem] } = await client.query(
+          'INSERT INTO reserva_itens (id, reserva_id, produto_id, quantidade) VALUES ($1, $2, $3, $4) RETURNING *',
+          [item.id, reserva.id, item.produto_id, item.quantidade]
+        );
+        itens.push(novoItem);
+      }
+
+      await client.query('COMMIT');
+      return { reserva, itens };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async updateStatus(id, status) {
+    const { rowCount } = await pool.query(
+      'UPDATE reservas SET status = $1 WHERE id = $2',
+      [status, id]
+    );
+    return rowCount > 0;
+  }
+
+  static async delete(id) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM reserva_itens WHERE reserva_id = $1', [id]);
+      const { rowCount } = await client.query('DELETE FROM reservas WHERE id = $1', [id]);
+      await client.query('COMMIT');
+      return rowCount > 0;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+}
+
+export default ReservaRepository;

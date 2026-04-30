@@ -56,6 +56,10 @@ class WelcomePage {
   getHeader() {
     return `
       <div class="header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 64 64" style="margin-bottom:10px;">
+          <circle cx="32" cy="32" r="32" fill="#2563eb"/>
+          <text x="32" y="45" font-size="32" text-anchor="middle" fill="white">🍽️</text>
+        </svg>
         <h1>🚀 API Cantina GO</h1>
         <p>API REST completa para gerenciamento de cantinas</p>
         <div class="status">✅ Servidor Ativo</div>

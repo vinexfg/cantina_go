@@ -1,8 +1,14 @@
-class ConflictException extends Error {
+import AppException from './AppException.js';
+import Result from '../valueObjects/Result.js';
+
+class ConflictException extends AppException {
   constructor(message) {
     super(message);
     this.name = 'ConflictException';
-    this.statusCode = 409;
+  }
+
+  toResult() {
+    return Result.conflict(this.message);
   }
 }
 

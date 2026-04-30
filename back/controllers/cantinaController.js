@@ -1,7 +1,6 @@
 import CantinaService from '../services/CantinaService.js';
 import Result from '../valueObjects/Result.js';
-import ValidationException from '../exceptions/ValidationException.js';
-import NotFoundException from '../exceptions/NotFoundException.js';
+import AppException from '../exceptions/AppException.js';
 
 class CantinaController {
   static async obterTodos(req, res) {
@@ -63,13 +62,10 @@ class CantinaController {
   }
 
   static tratarErro(erro, res) {
-    if (erro instanceof ValidationException) {
-      Result.badRequest(erro.message).send(res);
-    } else if (erro instanceof NotFoundException) {
-      Result.notFound(erro.message).send(res);
-    } else {
-      Result.internalError(erro.message).send(res);
+    if (erro instanceof AppException) {
+      return erro.toResult().send(res);
     }
+    return Result.internalError(erro.message).send(res);
   }
 }
 

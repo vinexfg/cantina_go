@@ -4,10 +4,10 @@ class Id {
   constructor(value) {
     if (!value) {
       this.value = crypto.randomUUID();
-    } else {
-      this.validate(value);
-      this.value = value;
+      return;
     }
+    this.validate(value);
+    this.value = value;
   }
 
   validate(value) {

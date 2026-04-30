@@ -28,46 +28,44 @@ class Preco {
 }
 
 class Produto {
-  constructor(id, nome, descricao, preco, status = 'disponivel') {
+  constructor(id, cantina_id, nome, descricao, preco, disponivel = true) {
     this.id = id instanceof Id ? id : new Id(id);
+    this.cantina_id = cantina_id;
     this.nome = nome;
     this.descricao = descricao;
     this.preco = preco instanceof Preco ? preco : new Preco(preco);
-    this.status = status;
+    this.disponivel = disponivel === true || disponivel === 'true' || disponivel === 1;
   }
 
   static fromRow(row) {
-    return new Produto(row.id, row.nome, row.descricao, row.preco, row.status);
+    return new Produto(row.id, row.cantina_id, row.nome, row.descricao, row.preco, row.disponivel);
   }
 
   static criar(dados) {
     Produto.validarDados(dados);
     return new Produto(
       dados.id || new Id(),
+      dados.cantina_id,
       dados.nome,
-      dados.descricao,
+      dados.descricao || null,
       dados.preco,
-      dados.status || 'disponivel'
+      dados.disponivel !== undefined ? dados.disponivel : true
     );
   }
 
   static validarDados(dados) {
     const erros = {};
 
+    if (!dados.cantina_id) {
+      erros.cantina_id = 'cantina_id é obrigatório';
+    }
+
     if (!dados.nome || dados.nome.trim() === '') {
       erros.nome = 'Nome do produto é obrigatório';
     }
 
-    if (!dados.descricao || dados.descricao.trim() === '') {
-      erros.descricao = 'Descrição é obrigatória';
-    }
-
     if (isNaN(parseFloat(dados.preco)) || parseFloat(dados.preco) < 0) {
       erros.preco = 'Preço deve ser um número positivo';
-    }
-
-    if (dados.status && !['disponivel', 'indisponivel', 'descontinuado'].includes(dados.status)) {
-      erros.status = 'Status inválido';
     }
 
     if (Object.keys(erros).length > 0) {
@@ -76,24 +74,17 @@ class Produto {
   }
 
   estaDisponivel() {
-    return this.status === 'disponivel';
-  }
-
-  marcarIndisponivel() {
-    this.status = 'indisponivel';
-  }
-
-  marcarDescontinuado() {
-    this.status = 'descontinuado';
+    return this.disponivel === true;
   }
 
   toJSON() {
     return {
       id: this.id.toString(),
+      cantina_id: this.cantina_id,
       nome: this.nome,
       descricao: this.descricao,
       preco: this.preco.toJSON(),
-      status: this.status
+      disponivel: this.disponivel
     };
   }
 }
