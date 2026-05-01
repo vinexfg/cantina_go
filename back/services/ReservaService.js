@@ -22,12 +22,49 @@ class ReservaService {
 
   async obterPorCantina(cantina_id) {
     const reservas = await ReservaRepository.findByCantina(cantina_id);
-    return reservas.map(row => Reserva.fromRow(row).toJSON());
+    return Promise.all(
+      reservas.map(async (row) => {
+        const itensRows = await ReservaRepository.findItensByReserva(row.id);
+        const itens = itensRows.map(item => ({
+          id: item.id,
+          produto_id: item.produto_id,
+          produto_nome: item.produto_nome,
+          quantidade: item.quantidade,
+          preco: parseFloat(item.produto_preco),
+        }));
+        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        return {
+          ...Reserva.fromRow(row).toJSON(),
+          usuario_nome: row.usuario_nome || null,
+          criado_em: row.created_at,
+          itens,
+          total,
+        };
+      })
+    );
   }
 
   async obterPorUsuario(usuario_id) {
     const reservas = await ReservaRepository.findByUsuario(usuario_id);
-    return reservas.map(row => Reserva.fromRow(row).toJSON());
+    return Promise.all(
+      reservas.map(async (row) => {
+        const itensRows = await ReservaRepository.findItensByReserva(row.id);
+        const itens = itensRows.map(item => ({
+          id: item.id,
+          produto_id: item.produto_id,
+          produto_nome: item.produto_nome,
+          quantidade: item.quantidade,
+          preco: parseFloat(item.produto_preco),
+        }));
+        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        return {
+          ...Reserva.fromRow(row).toJSON(),
+          criado_em: row.created_at,
+          itens,
+          total,
+        };
+      })
+    );
   }
 
   async criar(dados) {

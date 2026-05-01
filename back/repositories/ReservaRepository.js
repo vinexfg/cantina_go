@@ -13,7 +13,10 @@ class ReservaRepository {
 
   static async findItensByReserva(reserva_id) {
     const { rows } = await pool.query(
-      'SELECT * FROM reserva_itens WHERE reserva_id = $1',
+      `SELECT ri.*, p.nome AS produto_nome, p.preco AS produto_preco
+       FROM reserva_itens ri
+       JOIN produtos p ON ri.produto_id = p.id
+       WHERE ri.reserva_id = $1`,
       [reserva_id]
     );
     return rows;
@@ -21,7 +24,11 @@ class ReservaRepository {
 
   static async findByCantina(cantina_id) {
     const { rows } = await pool.query(
-      'SELECT * FROM reservas WHERE cantina_id = $1 ORDER BY created_at DESC',
+      `SELECT r.*, u.nome AS usuario_nome
+       FROM reservas r
+       LEFT JOIN usuarios u ON r.usuario_id = u.id
+       WHERE r.cantina_id = $1
+       ORDER BY r.created_at DESC`,
       [cantina_id]
     );
     return rows;

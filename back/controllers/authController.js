@@ -41,6 +41,16 @@ class AuthController {
     }
   }
 
+  static async googleLogin(req, res) {
+    try {
+      const { idToken } = req.body;
+      const resultado = await AuthService.googleLogin(idToken);
+      Result.ok(resultado, 'Login com Google realizado com sucesso').send(res);
+    } catch (erro) {
+      AuthController.tratarErro(erro, res);
+    }
+  }
+
   static tratarErro(erro, res) {
     if (erro instanceof AppException) {
       return erro.toResult().send(res);

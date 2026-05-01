@@ -14,4 +14,7 @@ router.post('/login/usuario', AuthController.loginUsuario);
 // POST /api/auth/login/cantina
 router.post('/login/cantina', AuthController.loginCantina);
 
+// POST /api/auth/google
+router.post('/google', AuthController.googleLogin);
+
 export default router;
