@@ -62,6 +62,25 @@ class ReservaController {
     }
   }
 
+  static async historico(req, res) {
+    try {
+      const { cantina_id } = req.params;
+      const reservas = await ReservaService.obterHistorico(cantina_id);
+      Result.ok(reservas).send(res);
+    } catch (erro) {
+      ReservaController.tratarErro(erro, res);
+    }
+  }
+
+  static async limparAntigas(req, res) {
+    try {
+      const resultado = await ReservaService.limparAntigas();
+      Result.ok(resultado, 'Reservas antigas removidas').send(res);
+    } catch (erro) {
+      ReservaController.tratarErro(erro, res);
+    }
+  }
+
   static async remover(req, res) {
     try {
       const { id } = req.params;

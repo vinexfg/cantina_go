@@ -11,6 +11,12 @@ router.get('/cantina/:cantina_id', ReservaController.obterPorCantina);
 // GET /api/reservas/usuario/:usuario_id - Listar por usuário
 router.get('/usuario/:usuario_id', ReservaController.obterPorUsuario);
 
+// GET /api/reservas/cantina/:cantina_id/historico - Historico da semana
+router.get('/cantina/:cantina_id/historico', ReservaController.historico);
+
+// DELETE /api/reservas/limpeza - Remover concluidas com mais de 7 dias
+router.delete('/limpeza', ReservaController.limparAntigas);
+
 // GET /api/reservas/:id - Buscar por ID (com itens)
 router.get('/:id', ReservaController.obterPorId);
 

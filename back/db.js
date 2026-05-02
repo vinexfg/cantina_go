@@ -18,4 +18,22 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'cantina'
 });
 
+async function migrate() {
+  await pool.query(`ALTER TABLE IF EXISTS produtos ADD COLUMN IF NOT EXISTS arquivado BOOLEAN DEFAULT FALSE`);
+  await pool.query(`ALTER TABLE IF EXISTS reserva_itens ADD COLUMN IF NOT EXISTS nome_produto TEXT`);
+  await pool.query(`ALTER TABLE IF EXISTS reserva_itens ADD COLUMN IF NOT EXISTS preco_unitario NUMERIC(10,2)`);
+
+  // Backfill: preenche nome e preço nos itens antigos que ainda têm o produto no banco
+  await pool.query(`
+    UPDATE reserva_itens ri
+    SET nome_produto = p.nome,
+        preco_unitario = p.preco
+    FROM produtos p
+    WHERE ri.produto_id = p.id
+      AND ri.nome_produto IS NULL
+  `);
+}
+
+migrate().catch((err) => console.error('Erro na migração do banco:', err));
+
 export default pool;

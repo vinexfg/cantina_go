@@ -47,7 +47,8 @@ class ProdutoService {
       nome: produto.nome,
       descricao: produto.descricao,
       preco: produto.preco.toJSON(),
-      disponivel: produto.disponivel
+      disponivel: produto.disponivel,
+      quantidade_limite: produto.quantidade_limite
     });
 
     return { success: true };

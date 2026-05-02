@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import LoginPage from './pages/LoginPage';
 import { MenuPage } from './pages/MenuPage';
 import PerfilPage from './pages/PerfilPage';
 import MinhasReservasPage from './pages/MinhasReservasPage';
 import VendedorPage from './pages/VendedorPage';
 import { ReservasPage } from './pages/ReservasPage';
+import { HistoricoPage } from './pages/HistoricoPage';
 
 function RotaAluno({ children }) {
   const tipo = localStorage.getItem('tipo');
@@ -22,17 +24,20 @@ function RotaVendedor({ children }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
-        <Route path="/perfil" element={<RotaAluno><PerfilPage /></RotaAluno>} />
-        <Route path="/meus-pedidos" element={<RotaAluno><MinhasReservasPage /></RotaAluno>} />
-        <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
-        <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
+          <Route path="/perfil" element={<RotaAluno><PerfilPage /></RotaAluno>} />
+          <Route path="/meus-pedidos" element={<RotaAluno><MinhasReservasPage /></RotaAluno>} />
+          <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
+          <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
+          <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -1,0 +1,99 @@
+:root, [data-theme="light"] {
+  --bg-primary: #fffaf5;
+  --bg-card: #ffffff;
+  --bg-input: #fffcf9;
+  --bg-inactive: #f8fafc;
+  --bg-tab: #f1f5f9;
+  --bg-hover: #fffcf9;
+  --bg-nav: #ffffff;
+  --bg-avatar: #fff7ed;
+  --bg-logout: #fff1f2;
+  --bg-time-badge: #f1f5f9;
+  --bg-drawer: #ffffff;
+
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --text-content: #475569;
+  --text-item: #334155;
+  --text-total: #1e293b;
+  --text-time: #475569;
+
+  --title: #7c2d12;
+  --subtitle: #c2410c;
+
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+  --accent-light: #ffedd5;
+  --accent-border: #fed7aa;
+
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-nav: #ffedd5;
+
+  --login-from: #fff7ed;
+  --login-to: #ffedd5;
+
+  --shadow: rgba(0, 0, 0, 0.05);
+  --shadow-brown: rgba(124, 45, 18, 0.05);
+  --shadow-nav: rgba(124, 45, 18, 0.04);
+  --shadow-card: rgba(0, 0, 0, 0.04);
+
+  --btn-cancel-border: #f87171;
+  --btn-cancel-color: #dc2626;
+  --btn-cancel-hover: #fee2e2;
+  --logout-color: #e11d48;
+  --logout-border: #fee2e2;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #180900;
+  --bg-card: #2a1200;
+  --bg-input: #1f0e00;
+  --bg-inactive: #1f0e00;
+  --bg-tab: #2a1200;
+  --bg-hover: #2a1200;
+  --bg-nav: #110600;
+  --bg-avatar: #2a1200;
+  --bg-logout: #2a0d0d;
+  --bg-time-badge: #2a1200;
+  --bg-drawer: #1f0e00;
+
+  --text-primary: #f5e6d3;
+  --text-secondary: #b89060;
+  --text-muted: #7a5c3a;
+  --text-content: #c4a882;
+  --text-item: #d4b896;
+  --text-total: #f5e6d3;
+  --text-time: #b89060;
+
+  --title: #f97316;
+  --subtitle: #fb923c;
+
+  --accent: #f97316;
+  --accent-hover: #fb923c;
+  --accent-light: #2a1200;
+  --accent-border: #5a2800;
+
+  --border: #3a1800;
+  --border-light: #2a1200;
+  --border-nav: #3a1800;
+
+  --login-from: #180900;
+  --login-to: #2a1200;
+
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-brown: rgba(0, 0, 0, 0.2);
+  --shadow-nav: rgba(0, 0, 0, 0.3);
+  --shadow-card: rgba(0, 0, 0, 0.2);
+
+  --btn-cancel-border: #7f1d1d;
+  --btn-cancel-color: #f87171;
+  --btn-cancel-hover: #2a0d0d;
+  --logout-color: #f87171;
+  --logout-border: #2a0d0d;
+}
+
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
