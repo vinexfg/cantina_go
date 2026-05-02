@@ -37,4 +37,6 @@ export const api = {
   getReservasPorUsuario: (usuario_id) => request('GET', `/reservas/usuario/${usuario_id}`),
   atualizarStatusReserva: (id, status) => request('PATCH', `/reservas/${id}/status`, { status }),
   removerReserva: (id) => request('DELETE', `/reservas/${id}`),
+  getHistorico: (cantina_id) => request('GET', `/reservas/cantina/${cantina_id}/historico`),
+  limparReservasAntigas: () => request('DELETE', '/reservas/limpeza'),
 };

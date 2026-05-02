@@ -28,17 +28,18 @@ class Preco {
 }
 
 class Produto {
-  constructor(id, cantina_id, nome, descricao, preco, disponivel = true) {
+  constructor(id, cantina_id, nome, descricao, preco, disponivel = true, quantidade_limite = null) {
     this.id = id instanceof Id ? id : new Id(id);
     this.cantina_id = cantina_id;
     this.nome = nome;
     this.descricao = descricao;
     this.preco = preco instanceof Preco ? preco : new Preco(preco);
     this.disponivel = disponivel === true || disponivel === 'true' || disponivel === 1;
+    this.quantidade_limite = quantidade_limite ? parseInt(quantidade_limite) : null;
   }
 
   static fromRow(row) {
-    return new Produto(row.id, row.cantina_id, row.nome, row.descricao, row.preco, row.disponivel);
+    return new Produto(row.id, row.cantina_id, row.nome, row.descricao, row.preco, row.disponivel, row.quantidade_limite);
   }
 
   static criar(dados) {
@@ -49,7 +50,8 @@ class Produto {
       dados.nome,
       dados.descricao || null,
       dados.preco,
-      dados.disponivel !== undefined ? dados.disponivel : true
+      dados.disponivel !== undefined ? dados.disponivel : true,
+      dados.quantidade_limite || null
     );
   }
 
@@ -84,7 +86,8 @@ class Produto {
       nome: this.nome,
       descricao: this.descricao,
       preco: this.preco.toJSON(),
-      disponivel: this.disponivel
+      disponivel: this.disponivel,
+      quantidade_limite: this.quantidade_limite
     };
   }
 }

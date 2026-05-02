@@ -10,6 +10,7 @@ export default function Navegacao() {
     ? [
         { path: '/vendedor', icon: '🍽️', label: 'Gestão' },
         { path: '/reservas', icon: '📋', label: 'Reservas' },
+        { path: '/historico', icon: '📦', label: 'Histórico' },
       ]
     : [
         { path: '/menu', icon: '🍴', label: 'Menu' },

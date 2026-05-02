@@ -1,4 +1,5 @@
 import ReservaRepository from '../repositories/ReservaRepository.js';
+import ProdutoRepository from '../repositories/ProdutoRepository.js';
 import Reserva, { STATUS_VALIDOS } from '../valueObjects/Reserva.js';
 import ReservaItem from '../valueObjects/ReservaItem.js';
 import Id from '../valueObjects/Id.js';
@@ -81,10 +82,15 @@ class ReservaService {
       status: reserva.status
     };
 
-    const itensData = itensVO.map(item => ({
-      id: item.id.toString(),
-      produto_id: item.produto_id,
-      quantidade: item.quantidade
+    const itensData = await Promise.all(itensVO.map(async (item) => {
+      const produto = await ProdutoRepository.findById(item.produto_id);
+      return {
+        id: item.id.toString(),
+        produto_id: item.produto_id,
+        quantidade: item.quantidade,
+        nome_produto: produto?.nome ?? null,
+        preco_unitario: produto?.preco ?? null,
+      };
     }));
 
     const { reserva: criada, itens } = await ReservaRepository.createComItens(reservaData, itensData);
@@ -101,6 +107,37 @@ class ReservaService {
 
     await ReservaRepository.updateStatus(id, status);
     return { success: true };
+  }
+
+  async obterHistorico(cantina_id) {
+    const reservas = await ReservaRepository.findConcluidasByCantina(cantina_id);
+    return Promise.all(
+      reservas.map(async (row) => {
+        const itensRows = await ReservaRepository.findItensByReserva(row.id);
+        const itens = itensRows.map(item => ({
+          id: item.id,
+          produto_id: item.produto_id,
+          produto_nome: item.produto_nome,
+          quantidade: item.quantidade,
+          preco: parseFloat(item.produto_preco),
+        }));
+        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        return {
+          ...ReservaRepository.findById && {},
+          id: row.id,
+          status: row.status,
+          usuario_nome: row.usuario_nome || null,
+          criado_em: row.created_at,
+          itens,
+          total,
+        };
+      })
+    );
+  }
+
+  async limparAntigas() {
+    const removidas = await ReservaRepository.deleteAntigas();
+    return { removidas };
   }
 
   async remover(id) {

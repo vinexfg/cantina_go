@@ -26,6 +26,12 @@
   margin: 0;
 }
 
+.header p {
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+}
+
 .statsRow {
   display: flex;
   gap: 12px;
@@ -56,7 +62,6 @@
   font-weight: 600;
 }
 
-
 .reservationCard {
   background: white;
   border-radius: 16px;
@@ -64,15 +69,14 @@
   border: 1px solid #e2e8f0;
   margin-bottom: 16px;
   box-shadow: 0 2px 4px rgba(124, 45, 18, 0.05);
+  opacity: 0.85;
 }
 
 .resHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px dashed #e2e8f0;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .userName {
@@ -81,26 +85,37 @@
   font-size: 1.1rem;
 }
 
+.badge {
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
 .resTime {
-  font-size: 0.85rem;
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #475569;
-  font-weight: 600;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 10px;
 }
 
 .resContent {
   color: #475569;
   font-size: 0.95rem;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   line-height: 1.5;
+}
+
+.resContent p {
+  margin: 2px 0;
 }
 
 .resFooter {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
 }
 
 .resTotal {
@@ -108,40 +123,8 @@
   color: #1e293b;
 }
 
-.acoes {
-  display: flex;
-  gap: 8px;
+.vazio {
+  color: #64748b;
+  text-align: center;
+  margin-top: 40px;
 }
-
-.btnCancel {
-  background: none;
-  border: 1px solid #f87171;
-  color: #dc2626;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btnCancel:hover {
-  background: #fee2e2;
-}
-
-.btnDeliver {
-  background-color: #10b981; 
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.btnDeliver:hover {
-  opacity: 0.9;
-}
-
