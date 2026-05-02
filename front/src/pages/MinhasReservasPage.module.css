@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background-color: #fffaf5;
+  background-color: var(--bg-primary);
   padding: 40px 20px 100px 20px;
   font-family: system-ui, sans-serif;
   display: flex;
@@ -8,72 +8,35 @@
   align-items: center;
 }
 
-.contentWrapper {
-  width: 100%;
-  max-width: 600px;
-}
+.contentWrapper { width: 100%; max-width: 600px; }
 
 .header {
   text-align: left;
   margin-bottom: 28px;
-  border-bottom: 2px solid #ffedd5;
+  border-bottom: 2px solid var(--accent-light);
   padding-bottom: 16px;
 }
 
-.header h1 {
-  color: #7c2d12;
-  margin: 0;
-  font-size: 1.8rem;
-}
+.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; }
+.header p   { color: var(--subtitle); margin: 4px 0 0 0; }
 
-.header p {
-  color: #c2410c;
-  margin: 4px 0 0 0;
-}
+.info  { color: var(--text-secondary); text-align: center; padding: 40px 0; }
 
-.info {
-  color: #64748b;
-  text-align: center;
-  padding: 40px 0;
-}
+.vazio { text-align: center; padding: 60px 0; color: var(--text-muted); }
+.vazio span { font-size: 3rem; display: block; margin-bottom: 12px; }
+.vazio p    { font-size: 1rem; margin: 0; }
 
-.vazio {
-  text-align: center;
-  padding: 60px 0;
-  color: #94a3b8;
-}
-
-.vazio span {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.vazio p {
-  font-size: 1rem;
-  margin: 0;
-}
-
-.lista {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.lista { display: flex; flex-direction: column; gap: 14px; }
 
 .card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 18px 20px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px var(--shadow-card);
 }
 
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
+.cardHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 
 .status {
   font-size: 0.75rem;
@@ -89,10 +52,7 @@
 .statusConcluida  { background: #dcfce7; color: #15803d; }
 .statusCancelada  { background: #fee2e2; color: #b91c1c; }
 
-.data {
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
+.data { font-size: 0.8rem; color: var(--text-muted); }
 
 .itensList {
   display: flex;
@@ -100,42 +60,21 @@
   gap: 6px;
   margin-bottom: 14px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
 }
 
-.itemRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #334155;
-}
+.itemRow { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-item); }
+.itemPreco { color: var(--accent); font-weight: 600; }
 
-.itemPreco {
-  color: #f97316;
-  font-weight: 600;
-}
+.cardFooter { display: flex; justify-content: space-between; align-items: center; }
 
-.cardFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.total {
-  font-size: 0.95rem;
-  color: #475569;
-}
-
-.total strong {
-  color: #1e293b;
-  font-size: 1.05rem;
-}
+.total { font-size: 0.95rem; color: var(--text-content); }
+.total strong { color: var(--text-total); font-size: 1.05rem; }
 
 .btnCancelar {
   background: none;
-  border: 1px solid #f87171;
-  color: #dc2626;
+  border: 1px solid var(--btn-cancel-border);
+  color: var(--btn-cancel-color);
   border-radius: 8px;
   padding: 6px 14px;
   font-size: 0.85rem;
@@ -144,6 +83,4 @@
   transition: background 0.15s;
 }
 
-.btnCancelar:hover {
-  background: #fee2e2;
-}
+.btnCancelar:hover { background: var(--btn-cancel-hover); }

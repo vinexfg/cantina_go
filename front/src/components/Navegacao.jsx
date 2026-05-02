@@ -1,10 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import styles from './Navegacao.module.css';
 
 export default function Navegacao() {
   const location = useLocation();
   const navigate = useNavigate();
   const tipo = localStorage.getItem('tipo');
+  const { theme, toggle } = useTheme();
 
   const itens = tipo === 'cantina'
     ? [
@@ -31,6 +33,10 @@ export default function Navegacao() {
           <span className={styles.navText}>{item.label}</span>
         </div>
       ))}
+      <button className={styles.themeToggle} onClick={toggle} title="Alternar tema">
+        <span className={styles.navIcon}>{theme === 'light' ? '🌙' : '☀️'}</span>
+        <span className={styles.navText}>{theme === 'light' ? 'Escuro' : 'Claro'}</span>
+      </button>
     </nav>
   );
 }

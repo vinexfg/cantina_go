@@ -1,7 +1,7 @@
 .container {
   min-height: 100vh;
-  background-color: #fffaf5; /* Creme suave do cardápio */
-  padding: 40px 20px 80px 20px; /* Padding inferior para não cobrir o nav */
+  background-color: var(--bg-primary);
+  padding: 40px 20px 80px 20px;
   font-family: system-ui, sans-serif;
   display: flex;
   flex-direction: column;
@@ -9,96 +9,64 @@
   position: relative;
 }
 
-.contentWrapper {
-  width: 100%;
-  max-width: 600px;
-}
+.contentWrapper { width: 100%; max-width: 600px; }
 
 .header {
   text-align: left;
   margin-bottom: 32px;
-  border-bottom: 2px solid #ffedd5;
+  border-bottom: 2px solid var(--accent-light);
   padding-bottom: 16px;
 }
 
-.header h1 {
-  color: #7c2d12; /* Marrom escuro */
-  margin: 0;
-  font-size: 1.8rem;
-}
+.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; }
 
-/* --- Seção do Usuário --- */
 .userInfo {
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   margin-bottom: 24px;
 }
 
 .avatar {
   font-size: 40px;
-  background-color: #fff7ed;
-  width: 80px;
-  height: 80px;
+  background-color: var(--bg-avatar);
+  width: 80px; height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  border: 2px solid #fed7aa;
+  border: 2px solid var(--accent-border);
   margin-bottom: 16px;
 }
 
-.userInfo h2 {
-  margin: 0;
-  color: #1e293b;
-  font-size: 1.3rem;
-}
+.userInfo h2 { margin: 0; color: var(--text-primary); font-size: 1.3rem; }
+.userInfo p  { margin: 4px 0 0 0; color: var(--text-secondary); font-size: 0.9rem; }
 
-.userInfo p {
-  margin: 4px 0 0 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-/* --- Lista de Opções --- */
-.optionsList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.optionsList { display: flex; flex-direction: column; gap: 12px; }
 
 .optionButton {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 18px 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   cursor: pointer;
-  transition: transform 0.1s, background-color 0.2s;
+  transition: background-color 0.2s;
 }
 
-.optionButton:hover {
-  background-color: #fffcf9;
-}
-
-.optionButton span {
-  color: #475569;
-  font-weight: 500;
-}
+.optionButton:hover { background-color: var(--bg-hover); }
+.optionButton span  { color: var(--text-content); font-weight: 500; }
 
 .logout {
   margin-top: 12px;
-  border: 1px solid #fee2e2;
-  background-color: #fff1f2;
+  border: 1px solid var(--logout-border);
+  background-color: var(--bg-logout);
 }
 
-.logout span {
-  color: #e11d48; /* Vermelho para destaque de saída */
-  font-weight: 600;
-}
+.logout span { color: var(--logout-color); font-weight: 600; }

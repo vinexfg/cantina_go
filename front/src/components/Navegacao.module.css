@@ -1,16 +1,15 @@
-
 .bottomNav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 65px;
-  background-color: #ffffff;
+  background-color: var(--bg-nav);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid #ffedd5;
-  box-shadow: 0 -4px 10px rgba(124, 45, 18, 0.04);
+  border-top: 1px solid var(--border-nav);
+  box-shadow: 0 -4px 10px var(--shadow-nav);
   z-index: 1000;
 }
 
@@ -20,7 +19,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  color: #94a3b8; /* Cor cinza desativada */
+  color: var(--text-muted);
   padding: 8px 0;
 }
 
@@ -35,12 +34,29 @@
   letter-spacing: 0.3px;
 }
 
-
 .active {
-  color: #f97316; 
+  color: var(--accent);
 }
 
+.themeToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+  padding: 8px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.themeToggle:hover {
+  color: var(--accent);
+}
 
 :global(body) {
   padding-bottom: 65px;
+  background-color: var(--bg-primary);
 }

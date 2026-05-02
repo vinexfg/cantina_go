@@ -1,6 +1,6 @@
 .container {
   min-height: 100vh;
-  background-color: #fffaf5;
+  background-color: var(--bg-primary);
   padding: 40px 20px 100px 20px;
   font-family: system-ui, sans-serif;
   display: flex;
@@ -8,115 +8,73 @@
   align-items: center;
 }
 
-.contentWrapper {
-  width: 100%;
-  max-width: 600px;
-}
+.contentWrapper { width: 100%; max-width: 600px; }
 
 .header {
   text-align: left;
   margin-bottom: 24px;
-  border-bottom: 2px solid #ffedd5;
+  border-bottom: 2px solid var(--accent-light);
   padding-bottom: 16px;
 }
 
-.header h1 {
-  color: #7c2d12;
-  font-size: 1.8rem;
-  margin: 0;
-}
+.header h1 { color: var(--title); font-size: 1.8rem; margin: 0; }
 
-.statsRow {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-}
+.statsRow { display: flex; gap: 12px; margin-bottom: 24px; }
 
 .statCard {
   flex: 1;
-  background: white;
+  background: var(--bg-card);
   padding: 16px;
   border-radius: 12px;
-  border: 1px solid #fed7aa;
+  border: 1px solid var(--accent-border);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.statValue {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #f97316;
-}
-
-.statLabel {
-  font-size: 0.75rem;
-  color: #64748b;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
+.statValue { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+.statLabel  { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
 
 .reservationCard {
-  background: white;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(124, 45, 18, 0.05);
+  box-shadow: 0 2px 4px var(--shadow-brown);
 }
 
 .resHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px dashed #e2e8f0;
+  border-bottom: 1px dashed var(--border);
   padding-bottom: 10px;
   margin-bottom: 12px;
 }
 
-.userName {
-  font-weight: 700;
-  color: #1e293b;
-  font-size: 1.1rem;
-}
+.userName { font-weight: 700; color: var(--text-primary); font-size: 1.1rem; }
 
 .resTime {
   font-size: 0.85rem;
-  background: #f1f5f9;
+  background: var(--bg-time-badge);
   padding: 4px 8px;
   border-radius: 6px;
-  color: #475569;
+  color: var(--text-time);
   font-weight: 600;
 }
 
-.resContent {
-  color: #475569;
-  font-size: 0.95rem;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
+.resContent { color: var(--text-content); font-size: 0.95rem; margin-bottom: 16px; line-height: 1.5; }
 
-.resFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+.resFooter { display: flex; justify-content: space-between; align-items: center; }
+.resTotal   { font-weight: 700; color: var(--text-total); }
 
-.resTotal {
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.acoes {
-  display: flex;
-  gap: 8px;
-}
+.acoes { display: flex; gap: 8px; }
 
 .btnCancel {
   background: none;
-  border: 1px solid #f87171;
-  color: #dc2626;
+  border: 1px solid var(--btn-cancel-border);
+  color: var(--btn-cancel-color);
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -125,12 +83,10 @@
   transition: background 0.15s;
 }
 
-.btnCancel:hover {
-  background: #fee2e2;
-}
+.btnCancel:hover { background: var(--btn-cancel-hover); }
 
 .btnDeliver {
-  background-color: #10b981; 
+  background-color: #10b981;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -141,7 +97,4 @@
   transition: opacity 0.2s;
 }
 
-.btnDeliver:hover {
-  opacity: 0.9;
-}
-
+.btnDeliver:hover { opacity: 0.9; }
