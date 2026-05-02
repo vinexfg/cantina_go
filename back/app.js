@@ -3,6 +3,7 @@ import cors from 'cors';
 import AppConfig from './config/AppConfig.js';
 import LoggerMiddleware from './middleware/LoggerMiddleware.js';
 import AuthMiddleware from './middleware/AuthMiddleware.js';
+import ErrorMiddleware from './middleware/ErrorMiddleware.js';
 import WelcomePage from './views/WelcomePage.js';
 import authRoutes from './routes/authRoutes.js';
 import produtoRoutes from './routes/produtoRoutes.js';
@@ -30,6 +31,9 @@ app.use('/api/produtos', produtoRoutes);
 app.use('/api/usuarios', AuthMiddleware.verificar, usuarioRoutes);
 app.use('/api/cantinas', AuthMiddleware.verificar, cantinaRoutes);
 app.use('/api/reservas', AuthMiddleware.verificar, reservaRoutes);
+
+// Tratamento centralizado de erros (deve ser o último middleware)
+app.use(ErrorMiddleware.handle);
 
 const serverInfo = config.getServerInfo();
 app.listen(serverInfo.port, serverInfo.host, () => {

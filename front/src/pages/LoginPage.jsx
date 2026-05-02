@@ -5,7 +5,6 @@ import { api } from '../api';
 import styles from './LoginPage.module.css';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
 export default function LoginPage() {
   const [isAluno, setIsAluno] = useState(true);
   const [modo, setModo] = useState('login'); // 'login' | 'cadastro'

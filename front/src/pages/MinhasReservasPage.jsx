@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useToast } from '../context/ToastContext';
 import styles from './MinhasReservasPage.module.css';
 
 const STATUS_LABEL = {
@@ -10,17 +11,49 @@ const STATUS_LABEL = {
   cancelada:  { label: 'Cancelada',  cor: styles.statusCancelada },
 };
 
+const POLLING_INTERVAL = 30_000;
+
 export default function MinhasReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const { addToast } = useToast();
+  const statusAnterior = useRef({});
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  function detectarMudancas(novas) {
+    novas.forEach(r => {
+      const statusAnt = statusAnterior.current[r.id];
+      if (statusAnt && statusAnt !== r.status) {
+        const label = STATUS_LABEL[r.status]?.label || r.status;
+        const tipo = r.status === 'confirmada' || r.status === 'concluida' ? 'success' : 'info';
+        addToast(`Pedido atualizado para: ${label}`, tipo);
+      }
+      statusAnterior.current[r.id] = r.status;
+    });
+  }
+
   useEffect(() => {
     api.getReservasPorUsuario(user.id)
-      .then((data) => setReservas(data || []))
-      .catch(() => setReservas([]))
+      .then((data) => {
+        const lista = data || [];
+        lista.forEach(r => { statusAnterior.current[r.id] = r.status; });
+        setReservas(lista);
+      })
+      .catch(() => addToast('Erro ao carregar pedidos.', 'error'))
       .finally(() => setCarregando(false));
+
+    const intervalo = setInterval(() => {
+      api.getReservasPorUsuario(user.id)
+        .then((data) => {
+          const lista = data || [];
+          detectarMudancas(lista);
+          setReservas(lista);
+        })
+        .catch(() => {});
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(intervalo);
   }, []);
 
   async function cancelar(id) {
@@ -28,8 +61,9 @@ export default function MinhasReservasPage() {
     try {
       await api.removerReserva(id);
       setReservas((prev) => prev.filter((r) => r.id !== id));
+      addToast('Reserva cancelada.', 'info');
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   }
 
