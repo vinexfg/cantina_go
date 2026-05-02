@@ -1,0 +1,149 @@
+.container {
+  min-height: 100vh;
+  background-color: #fffaf5;
+  padding: 40px 20px 100px 20px;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 600px;
+}
+
+.header {
+  text-align: left;
+  margin-bottom: 28px;
+  border-bottom: 2px solid #ffedd5;
+  padding-bottom: 16px;
+}
+
+.header h1 {
+  color: #7c2d12;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.header p {
+  color: #c2410c;
+  margin: 4px 0 0 0;
+}
+
+.info {
+  color: #64748b;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.vazio {
+  text-align: center;
+  padding: 60px 0;
+  color: #94a3b8;
+}
+
+.vazio span {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.vazio p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  background: white;
+  border-radius: 14px;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusPendente   { background: #fef9c3; color: #a16207; }
+.statusConfirmada { background: #dbeafe; color: #1d4ed8; }
+.statusConcluida  { background: #dcfce7; color: #15803d; }
+.statusCancelada  { background: #fee2e2; color: #b91c1c; }
+
+.data {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.itensList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.itemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.itemPreco {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.total strong {
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+.btnCancelar {
+  background: none;
+  border: 1px solid #f87171;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnCancelar:hover {
+  background: #fee2e2;
+}
