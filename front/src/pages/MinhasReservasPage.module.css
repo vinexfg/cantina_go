@@ -8,43 +8,71 @@
   align-items: center;
 }
 
-.contentWrapper { width: 100%; max-width: 600px; }
-
-.header {
-  text-align: left;
-  margin-bottom: 28px;
-  border-bottom: 2px solid var(--accent-light);
-  padding-bottom: 16px;
+.contentWrapper {
+  width: 100%;
+  max-width: 600px;
+  animation: fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both;
 }
 
-.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; }
-.header p   { color: var(--subtitle); margin: 4px 0 0 0; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-.info  { color: var(--text-secondary); text-align: center; padding: 40px 0; }
+.header {
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
 
-.vazio { text-align: center; padding: 60px 0; color: var(--text-muted); }
-.vazio span { font-size: 3rem; display: block; margin-bottom: 12px; }
-.vazio p    { font-size: 1rem; margin: 0; }
+.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; font-weight: 800; }
+.header p   { color: var(--subtitle); margin: 5px 0 0 0; font-size: 0.9rem; }
 
-.lista { display: flex; flex-direction: column; gap: 14px; }
+.info { color: var(--text-secondary); text-align: center; padding: 40px 0; }
+
+.vazio {
+  text-align: center;
+  padding: 60px 0 40px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.vazioIcon { opacity: 0.35; }
+.vazio p   { font-size: 0.95rem; margin: 0; color: var(--text-secondary); }
+
+.lista { display: flex; flex-direction: column; gap: 12px; }
 
 .card {
   background: var(--bg-card);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 18px 20px;
   border: 1px solid var(--border);
-  box-shadow: 0 2px 6px var(--shadow-card);
+  box-shadow: 0 2px 12px var(--shadow-card);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.cardHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
 
 .status {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: 20px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .statusPendente   { background: #fef9c3; color: #a16207; }
@@ -52,7 +80,7 @@
 .statusConcluida  { background: #dcfce7; color: #15803d; }
 .statusCancelada  { background: #fee2e2; color: #b91c1c; }
 
-.data { font-size: 0.8rem; color: var(--text-muted); }
+.data { font-size: 0.78rem; color: var(--text-muted); }
 
 .itensList {
   display: flex;
@@ -63,21 +91,21 @@
   border-bottom: 1px solid var(--border-light);
 }
 
-.itemRow { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-item); }
+.itemRow { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: var(--text-item); }
 .itemPreco { color: var(--accent); font-weight: 600; }
 
 .cardFooter { display: flex; justify-content: space-between; align-items: center; }
 
-.total { font-size: 0.95rem; color: var(--text-content); }
-.total strong { color: var(--text-total); font-size: 1.05rem; }
+.total { font-size: 0.93rem; color: var(--text-content); }
+.total strong { color: var(--text-total); font-size: 1rem; font-weight: 700; }
 
 .btnCancelar {
   background: none;
   border: 1px solid var(--btn-cancel-border);
   color: var(--btn-cancel-color);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.85rem;
+  border-radius: 9px;
+  padding: 7px 15px;
+  font-size: 0.83rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -86,28 +114,10 @@
 .btnCancelar:hover { background: var(--btn-cancel-hover); }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 20px 12px 100px 12px;
-  }
-
+  .container { padding: 20px 12px 100px 12px; }
   .header h1 { font-size: 1.5rem; }
-
-  .card {
-    padding: 14px 14px;
-  }
-
-  .cardHeader {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .cardFooter {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .btnCancelar {
-    width: 100%;
-    text-align: center;
-  }
+  .card { padding: 14px; }
+  .cardHeader { flex-wrap: wrap; gap: 6px; }
+  .cardFooter { flex-wrap: wrap; gap: 8px; }
+  .btnCancelar { width: 100%; text-align: center; }
 }

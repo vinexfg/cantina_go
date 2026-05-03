@@ -79,7 +79,9 @@ export default function MinhasReservasPage() {
         {carregando && <p className={styles.info}>Carregando...</p>}
         {!carregando && reservas.length === 0 && (
           <div className={styles.vazio}>
-            <span>🍽️</span>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className={styles.vazioIcon}>
+              <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>
+            </svg>
             <p>Você ainda não fez nenhuma reserva.</p>
           </div>
         )}

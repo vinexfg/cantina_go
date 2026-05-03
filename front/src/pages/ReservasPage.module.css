@@ -8,40 +8,68 @@
   align-items: center;
 }
 
-.contentWrapper { width: 100%; max-width: 600px; }
-
-.header {
-  text-align: left;
-  margin-bottom: 24px;
-  border-bottom: 2px solid var(--accent-light);
-  padding-bottom: 16px;
+.contentWrapper {
+  width: 100%;
+  max-width: 600px;
+  animation: fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both;
 }
 
-.header h1 { color: var(--title); font-size: 1.8rem; margin: 0; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
+.header {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h1 { color: var(--title); font-size: 1.8rem; font-weight: 800; margin: 0; }
+.header p  { color: var(--subtitle); margin: 5px 0 0 0; font-size: 0.9rem; }
+
+/* ── Stats ── */
 .statsRow { display: flex; gap: 12px; margin-bottom: 24px; }
 
 .statCard {
   flex: 1;
   background: var(--bg-card);
-  padding: 16px;
-  border-radius: 12px;
+  padding: 18px 16px;
+  border-radius: 16px;
   border: 1px solid var(--accent-border);
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 2px 12px var(--shadow-card);
+  position: relative;
+  overflow: hidden;
 }
 
-.statValue { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
-.statLabel  { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; }
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+}
 
+.statValue { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
+.statLabel { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+
+/* ── Reservation cards ── */
 .reservationCard {
   background: var(--bg-card);
   border-radius: 16px;
   padding: 20px;
   border: 1px solid var(--border);
-  margin-bottom: 16px;
-  box-shadow: 0 2px 4px var(--shadow-brown);
+  margin-bottom: 14px;
+  box-shadow: 0 2px 12px var(--shadow-card);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.reservationCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow-card);
 }
 
 .resHeader {
@@ -49,25 +77,32 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px dashed var(--border);
-  padding-bottom: 10px;
-  margin-bottom: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-.userName { font-weight: 700; color: var(--text-primary); font-size: 1.1rem; }
+.userName { font-weight: 700; color: var(--text-primary); font-size: 1rem; }
 
 .resTime {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   background: var(--bg-time-badge);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
   color: var(--text-time);
   font-weight: 600;
 }
 
-.resContent { color: var(--text-content); font-size: 0.95rem; margin-bottom: 16px; line-height: 1.5; }
+.resContent {
+  color: var(--text-content);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.resContent p { margin: 2px 0; }
 
 .resFooter { display: flex; justify-content: space-between; align-items: center; }
-.resTotal   { font-weight: 700; color: var(--text-total); }
+.resTotal  { font-weight: 700; color: var(--text-total); font-size: 0.95rem; }
 
 .acoes { display: flex; gap: 8px; }
 
@@ -76,8 +111,8 @@
   border: 1px solid var(--btn-cancel-border);
   color: var(--btn-cancel-color);
   padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  border-radius: 9px;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -86,47 +121,29 @@
 .btnCancel:hover { background: var(--btn-cancel-hover); }
 
 .btnDeliver {
-  background-color: #10b981;
+  background: linear-gradient(135deg, #34d399, #10b981);
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+  transition: transform 0.14s, box-shadow 0.14s;
 }
 
-.btnDeliver:hover { opacity: 0.9; }
+.btnDeliver:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.4);
+}
 
 @media (max-width: 480px) {
-  .container {
-    padding: 20px 12px 100px 12px;
-  }
-
+  .container { padding: 20px 12px 100px 12px; }
   .header h1 { font-size: 1.5rem; }
-
-  .statsRow {
-    flex-wrap: wrap;
-  }
-
-  .statCard {
-    min-width: calc(50% - 6px);
-  }
-
-  .resHeader {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .resFooter {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .acoes {
-    width: 100%;
-    justify-content: flex-end;
-  }
+  .statsRow { flex-wrap: wrap; }
+  .statCard { min-width: calc(50% - 6px); }
+  .resHeader { flex-wrap: wrap; gap: 6px; }
+  .resFooter { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .acoes { width: 100%; justify-content: flex-end; }
 }

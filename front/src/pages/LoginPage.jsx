@@ -2,7 +2,24 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
+import { useTheme } from '../context/ThemeContext';
 import styles from './LoginPage.module.css';
+
+const IconSun = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+);
+
+const IconMoon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+  </svg>
+);
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 export default function LoginPage() {
@@ -13,6 +30,7 @@ export default function LoginPage() {
   const [nome, setNome] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
+  const [sucesso, setSucesso] = useState('');
   const [carregando, setCarregando] = useState(false);
 
   const [cantinas, setCantinas] = useState([]);
@@ -20,6 +38,12 @@ export default function LoginPage() {
   const [carregandoCantinas, setCarregandoCantinas] = useState(false);
 
   const navigate = useNavigate();
+  const { theme, toggle } = useTheme();
+
+  useEffect(() => {
+    document.body.style.paddingBottom = '0';
+    return () => { document.body.style.paddingBottom = ''; };
+  }, []);
 
   useEffect(() => {
     if (!isAluno) return;
@@ -34,6 +58,7 @@ export default function LoginPage() {
     setIsAluno(aluno);
     setModo('login');
     setErro('');
+    setSucesso('');
     setEmail('');
     setSenha('');
     setNome('');
@@ -50,26 +75,29 @@ export default function LoginPage() {
       return;
     }
 
-    if (isAluno && !cantinaId) {
-      setErro('Selecione um restaurante para continuar.');
+    if (modo === 'login' && isAluno && !cantinaId) {
+      setErro('Selecione uma cantina para continuar.');
       return;
     }
 
     setCarregando(true);
     try {
       if (modo === 'cadastro') {
-        const data = await api.registrarUsuario({ nome, email, senha });
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tipo', 'usuario');
-        localStorage.setItem('user', JSON.stringify(data.usuario));
-        localStorage.setItem('cantina_id', cantinaId);
-        navigate('/menu');
+        await api.registrarUsuario({ nome, email, senha });
+        setModo('login');
+        setSucesso('Conta criada! Faça login e escolha sua cantina.');
+        setErro('');
+        setSenha('');
+        setNome('');
+        setConfirmarSenha('');
+        return;
       } else if (isAluno) {
         const data = await api.loginUsuario(email, senha);
         localStorage.setItem('token', data.token);
         localStorage.setItem('tipo', 'usuario');
         localStorage.setItem('user', JSON.stringify(data.usuario));
         localStorage.setItem('cantina_id', cantinaId);
+        localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
         navigate('/menu');
       } else {
         const data = await api.loginCantina(email, senha);
@@ -87,7 +115,7 @@ export default function LoginPage() {
 
   async function handleGoogleSuccess(credentialResponse) {
     if (!cantinaId) {
-      setErro('Selecione um restaurante antes de entrar com Google.');
+      setErro('Selecione uma cantina antes de entrar com Google.');
       return;
     }
     setErro('');
@@ -98,6 +126,7 @@ export default function LoginPage() {
       localStorage.setItem('tipo', 'usuario');
       localStorage.setItem('user', JSON.stringify(data.usuario));
       localStorage.setItem('cantina_id', cantinaId);
+      localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
       navigate('/menu');
     } catch (err) {
       setErro(err.message);
@@ -108,11 +137,18 @@ export default function LoginPage() {
 
   return (
     <div className={styles.loginContainer}>
+      <button className={styles.themeToggle} onClick={toggle} title="Alternar tema">
+        {theme === 'light' ? <IconMoon /> : <IconSun />}
+      </button>
       <div className={styles.loginBox}>
 
         <header className={styles.loginHeader}>
-          <h1>CantinaGO</h1>
+          <div className={styles.logoIcon}>
+            <img src="/galinha2.png" alt="CantinaGO" className={styles.logoGalinha} />
+          </div>
+          <h1>Cantina<span>GO</span></h1>
           <p>Reserve seu lanche com antecedência</p>
+
         </header>
 
         <div className={styles.tabsList}>
@@ -199,9 +235,9 @@ export default function LoginPage() {
               </div>
             )}
 
-            {isAluno && (
+            {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>
-                <label htmlFor="cantina">Restaurante</label>
+                <label htmlFor="cantina">Cantina</label>
                 <select
                   id="cantina"
                   value={cantinaId}
@@ -210,7 +246,7 @@ export default function LoginPage() {
                   required
                 >
                   <option value="">
-                    {carregandoCantinas ? 'Carregando...' : 'Selecione um restaurante'}
+                    {carregandoCantinas ? 'Carregando...' : 'Selecione uma cantina'}
                   </option>
                   {cantinas.map(c => (
                     <option key={c.id} value={c.id}>{c.nome}</option>
@@ -219,7 +255,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            {erro && <p className={styles.erro}>{erro}</p>}
+            {sucesso && <p className={styles.sucesso}>✓ {sucesso}</p>}
+            {erro && <p className={styles.erro}>⚠ {erro}</p>}
 
             <button type="submit" className={styles.btnSubmit} disabled={carregando}>
               {carregando
