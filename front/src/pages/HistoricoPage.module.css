@@ -74,3 +74,26 @@
 .resTotal   { font-weight: 700; color: var(--text-total); }
 
 .vazio { color: var(--text-secondary); text-align: center; margin-top: 40px; }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px 100px 12px;
+  }
+
+  .header h1 { font-size: 1.5rem; }
+
+  .statsRow {
+    flex-wrap: wrap;
+  }
+
+  .statCard {
+    min-width: calc(50% - 6px);
+  }
+
+  .resHeader {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .userName { font-size: 1rem; }
+}

@@ -187,3 +187,37 @@
 .sucesso { background: #dcfce7; color: #16a34a; }
 .erro    { background: #fee2e2; color: #dc2626; }
 .info    { color: var(--text-secondary); text-align: center; padding: 20px 0; }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px 160px 12px;
+  }
+
+  .header h1 { font-size: 1.5rem; }
+
+  .itemCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .qtdControl {
+    align-self: flex-end;
+  }
+
+  .btnCarrinho {
+    width: calc(100% - 24px);
+    justify-content: center;
+    bottom: 74px;
+  }
+
+  .drawerItens {
+    padding: 12px 16px;
+  }
+
+  .drawerHeader,
+  .drawerFooter {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

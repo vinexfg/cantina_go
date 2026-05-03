@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
@@ -14,7 +14,21 @@ export default function LoginPage() {
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+
+  const [cantinas, setCantinas] = useState([]);
+  const [cantinaId, setCantinaId] = useState('');
+  const [carregandoCantinas, setCarregandoCantinas] = useState(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAluno) return;
+    setCarregandoCantinas(true);
+    api.getCantinas()
+      .then(data => setCantinas(data || []))
+      .catch(() => setCantinas([]))
+      .finally(() => setCarregandoCantinas(false));
+  }, [isAluno]);
 
   function trocarAba(aluno) {
     setIsAluno(aluno);
@@ -24,6 +38,7 @@ export default function LoginPage() {
     setSenha('');
     setNome('');
     setConfirmarSenha('');
+    setCantinaId('');
   }
 
   async function handleSubmit(e) {
@@ -35,6 +50,11 @@ export default function LoginPage() {
       return;
     }
 
+    if (isAluno && !cantinaId) {
+      setErro('Selecione um restaurante para continuar.');
+      return;
+    }
+
     setCarregando(true);
     try {
       if (modo === 'cadastro') {
@@ -42,12 +62,14 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('tipo', 'usuario');
         localStorage.setItem('user', JSON.stringify(data.usuario));
+        localStorage.setItem('cantina_id', cantinaId);
         navigate('/menu');
       } else if (isAluno) {
         const data = await api.loginUsuario(email, senha);
         localStorage.setItem('token', data.token);
         localStorage.setItem('tipo', 'usuario');
         localStorage.setItem('user', JSON.stringify(data.usuario));
+        localStorage.setItem('cantina_id', cantinaId);
         navigate('/menu');
       } else {
         const data = await api.loginCantina(email, senha);
@@ -64,6 +86,10 @@ export default function LoginPage() {
   }
 
   async function handleGoogleSuccess(credentialResponse) {
+    if (!cantinaId) {
+      setErro('Selecione um restaurante antes de entrar com Google.');
+      return;
+    }
     setErro('');
     setCarregando(true);
     try {
@@ -71,6 +97,7 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('tipo', 'usuario');
       localStorage.setItem('user', JSON.stringify(data.usuario));
+      localStorage.setItem('cantina_id', cantinaId);
       navigate('/menu');
     } catch (err) {
       setErro(err.message);
@@ -169,6 +196,26 @@ export default function LoginPage() {
                   onChange={(e) => setConfirmarSenha(e.target.value)}
                   required
                 />
+              </div>
+            )}
+
+            {isAluno && (
+              <div className={styles.formGroup}>
+                <label htmlFor="cantina">Restaurante</label>
+                <select
+                  id="cantina"
+                  value={cantinaId}
+                  onChange={(e) => setCantinaId(e.target.value)}
+                  disabled={carregandoCantinas}
+                  required
+                >
+                  <option value="">
+                    {carregandoCantinas ? 'Carregando...' : 'Selecione um restaurante'}
+                  </option>
+                  {cantinas.map(c => (
+                    <option key={c.id} value={c.id}>{c.nome}</option>
+                  ))}
+                </select>
               </div>
             )}
 

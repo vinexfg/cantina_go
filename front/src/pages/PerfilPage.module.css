@@ -70,3 +70,19 @@
 }
 
 .logout span { color: var(--logout-color); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px 80px 12px;
+  }
+
+  .header h1 { font-size: 1.5rem; }
+
+  .userInfo {
+    padding: 24px 16px;
+  }
+
+  .optionButton {
+    padding: 16px;
+  }
+}
