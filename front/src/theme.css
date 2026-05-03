@@ -94,6 +94,14 @@
   --logout-border: #2a0d0d;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 * {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }

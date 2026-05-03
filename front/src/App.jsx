@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import LoginPage from './pages/LoginPage';
 import { MenuPage } from './pages/MenuPage';
 import PerfilPage from './pages/PerfilPage';
@@ -25,6 +26,7 @@ function RotaVendedor({ children }) {
 function App() {
   return (
     <ThemeProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
@@ -37,6 +39,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

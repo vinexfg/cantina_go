@@ -84,3 +84,30 @@
 }
 
 .btnCancelar:hover { background: var(--btn-cancel-hover); }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px 100px 12px;
+  }
+
+  .header h1 { font-size: 1.5rem; }
+
+  .card {
+    padding: 14px 14px;
+  }
+
+  .cardHeader {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cardFooter {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btnCancelar {
+    width: 100%;
+    text-align: center;
+  }
+}

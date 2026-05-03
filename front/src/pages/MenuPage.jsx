@@ -12,7 +12,11 @@ export function MenuPage() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
 
   useEffect(() => {
-    api.getProdutosDisponiveis()
+    const cantina_id = localStorage.getItem('cantina_id');
+    const buscar = cantina_id
+      ? api.getProdutosPorCantina(cantina_id)
+      : api.getProdutosDisponiveis();
+    buscar
       .then(setProdutos)
       .catch(() => setProdutos([]))
       .finally(() => setCarregando(false));

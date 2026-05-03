@@ -1,71 +1,63 @@
 import CantinaService from '../services/CantinaService.js';
 import Result from '../valueObjects/Result.js';
-import AppException from '../exceptions/AppException.js';
 
 class CantinaController {
-  static async obterTodos(req, res) {
+  static async obterTodos(req, res, next) {
     try {
       const cantinas = await CantinaService.obterTodos();
       Result.ok(cantinas).send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async obterPorId(req, res) {
+  static async obterPorId(req, res, next) {
     try {
       const { id } = req.params;
       const cantina = await CantinaService.obterPorId(id);
       Result.ok(cantina).send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async obterPorEmail(req, res) {
+  static async obterPorEmail(req, res, next) {
     try {
       const { email } = req.params;
       const cantina = await CantinaService.obterPorEmail(email);
       Result.ok(cantina).send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async criar(req, res) {
+  static async criar(req, res, next) {
     try {
       const cantinaCriada = await CantinaService.criar(req.body);
       Result.created(cantinaCriada, 'Cantina criada com sucesso').send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async atualizar(req, res) {
+  static async atualizar(req, res, next) {
     try {
       const { id } = req.params;
       const atualizado = await CantinaService.atualizar(id, req.body);
       Result.ok(atualizado, 'Cantina atualizada com sucesso').send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async remover(req, res) {
+  static async remover(req, res, next) {
     try {
       const { id } = req.params;
       await CantinaService.remover(id);
       Result.ok(null, 'Cantina removida com sucesso').send(res);
     } catch (erro) {
-      CantinaController.tratarErro(erro, res);
+      next(erro);
     }
-  }
-
-  static tratarErro(erro, res) {
-    if (erro instanceof AppException) {
-      return erro.toResult().send(res);
-    }
-    return Result.internalError(erro.message).send(res);
   }
 }
 

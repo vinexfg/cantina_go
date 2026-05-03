@@ -1,80 +1,72 @@
 import ProdutoService from '../services/ProdutoService.js';
 import Result from '../valueObjects/Result.js';
-import AppException from '../exceptions/AppException.js';
 
 class ProdutoController {
-  static async obterTodos(req, res) {
+  static async obterTodos(req, res, next) {
     try {
       const produtos = await ProdutoService.obterTodos();
       Result.ok(produtos).send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async obterPorId(req, res) {
+  static async obterPorId(req, res, next) {
     try {
       const { id } = req.params;
       const produto = await ProdutoService.obterPorId(id);
       Result.ok(produto).send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async obterDisponiveis(req, res) {
+  static async obterDisponiveis(req, res, next) {
     try {
       const produtos = await ProdutoService.obterDisponiveis();
       Result.ok(produtos).send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async obterPorCantina(req, res) {
+  static async obterPorCantina(req, res, next) {
     try {
       const { cantina_id } = req.params;
       const produtos = await ProdutoService.obterPorCantina(cantina_id);
       Result.ok(produtos).send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async criar(req, res) {
+  static async criar(req, res, next) {
     try {
       const produtoCriado = await ProdutoService.criar(req.body);
       Result.created(produtoCriado, 'Produto criado com sucesso').send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async atualizar(req, res) {
+  static async atualizar(req, res, next) {
     try {
       const { id } = req.params;
       const atualizado = await ProdutoService.atualizar(id, req.body);
       Result.ok(atualizado, 'Produto atualizado com sucesso').send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
   }
 
-  static async remover(req, res) {
+  static async remover(req, res, next) {
     try {
       const { id } = req.params;
       await ProdutoService.remover(id);
       Result.ok(null, 'Produto removido com sucesso').send(res);
     } catch (erro) {
-      ProdutoController.tratarErro(erro, res);
+      next(erro);
     }
-  }
-
-  static tratarErro(erro, res) {
-    if (erro instanceof AppException) {
-      return erro.toResult().send(res);
-    }
-    return Result.internalError(erro.message).send(res);
   }
 }
 
