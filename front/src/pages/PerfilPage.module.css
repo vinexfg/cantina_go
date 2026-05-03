@@ -6,45 +6,69 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
 }
 
-.contentWrapper { width: 100%; max-width: 600px; }
+.contentWrapper {
+  width: 100%;
+  max-width: 600px;
+  animation: fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .header {
-  text-align: left;
-  margin-bottom: 32px;
-  border-bottom: 2px solid var(--accent-light);
-  padding-bottom: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
 }
 
-.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; }
+.header h1 { color: var(--title); margin: 0; font-size: 1.8rem; font-weight: 800; }
 
 .userInfo {
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: 18px;
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   border: 1px solid var(--border);
-  margin-bottom: 24px;
+  box-shadow: 0 4px 20px var(--shadow-card);
+  margin-bottom: 20px;
 }
 
 .avatar {
-  font-size: 40px;
-  background-color: var(--bg-avatar);
-  width: 80px; height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 76px;
+  height: 76px;
+  background: linear-gradient(135deg, #fb923c, #ea580c);
   border-radius: 50%;
-  border: 2px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
   margin-bottom: 16px;
+  box-shadow: 0 6px 20px rgba(249,115,22,0.35);
+  letter-spacing: -1px;
 }
 
-.userInfo h2 { margin: 0; color: var(--text-primary); font-size: 1.3rem; }
-.userInfo p  { margin: 4px 0 0 0; color: var(--text-secondary); font-size: 0.9rem; }
+.userInfo h2 { margin: 0; color: var(--text-primary); font-size: 1.3rem; font-weight: 700; }
+.userInfo p  { margin: 5px 0 0 0; color: var(--text-secondary); font-size: 0.9rem; }
+
+.cantinaBadge {
+  margin-top: 14px;
+  padding: 6px 16px;
+  background: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  border-radius: 20px;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
 
 .optionsList { display: flex; flex-direction: column; gap: 12px; }
 
@@ -53,36 +77,30 @@
   justify-content: space-between;
   align-items: center;
   background: var(--bg-card);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 18px 20px;
   border: 1px solid var(--border);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.optionButton:hover { background-color: var(--bg-hover); }
-.optionButton span  { color: var(--text-content); font-weight: 500; }
+.optionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--shadow-card);
+}
+
+.optionButton span { color: var(--text-content); font-weight: 500; }
 
 .logout {
-  margin-top: 12px;
   border: 1px solid var(--logout-border);
-  background-color: var(--bg-logout);
+  background: var(--bg-logout);
 }
 
 .logout span { color: var(--logout-color); font-weight: 600; }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 20px 12px 80px 12px;
-  }
-
+  .container { padding: 20px 12px 80px 12px; }
   .header h1 { font-size: 1.5rem; }
-
-  .userInfo {
-    padding: 24px 16px;
-  }
-
-  .optionButton {
-    padding: 16px;
-  }
+  .userInfo { padding: 24px 16px; }
+  .optionButton { padding: 16px; }
 }

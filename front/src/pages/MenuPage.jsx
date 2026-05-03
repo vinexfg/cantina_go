@@ -72,6 +72,9 @@ export function MenuPage() {
       <div className={styles.contentWrapper}>
 
         <header className={styles.header}>
+          {localStorage.getItem('cantina_nome') && (
+            <p className={styles.cantinaNome}>{localStorage.getItem('cantina_nome')}</p>
+          )}
           <h1>Cardápio do Dia</h1>
           <p>Selecione os itens para sua reserva</p>
         </header>
@@ -111,7 +114,7 @@ export function MenuPage() {
       {itensNoCarrinho > 0 && !carrinhoAberto && (
         <button className={styles.btnCarrinho} onClick={() => setCarrinhoAberto(true)}>
           <span className={styles.carriNhoBadge}>{totalQtd}</span>
-          🛒 Ver carrinho
+          Ver carrinho
           <span className={styles.carrinhoTotal}>R$ {total.toFixed(2).replace('.', ',')}</span>
         </button>
       )}
@@ -143,7 +146,11 @@ export function MenuPage() {
                   <span>{carrinho[p.id]}</span>
                   <button onClick={() => alterar(p.id, 1)}>+</button>
                 </div>
-                <button className={styles.removerBtn} onClick={() => removerItem(p.id)}>🗑</button>
+                <button className={styles.removerBtn} onClick={() => removerItem(p.id)}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                  </svg>
+                </button>
               </div>
             </div>
           ))}

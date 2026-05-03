@@ -47,51 +47,51 @@
 }
 
 [data-theme="dark"] {
-  --bg-primary: #180900;
-  --bg-card: #2a1200;
-  --bg-input: #1f0e00;
-  --bg-inactive: #1f0e00;
-  --bg-tab: #2a1200;
-  --bg-hover: #2a1200;
-  --bg-nav: #110600;
-  --bg-avatar: #2a1200;
-  --bg-logout: #2a0d0d;
-  --bg-time-badge: #2a1200;
-  --bg-drawer: #1f0e00;
+  --bg-primary: #1c0e03;
+  --bg-card: #2f1806;
+  --bg-input: #240f02;
+  --bg-inactive: #240f02;
+  --bg-tab: #2f1806;
+  --bg-hover: #3a2008;
+  --bg-nav: #130800;
+  --bg-avatar: #2f1806;
+  --bg-logout: #2f1010;
+  --bg-time-badge: #2f1806;
+  --bg-drawer: #240f02;
 
-  --text-primary: #f5e6d3;
-  --text-secondary: #b89060;
-  --text-muted: #7a5c3a;
-  --text-content: #c4a882;
-  --text-item: #d4b896;
-  --text-total: #f5e6d3;
-  --text-time: #b89060;
+  --text-primary: #f8ede0;
+  --text-secondary: #c8a878;
+  --text-muted: #9a7a58;
+  --text-content: #dcc4a0;
+  --text-item: #eed8b8;
+  --text-total: #f8ede0;
+  --text-time: #c8a878;
 
   --title: #f97316;
   --subtitle: #fb923c;
 
   --accent: #f97316;
   --accent-hover: #fb923c;
-  --accent-light: #2a1200;
-  --accent-border: #5a2800;
+  --accent-light: #2f1806;
+  --accent-border: #6a3800;
 
-  --border: #3a1800;
-  --border-light: #2a1200;
-  --border-nav: #3a1800;
+  --border: #4e2c0e;
+  --border-light: #2f1806;
+  --border-nav: #4e2c0e;
 
-  --login-from: #180900;
-  --login-to: #2a1200;
+  --login-from: #1c0e03;
+  --login-to: #2f1806;
 
-  --shadow: rgba(0, 0, 0, 0.3);
-  --shadow-brown: rgba(0, 0, 0, 0.2);
-  --shadow-nav: rgba(0, 0, 0, 0.3);
-  --shadow-card: rgba(0, 0, 0, 0.2);
+  --shadow: rgba(0, 0, 0, 0.45);
+  --shadow-brown: rgba(0, 0, 0, 0.35);
+  --shadow-nav: rgba(0, 0, 0, 0.45);
+  --shadow-card: rgba(0, 0, 0, 0.35);
 
-  --btn-cancel-border: #7f1d1d;
-  --btn-cancel-color: #f87171;
-  --btn-cancel-hover: #2a0d0d;
-  --logout-color: #f87171;
-  --logout-border: #2a0d0d;
+  --btn-cancel-border: #8f2020;
+  --btn-cancel-color: #fc8888;
+  --btn-cancel-hover: #2f1010;
+  --logout-color: #fc8888;
+  --logout-border: #2f1010;
 }
 
 *, *::before, *::after {
