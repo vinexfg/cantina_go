@@ -2,7 +2,6 @@ import ReservaRepository from '../repositories/ReservaRepository.js';
 import ProdutoRepository from '../repositories/ProdutoRepository.js';
 import Reserva, { STATUS_VALIDOS } from '../valueObjects/Reserva.js';
 import ReservaItem from '../valueObjects/ReservaItem.js';
-import Id from '../valueObjects/Id.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ValidationException from '../exceptions/ValidationException.js';
 
@@ -96,6 +95,34 @@ class ReservaService {
     const { reserva: criada, itens } = await ReservaRepository.createComItens(reservaData, itensData);
     const itensJSON = itens.map(row => ReservaItem.fromRow(row).toJSON());
     return Reserva.fromRow(criada, itensJSON).toJSON();
+  }
+
+  async obterHistorico(cantina_id) {
+    const reservas = await ReservaRepository.findHistoricoByCantina(cantina_id);
+    return Promise.all(
+      reservas.map(async (row) => {
+        const itensRows = await ReservaRepository.findItensByReserva(row.id);
+        const itens = itensRows.map(item => ({
+          id: item.id,
+          produto_id: item.produto_id,
+          produto_nome: item.produto_nome,
+          quantidade: item.quantidade,
+          preco: parseFloat(item.produto_preco),
+        }));
+        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        return {
+          ...Reserva.fromRow(row).toJSON(),
+          usuario_nome: row.usuario_nome || null,
+          criado_em: row.created_at,
+          itens,
+          total,
+        };
+      })
+    );
+  }
+
+  async limparAntigas() {
+    return ReservaRepository.limparAntigas();
   }
 
   async atualizarStatus(id, status) {

@@ -33,7 +33,7 @@ async function request(method, path, body) {
 }
 
 export const api = {
-  getCantinas: () => request('GET', '/cantinas/lista'),
+  getCantinas: () => request('GET', '/cantinas'),
 
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),
