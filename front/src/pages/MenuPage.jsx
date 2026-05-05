@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import styles from './MenuPage.module.css';
@@ -10,6 +10,7 @@ export function MenuPage() {
   const [enviando, setEnviando] = useState(false);
   const [mensagem, setMensagem] = useState('');
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+  const mensagemTimer = useRef(null);
 
   useEffect(() => {
     const cantina_id = localStorage.getItem('cantina_id');
@@ -43,9 +44,7 @@ export function MenuPage() {
   const itensNoCarrinho = Object.keys(carrinho).length;
   const totalQtd = Object.values(carrinho).reduce((a, b) => a + b, 0);
   const itensCarrinho = produtos.filter(p => carrinho[p.id] > 0);
-  console.log('DEBUG itensCarrinho:', itensCarrinho.map(p => ({ nome: p.nome, preco: p.preco, tipo: typeof p.preco, qty: carrinho[p.id] })));
   const total = itensCarrinho.reduce((acc, p) => acc + carrinho[p.id] * Number(p.preco), 0);
-  console.log('DEBUG total:', total);
 
   async function confirmar() {
     const itens = Object.entries(carrinho).map(([produto_id, quantidade]) => ({ produto_id, quantidade }));
@@ -62,6 +61,8 @@ export function MenuPage() {
       setCarrinho({});
       setCarrinhoAberto(false);
       setMensagem('Reserva feita com sucesso!');
+      clearTimeout(mensagemTimer.current);
+      mensagemTimer.current = setTimeout(() => setMensagem(''), 2000);
     } catch (err) {
       setMensagem(err.message);
     } finally {
@@ -88,7 +89,15 @@ export function MenuPage() {
         )}
 
         <section className={styles.menuList}>
-          {carregando && <p className={styles.info}>Carregando...</p>}
+          {carregando && Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={`${styles.itemCard} ${styles.skeletonCard}`}>
+              <div className={styles.skeletonInfo}>
+                <div className={`${styles.skeletonBlock} ${styles.skeletonNome}`} />
+                <div className={`${styles.skeletonBlock} ${styles.skeletonPreco}`} />
+              </div>
+              <div className={`${styles.skeletonBlock} ${styles.skeletonControle}`} />
+            </div>
+          ))}
           {!carregando && produtos.length === 0 && (
             <p className={styles.info}>Nenhum item disponível no momento.</p>
           )}
@@ -114,7 +123,7 @@ export function MenuPage() {
 
       {/* Botão flutuante do carrinho */}
       {itensNoCarrinho > 0 && !carrinhoAberto && (
-        <button className={styles.btnCarrinho} onClick={() => setCarrinhoAberto(true)}>
+        <button className={styles.btnCarrinho} onClick={() => { setCarrinhoAberto(true); setMensagem(''); clearTimeout(mensagemTimer.current); }}>
           <span className={styles.carriNhoBadge}>{totalQtd}</span>
           Ver carrinho
           <span className={styles.carrinhoTotal}>R$ {total.toFixed(2).replace('.', ',')}</span>

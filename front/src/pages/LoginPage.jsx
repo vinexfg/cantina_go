@@ -26,9 +26,9 @@ export default function LoginPage() {
   const [isAluno, setIsAluno] = useState(true);
   const [modo, setModo] = useState('login'); // 'login' | 'cadastro'
   const [email, setEmail] = useState('');
+  const [confirmarEmail, setConfirmarEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [nome, setNome] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -60,9 +60,9 @@ export default function LoginPage() {
     setErro('');
     setSucesso('');
     setEmail('');
+    setConfirmarEmail('');
     setSenha('');
     setNome('');
-    setConfirmarSenha('');
     setCantinaId('');
   }
 
@@ -70,12 +70,12 @@ export default function LoginPage() {
     e.preventDefault();
     setErro('');
 
-    if (modo === 'cadastro' && senha !== confirmarSenha) {
-      setErro('As senhas não coincidem.');
+    if (modo === 'cadastro' && email !== confirmarEmail) {
+      setErro('Os e-mails não coincidem.');
       return;
     }
 
-    if (modo === 'login' && isAluno && !cantinaId) {
+if (modo === 'login' && isAluno && !cantinaId) {
       setErro('Selecione uma cantina para continuar.');
       return;
     }
@@ -89,7 +89,7 @@ export default function LoginPage() {
         setErro('');
         setSenha('');
         setNome('');
-        setConfirmarSenha('');
+        setConfirmarEmail('');
         return;
       } else if (isAluno) {
         const data = await api.loginUsuario(email, senha);
@@ -209,6 +209,20 @@ export default function LoginPage() {
               />
             </div>
 
+            {modo === 'cadastro' && (
+              <div className={styles.formGroup}>
+                <label htmlFor="confirmarEmail">Confirmar e-mail</label>
+                <input
+                  id="confirmarEmail"
+                  type="email"
+                  placeholder="Digite o e-mail novamente"
+                  value={confirmarEmail}
+                  onChange={(e) => setConfirmarEmail(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+
             <div className={styles.formGroup}>
               <label htmlFor="senha">Senha</label>
               <input
@@ -221,19 +235,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {modo === 'cadastro' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmarSenha">Confirmar senha</label>
-                <input
-                  id="confirmarSenha"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmarSenha}
-                  onChange={(e) => setConfirmarSenha(e.target.value)}
-                  required
-                />
-              </div>
-            )}
 
             {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>

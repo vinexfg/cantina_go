@@ -138,6 +138,62 @@
   box-shadow: 0 4px 12px rgba(16,185,129,0.4);
 }
 
+/* ── Filtros ── */
+.filtros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filtroBtn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.filtroBtn:hover:not(.filtroAtivo) { border-color: var(--accent); color: var(--accent); }
+
+.filtroAtivo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Skeleton ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeletonBlock {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+[data-theme='dark'] .skeletonBlock {
+  background: linear-gradient(90deg, #1e293b 25%, #2d3f55 50%, #1e293b 75%);
+  background-size: 1200px 100%;
+}
+
+.skeletonCard   { pointer-events: none; }
+.skeletonNome   { height: 16px; width: 45%; }
+.skeletonHora   { height: 22px; width: 60px; border-radius: 8px; }
+.skeletonItens  { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.skeletonItem   { height: 14px; width: 75%; }
+.skeletonFooter { display: flex; justify-content: space-between; align-items: center; }
+.skeletonTotal  { height: 15px; width: 90px; }
+.skeletonBtns   { height: 34px; width: 180px; border-radius: 9px; }
+
 @media (max-width: 480px) {
   .container { padding: 20px 12px 100px 12px; }
   .header h1 { font-size: 1.5rem; }

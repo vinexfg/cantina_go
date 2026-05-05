@@ -86,10 +86,13 @@ export default function PerfilPage() {
           <button className={`${styles.optionButton} ${styles.logout}`} onClick={sair}>
             <span>Sair da Conta</span>
           </button>
-          <button className={`${styles.optionButton} ${styles.deletar}`} onClick={abrirModal}>
-            <span>Excluir Conta</span>
-          </button>
         </section>
+
+        <div className={styles.dangerZone}>
+          <button className={styles.btnExcluirConta} onClick={abrirModal}>
+            Excluir minha conta
+          </button>
+        </div>
 
       </div>
 

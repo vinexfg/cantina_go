@@ -98,15 +98,34 @@
 
 .logout span { color: var(--logout-color); font-weight: 600; }
 
-.deletar {
-  border: 1px solid #fecaca;
+.dangerZone {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+}
+
+.btnExcluirConta {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  opacity: 0.65;
+  transition: opacity 0.15s, background 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.btnExcluirConta:hover {
+  opacity: 1;
   background: #fff5f5;
 }
 
-.deletar span { color: #dc2626; font-weight: 600; }
-
-[data-theme='dark'] .deletar {
-  border-color: #7f1d1d;
+[data-theme='dark'] .btnExcluirConta:hover {
   background: #2d1111;
 }
 

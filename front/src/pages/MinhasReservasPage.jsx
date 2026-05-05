@@ -19,13 +19,23 @@ export default function MinhasReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [pagina, setPagina] = useState(1);
+  const [filtroStatus, setFiltroStatus] = useState('');
+
+  const FILTROS = [
+    { value: '', label: 'Todos' },
+    { value: 'pendente',   label: 'Pendente'   },
+    { value: 'confirmada', label: 'Confirmada' },
+    { value: 'concluida',  label: 'Concluída'  },
+    { value: 'cancelada',  label: 'Cancelada'  },
+  ];
   const { addToast } = useToast();
   const statusAnterior = useRef({});
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  const totalPaginas = Math.ceil(reservas.length / POR_PAGINA);
-  const paginadas = reservas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+  const reservasFiltradas = filtroStatus ? reservas.filter(r => r.status === filtroStatus) : reservas;
+  const totalPaginas = Math.ceil(reservasFiltradas.length / POR_PAGINA);
+  const paginadas = reservasFiltradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
   function detectarMudancas(novas) {
     novas.forEach(r => {
@@ -89,7 +99,35 @@ export default function MinhasReservasPage() {
           <p>Acompanhe suas reservas</p>
         </header>
 
-        {carregando && <p className={styles.info}>Carregando...</p>}
+        <div className={styles.filtros}>
+          {FILTROS.map(f => (
+            <button
+              key={f.value}
+              className={`${styles.filtroBtn} ${filtroStatus === f.value ? styles.filtroAtivo : ''}`}
+              onClick={() => { setFiltroStatus(f.value); setPagina(1); }}
+            >{f.label}</button>
+          ))}
+        </div>
+
+        {carregando && Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className={`${styles.card} ${styles.skeletonCard}`}>
+            <div className={styles.cardHeader}>
+              <div className={`${styles.skeletonBlock} ${styles.skeletonStatus}`} />
+              <div className={`${styles.skeletonBlock} ${styles.skeletonData}`} />
+            </div>
+            <div className={styles.skeletonItens}>
+              <div className={`${styles.skeletonBlock} ${styles.skeletonItem}`} />
+              <div className={`${styles.skeletonBlock} ${styles.skeletonItem}`} style={{ width: '60%' }} />
+            </div>
+            <div className={styles.cardFooter}>
+              <div className={`${styles.skeletonBlock} ${styles.skeletonTotal}`} />
+            </div>
+          </div>
+        ))}
+
+        {!carregando && reservasFiltradas.length === 0 && reservas.length > 0 && (
+          <p className={styles.info}>Nenhuma reserva com esse status.</p>
+        )}
         {!carregando && reservas.length === 0 && (
           <div className={styles.vazio}>
             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className={styles.vazioIcon}>
