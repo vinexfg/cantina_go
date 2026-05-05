@@ -20,7 +20,9 @@ function tocarSom() {
     osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.9);
     osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime + 0.9);
     osc1.onended = () => ctx.close();
-  } catch (_) {}
+  } catch {
+    // O aviso sonoro é opcional.
+  }
 }
 
 const MENSAGENS = {
@@ -89,7 +91,9 @@ export function NotificacoesProvider({ children }) {
           });
           if (!inicializado.current) inicializado.current = true;
         })
-        .catch(() => {});
+        .catch(() => {
+          // Falhas temporárias de polling não devem interromper a tela.
+        });
     }
 
     checar();

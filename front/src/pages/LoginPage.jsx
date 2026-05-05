@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   const [cantinas, setCantinas] = useState([]);
   const [cantinaId, setCantinaId] = useState('');
-  const [carregandoCantinas, setCarregandoCantinas] = useState(false);
+  const [carregandoCantinas, setCarregandoCantinas] = useState(true);
 
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
@@ -47,7 +47,6 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAluno) return;
-    setCarregandoCantinas(true);
     api.getCantinas()
       .then(data => setCantinas(data || []))
       .catch(() => setCantinas([]))
@@ -64,6 +63,7 @@ export default function LoginPage() {
     setSenha('');
     setNome('');
     setCantinaId('');
+    setCarregandoCantinas(aluno);
   }
 
   async function handleSubmit(e) {
@@ -75,7 +75,7 @@ export default function LoginPage() {
       return;
     }
 
-if (modo === 'login' && isAluno && !cantinaId) {
+    if (modo === 'login' && isAluno && !cantinaId) {
       setErro('Selecione uma cantina para continuar.');
       return;
     }

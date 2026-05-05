@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
@@ -14,24 +14,36 @@ export default function VendedorPage() {
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = user.id;
 
   function sair() {
     localStorage.clear();
     navigate('/');
   }
 
-  useEffect(() => {
-    carregarProdutos();
-  }, []);
-
-  async function carregarProdutos() {
+  const carregarProdutos = useCallback(async () => {
     try {
-      const data = await api.getProdutosPorCantina(user.id);
+      const data = await api.getProdutosPorCantina(userId);
       setProdutos(data || []);
     } catch {
       setProdutos([]);
     }
-  }
+  }, [userId]);
+
+  useEffect(() => {
+    let ativo = true;
+    api.getProdutosPorCantina(userId)
+      .then((data) => {
+        if (ativo) setProdutos(data || []);
+      })
+      .catch(() => {
+        if (ativo) setProdutos([]);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [userId]);
 
   async function toggleDisponivel(produto) {
     try {
@@ -86,13 +98,13 @@ export default function VendedorPage() {
           nome,
           descricao,
           preco: parseFloat(preco),
-          cantina_id: user.id,
+          cantina_id: userId,
           disponivel: editando.disponivel,
         });
         setMensagem('Produto atualizado com sucesso!');
         cancelarEdicao();
       } else {
-        await api.criarProduto({ nome, descricao, preco: parseFloat(preco), cantina_id: user.id });
+        await api.criarProduto({ nome, descricao, preco: parseFloat(preco), cantina_id: userId });
         setNome('');
         setDescricao('');
         setPreco('');

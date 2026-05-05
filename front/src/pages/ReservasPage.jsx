@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import styles from './ReservasPage.module.css';
@@ -6,20 +6,20 @@ import styles from './ReservasPage.module.css';
 export function ReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
 
-  function buscarReservas() {
-    api.getReservasPorCantina(user.id)
+  const buscarReservas = useCallback(() => {
+    api.getReservasPorCantina(userId)
       .then((data) => setReservas(data || []))
       .catch(() => {})
       .finally(() => setCarregando(false));
-  }
+  }, [userId]);
 
   useEffect(() => {
     buscarReservas();
     const intervalo = setInterval(buscarReservas, 10000);
     return () => clearInterval(intervalo);
-  }, []);
+  }, [buscarReservas]);
 
   async function marcarEntregue(id) {
     try {

@@ -33,7 +33,9 @@ function tocarSom() {
     osc2.stop(ctx.currentTime + 0.9);
 
     osc1.onended = () => ctx.close();
-  } catch (_) {}
+  } catch {
+    // O aviso sonoro é opcional.
+  }
 }
 
 export function ReservasProvider({ children }) {
@@ -42,6 +44,7 @@ export function ReservasProvider({ children }) {
   const tituloOriginal = useRef(document.title);
 
   useEffect(() => {
+    const tituloInicial = tituloOriginal.current;
     const tipo = localStorage.getItem('tipo');
     if (tipo !== 'cantina') return;
 
@@ -64,7 +67,9 @@ export function ReservasProvider({ children }) {
             ? `(${count}) novo${count > 1 ? 's' : ''} pedido${count > 1 ? 's' : ''} — Cantina`
             : tituloOriginal.current;
         })
-        .catch(() => {});
+        .catch(() => {
+          // Falhas temporárias de polling não devem interromper a tela.
+        });
     }
 
     checar();
@@ -72,7 +77,7 @@ export function ReservasProvider({ children }) {
 
     return () => {
       clearInterval(intervalo);
-      document.title = tituloOriginal.current;
+      document.title = tituloInicial;
     };
   }, []);
 

@@ -2,6 +2,7 @@
 import express from "express";
 const router = express.Router();
 import ProdutoController from "../controllers/produtoController.js";
+import AuthMiddleware from "../middleware/AuthMiddleware.js";
 
 // GET /api/produtos - Listar todos
 router.get("/", ProdutoController.obterTodos);
@@ -16,12 +17,12 @@ router.get("/cantina/:cantina_id", ProdutoController.obterPorCantina);
 router.get("/:id", ProdutoController.obterPorId);
 
 // POST /api/produtos - Criar produto
-router.post("/", ProdutoController.criar);
+router.post("/", AuthMiddleware.verificar, ProdutoController.criar);
 
 // PUT /api/produtos/:id - Atualizar produto
-router.put("/:id", ProdutoController.atualizar);
+router.put("/:id", AuthMiddleware.verificar, ProdutoController.atualizar);
 
 // DELETE /api/produtos/:id - Remover produto
-router.delete("/:id", ProdutoController.remover);
+router.delete("/:id", AuthMiddleware.verificar, ProdutoController.remover);
 
 export default router;

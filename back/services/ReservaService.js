@@ -4,70 +4,101 @@ import Reserva, { STATUS_VALIDOS } from '../valueObjects/Reserva.js';
 import ReservaItem from '../valueObjects/ReservaItem.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ValidationException from '../exceptions/ValidationException.js';
+import ForbiddenException from '../exceptions/ForbiddenException.js';
 
 class ReservaService {
-  async obterTodos() {
-    const reservas = await ReservaRepository.findAll();
-    return reservas.map(row => Reserva.fromRow(row).toJSON());
+  validarCantinaAutenticada(usuario, cantina_id) {
+    if (!usuario || usuario.tipo !== 'cantina' || String(usuario.id) !== String(cantina_id)) {
+      throw new ForbiddenException('Você não pode acessar reservas de outra cantina');
+    }
   }
 
-  async obterPorId(id) {
+  validarUsuarioAutenticado(usuario, usuario_id) {
+    if (!usuario || usuario.tipo !== 'usuario' || String(usuario.id) !== String(usuario_id)) {
+      throw new ForbiddenException('Você não pode acessar reservas de outro usuário');
+    }
+  }
+
+  validarAcessoReserva(usuario, reserva) {
+    if (!usuario) {
+      throw new ForbiddenException();
+    }
+
+    if (usuario.tipo === 'cantina' && String(usuario.id) === String(reserva.cantina_id)) {
+      return;
+    }
+
+    if (usuario.tipo === 'usuario' && String(usuario.id) === String(reserva.usuario_id)) {
+      return;
+    }
+
+    throw new ForbiddenException('Você não pode acessar esta reserva');
+  }
+
+  montarReservaComItens(row, itensRows) {
+    const itens = itensRows.map(item => ({
+      id: item.id,
+      produto_id: item.produto_id,
+      produto_nome: item.produto_nome,
+      quantidade: item.quantidade,
+      preco: parseFloat(item.produto_preco),
+    }));
+    const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+
+    return {
+      ...Reserva.fromRow(row).toJSON(),
+      usuario_nome: row.usuario_nome || null,
+      criado_em: row.created_at,
+      itens,
+      total,
+    };
+  }
+
+  async obterTodos(usuarioAutenticado = null) {
+    if (!usuarioAutenticado || usuarioAutenticado.tipo !== 'cantina') {
+      throw new ForbiddenException('Apenas cantinas podem listar reservas');
+    }
+
+    return this.obterPorCantina(usuarioAutenticado.id, usuarioAutenticado);
+  }
+
+  async obterPorId(id, usuarioAutenticado = null) {
     const reserva = await ReservaRepository.findById(id);
     if (!reserva) throw new NotFoundException('Reserva não encontrada');
+    this.validarAcessoReserva(usuarioAutenticado, reserva);
 
     const itensRows = await ReservaRepository.findItensByReserva(id);
     const itens = itensRows.map(row => ReservaItem.fromRow(row).toJSON());
     return Reserva.fromRow(reserva, itens).toJSON();
   }
 
-  async obterPorCantina(cantina_id) {
+  async obterPorCantina(cantina_id, usuarioAutenticado = null) {
+    this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
+
     const reservas = await ReservaRepository.findByCantina(cantina_id);
     return Promise.all(
       reservas.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        const itens = itensRows.map(item => ({
-          id: item.id,
-          produto_id: item.produto_id,
-          produto_nome: item.produto_nome,
-          quantidade: item.quantidade,
-          preco: parseFloat(item.produto_preco),
-        }));
-        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        return {
-          ...Reserva.fromRow(row).toJSON(),
-          usuario_nome: row.usuario_nome || null,
-          criado_em: row.created_at,
-          itens,
-          total,
-        };
+        return this.montarReservaComItens(row, itensRows);
       })
     );
   }
 
-  async obterPorUsuario(usuario_id) {
+  async obterPorUsuario(usuario_id, usuarioAutenticado = null) {
+    this.validarUsuarioAutenticado(usuarioAutenticado, usuario_id);
+
     const reservas = await ReservaRepository.findByUsuario(usuario_id);
     return Promise.all(
       reservas.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        const itens = itensRows.map(item => ({
-          id: item.id,
-          produto_id: item.produto_id,
-          produto_nome: item.produto_nome,
-          quantidade: item.quantidade,
-          preco: parseFloat(item.produto_preco),
-        }));
-        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        return {
-          ...Reserva.fromRow(row).toJSON(),
-          criado_em: row.created_at,
-          itens,
-          total,
-        };
+        return this.montarReservaComItens(row, itensRows);
       })
     );
   }
 
-  async criar(dados) {
+  async criar(dados, usuarioAutenticado = null) {
+    this.validarUsuarioAutenticado(usuarioAutenticado, dados.usuario_id);
+
     const reserva = Reserva.criar(dados);
 
     const itensVO = dados.itens.map(item =>
@@ -83,6 +114,28 @@ class ReservaService {
 
     const itensData = await Promise.all(itensVO.map(async (item) => {
       const produto = await ProdutoRepository.findById(item.produto_id);
+      if (!produto) {
+        throw new ValidationException('Produto inválido', { produto_id: 'Produto não encontrado' });
+      }
+
+      if (String(produto.cantina_id) !== String(reserva.cantina_id)) {
+        throw new ValidationException('Produto inválido', {
+          produto_id: 'Produto não pertence à cantina selecionada',
+        });
+      }
+
+      if (!produto.disponivel || produto.arquivado) {
+        throw new ValidationException('Produto inválido', {
+          produto_id: 'Produto indisponível para reserva',
+        });
+      }
+
+      if (produto.quantidade_limite !== null && item.quantidade > Number(produto.quantidade_limite)) {
+        throw new ValidationException('Quantidade inválida', {
+          quantidade: `Quantidade máxima para ${produto.nome}: ${produto.quantidade_limite}`,
+        });
+      }
+
       return {
         id: item.id.toString(),
         produto_id: item.produto_id,
@@ -97,84 +150,51 @@ class ReservaService {
     return Reserva.fromRow(criada, itensJSON).toJSON();
   }
 
-  async obterHistorico(cantina_id) {
+  async obterHistorico(cantina_id, usuarioAutenticado = null) {
+    this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
+
     const reservas = await ReservaRepository.findHistoricoByCantina(cantina_id);
     return Promise.all(
       reservas.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        const itens = itensRows.map(item => ({
-          id: item.id,
-          produto_id: item.produto_id,
-          produto_nome: item.produto_nome,
-          quantidade: item.quantidade,
-          preco: parseFloat(item.produto_preco),
-        }));
-        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        return {
-          ...Reserva.fromRow(row).toJSON(),
-          usuario_nome: row.usuario_nome || null,
-          criado_em: row.created_at,
-          itens,
-          total,
-        };
+        return this.montarReservaComItens(row, itensRows);
       })
     );
   }
 
-  async limparAntigas() {
-    return ReservaRepository.limparAntigas();
+  async limparAntigas(usuarioAutenticado = null) {
+    if (!usuarioAutenticado || usuarioAutenticado.tipo !== 'cantina') {
+      throw new ForbiddenException('Apenas cantinas podem limpar reservas antigas');
+    }
+
+    const removidas = await ReservaRepository.deleteAntigas();
+    return { removidas };
   }
 
-  async atualizarStatus(id, status) {
+  async limparAntigasUsuario(usuario_id, usuarioAutenticado = null) {
+    this.validarUsuarioAutenticado(usuarioAutenticado, usuario_id);
+
+    const removidas = await ReservaRepository.deleteAntigasUsuario(usuario_id);
+    return { removidas };
+  }
+
+  async atualizarStatus(id, status, usuarioAutenticado = null) {
     if (!STATUS_VALIDOS.includes(status)) {
       throw new ValidationException(`Status inválido. Use: ${STATUS_VALIDOS.join(', ')}`);
     }
     const reserva = await ReservaRepository.findById(id);
     if (!reserva) throw new NotFoundException('Reserva não encontrada');
+    this.validarCantinaAutenticada(usuarioAutenticado, reserva.cantina_id);
 
     await ReservaRepository.updateStatus(id, status);
     return { success: true };
   }
 
-  async obterHistorico(cantina_id) {
-    const reservas = await ReservaRepository.findConcluidasByCantina(cantina_id);
-    return Promise.all(
-      reservas.map(async (row) => {
-        const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        const itens = itensRows.map(item => ({
-          id: item.id,
-          produto_id: item.produto_id,
-          produto_nome: item.produto_nome,
-          quantidade: item.quantidade,
-          preco: parseFloat(item.produto_preco),
-        }));
-        const total = itens.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        return {
-          ...ReservaRepository.findById && {},
-          id: row.id,
-          status: row.status,
-          usuario_nome: row.usuario_nome || null,
-          criado_em: row.created_at,
-          itens,
-          total,
-        };
-      })
-    );
-  }
-
-  async limparAntigas() {
-    const removidas = await ReservaRepository.deleteAntigas();
-    return { removidas };
-  }
-
-  async limparAntigasUsuario(usuario_id) {
-    const removidas = await ReservaRepository.deleteAntigasUsuario(usuario_id);
-    return { removidas };
-  }
-
-  async remover(id) {
+  async remover(id, usuarioAutenticado = null) {
     const reserva = await ReservaRepository.findById(id);
     if (!reserva) throw new NotFoundException('Reserva não encontrada');
+    this.validarAcessoReserva(usuarioAutenticado, reserva);
+
     await ReservaRepository.delete(id);
   }
 }

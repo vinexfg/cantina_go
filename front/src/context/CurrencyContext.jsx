@@ -12,7 +12,9 @@ export function CurrencyProvider({ children }) {
     fetch('https://open.er-api.com/v6/latest/BRL')
       .then(r => r.json())
       .then(data => { if (data?.rates?.GBP) setTaxa(data.rates.GBP); })
-      .catch(() => {});
+      .catch(() => {
+        // A cotação externa é opcional; mantém a taxa fallback.
+      });
   }, []);
 
   useEffect(() => {

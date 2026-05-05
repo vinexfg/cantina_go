@@ -11,9 +11,10 @@ export function HistoricoPage() {
   const [busca, setBusca] = useState('');
   const [pagina, setPagina] = useState(1);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+
     api.limparReservasAntigas().catch(() => {});
 
     api.getHistorico(user.id)

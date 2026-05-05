@@ -31,30 +31,31 @@ export default function MinhasReservasPage() {
   const { addToast } = useToast();
   const statusAnterior = useRef({});
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
   const reservasFiltradas = filtroStatus ? reservas.filter(r => r.status === filtroStatus) : reservas;
   const totalPaginas = Math.ceil(reservasFiltradas.length / POR_PAGINA);
   const paginadas = reservasFiltradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
-  function detectarMudancas(novas) {
-    novas.forEach(r => {
-      const statusAnt = statusAnterior.current[r.id];
-      if (statusAnt && statusAnt !== r.status) {
-        if (r.status === 'concluida') {
-          addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
-        } else if (r.status === 'cancelada') {
-          addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
-        } else {
-          const label = STATUS_LABEL[r.status]?.label || r.status;
-          addToast(`Pedido atualizado para: ${label}`, 'info');
-        }
-      }
-      statusAnterior.current[r.id] = r.status;
-    });
-  }
-
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+
+    function detectarMudancas(novas) {
+      novas.forEach(r => {
+        const statusAnt = statusAnterior.current[r.id];
+        if (statusAnt && statusAnt !== r.status) {
+          if (r.status === 'concluida') {
+            addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
+          } else if (r.status === 'cancelada') {
+            addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
+          } else {
+            const label = STATUS_LABEL[r.status]?.label || r.status;
+            addToast(`Pedido atualizado para: ${label}`, 'info');
+          }
+        }
+        statusAnterior.current[r.id] = r.status;
+      });
+    }
+
     api.limparReservasAntigasUsuario(user.id).catch(() => {});
 
     api.getReservasPorUsuario(user.id)
@@ -77,7 +78,7 @@ export default function MinhasReservasPage() {
     }, POLLING_INTERVAL);
 
     return () => clearInterval(intervalo);
-  }, []);
+  }, [addToast]);
 
   async function cancelar(id) {
     if (!confirm('Cancelar esta reserva?')) return;

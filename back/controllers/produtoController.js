@@ -42,7 +42,7 @@ class ProdutoController {
 
   static async criar(req, res, next) {
     try {
-      const produtoCriado = await ProdutoService.criar(req.body);
+      const produtoCriado = await ProdutoService.criar(req.body, req.usuario);
       Result.created(produtoCriado, 'Produto criado com sucesso').send(res);
     } catch (erro) {
       next(erro);
@@ -52,7 +52,7 @@ class ProdutoController {
   static async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const atualizado = await ProdutoService.atualizar(id, req.body);
+      const atualizado = await ProdutoService.atualizar(id, req.body, req.usuario);
       Result.ok(atualizado, 'Produto atualizado com sucesso').send(res);
     } catch (erro) {
       next(erro);
@@ -62,7 +62,7 @@ class ProdutoController {
   static async remover(req, res, next) {
     try {
       const { id } = req.params;
-      await ProdutoService.remover(id);
+      await ProdutoService.remover(id, req.usuario);
       Result.ok(null, 'Produto removido com sucesso').send(res);
     } catch (erro) {
       next(erro);

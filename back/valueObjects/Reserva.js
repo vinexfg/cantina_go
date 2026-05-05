@@ -14,7 +14,7 @@ class Reserva {
   }
 
   static fromRow(row, itens = []) {
-    return new Reserva(row.id, row.cantina_id, row.usuario_id, row.data_reserva, row.status, itens);
+    return new Reserva(row.id, row.cantina_id, row.usuario_id, row.data_reserva || row.created_at, row.status, itens);
   }
 
   static criar(dados) {
