@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import UsuarioRepository from '../repositories/UsuarioRepository.js';
 import CantinaRepository from '../repositories/CantinaRepository.js';
+import ReservaRepository from '../repositories/ReservaRepository.js';
 import UsuarioService from './UsuarioService.js';
 import CantinaService from './CantinaService.js';
 import ValidationException from '../exceptions/ValidationException.js';
@@ -84,6 +85,7 @@ class AuthService {
     const senhaCorreta = await bcrypt.compare(senha, row.senha);
     if (!senhaCorreta) throw new ValidationException('Senha incorreta');
 
+    await ReservaRepository.deleteAllByUsuario(id);
     await UsuarioRepository.delete(id);
   }
 

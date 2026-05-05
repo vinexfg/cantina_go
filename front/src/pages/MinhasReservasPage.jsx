@@ -45,6 +45,8 @@ export default function MinhasReservasPage() {
   }
 
   useEffect(() => {
+    api.limparReservasAntigasUsuario(user.id).catch(() => {});
+
     api.getReservasPorUsuario(user.id)
       .then((data) => {
         const lista = data || [];

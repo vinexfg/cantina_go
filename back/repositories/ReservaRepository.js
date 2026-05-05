@@ -128,6 +128,36 @@ class ReservaRepository {
     return rowCount;
   }
 
+  static async deleteAllByUsuario(usuario_id) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        `DELETE FROM reserva_itens
+         WHERE reserva_id IN (SELECT id FROM reservas WHERE usuario_id = $1)`,
+        [usuario_id]
+      );
+      await client.query('DELETE FROM reservas WHERE usuario_id = $1', [usuario_id]);
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async deleteAntigasUsuario(usuario_id) {
+    const { rowCount } = await pool.query(
+      `DELETE FROM reservas
+       WHERE usuario_id = $1
+         AND status IN ('concluida', 'cancelada')
+         AND created_at < NOW() - INTERVAL '7 days'`,
+      [usuario_id]
+    );
+    return rowCount;
+  }
+
   static async delete(id) {
     const client = await pool.connect();
     try {

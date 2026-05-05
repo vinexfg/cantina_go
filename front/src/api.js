@@ -53,5 +53,6 @@ export const api = {
   removerReserva: (id) => request('DELETE', `/reservas/${id}`),
   getHistorico: (cantina_id) => request('GET', `/reservas/cantina/${cantina_id}/historico`),
   limparReservasAntigas: () => request('DELETE', '/reservas/limpeza'),
+  limparReservasAntigasUsuario: (usuario_id) => request('DELETE', `/reservas/usuario/${usuario_id}/limpeza`),
   excluirConta: (senha) => request('DELETE', '/auth/conta', { senha }),
 };

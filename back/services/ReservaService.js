@@ -167,6 +167,11 @@ class ReservaService {
     return { removidas };
   }
 
+  async limparAntigasUsuario(usuario_id) {
+    const removidas = await ReservaRepository.deleteAntigasUsuario(usuario_id);
+    return { removidas };
+  }
+
   async remover(id) {
     const reserva = await ReservaRepository.findById(id);
     if (!reserva) throw new NotFoundException('Reserva não encontrada');
