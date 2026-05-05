@@ -24,6 +24,9 @@ export default function MinhasReservasPage() {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  const totalPaginas = Math.ceil(reservas.length / POR_PAGINA);
+  const paginadas = reservas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+
   function detectarMudancas(novas) {
     novas.forEach(r => {
       const statusAnt = statusAnterior.current[r.id];
@@ -95,7 +98,7 @@ export default function MinhasReservasPage() {
         )}
 
         <div className={styles.lista}>
-          {reservas.map((r) => {
+          {paginadas.map((r) => {
             const info = STATUS_LABEL[r.status] || STATUS_LABEL.pendente;
             return (
               <div key={r.id} className={styles.card}>
@@ -137,6 +140,28 @@ export default function MinhasReservasPage() {
             );
           })}
         </div>
+
+        {totalPaginas > 1 && (
+          <div className={styles.paginacao}>
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina(p => Math.max(1, p - 1))}
+              disabled={pagina === 1}
+            >‹</button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`${styles.paginaBtn} ${n === pagina ? styles.paginaAtiva : ''}`}
+                onClick={() => setPagina(n)}
+              >{n}</button>
+            ))}
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+              disabled={pagina === totalPaginas}
+            >›</button>
+          </div>
+        )}
 
       </div>
       <Navegacao />
