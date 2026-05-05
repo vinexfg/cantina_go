@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { ReservasProvider } from './context/ReservasContext';
+import { NotificacoesProvider } from './context/NotificacoesContext';
 import LoginPage from './pages/LoginPage';
 import { MenuPage } from './pages/MenuPage';
 import PerfilPage from './pages/PerfilPage';
@@ -27,6 +29,8 @@ function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
+      <ReservasProvider>
+      <NotificacoesProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
@@ -39,6 +43,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </NotificacoesProvider>
+      </ReservasProvider>
       </ToastProvider>
     </ThemeProvider>
   );

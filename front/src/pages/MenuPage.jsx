@@ -17,7 +17,7 @@ export function MenuPage() {
       ? api.getProdutosPorCantina(cantina_id)
       : api.getProdutosDisponiveis();
     buscar
-      .then(setProdutos)
+      .then(data => setProdutos((data || []).filter(p => p.disponivel)))
       .catch(() => setProdutos([]))
       .finally(() => setCarregando(false));
   }, []);
@@ -42,8 +42,10 @@ export function MenuPage() {
 
   const itensNoCarrinho = Object.keys(carrinho).length;
   const totalQtd = Object.values(carrinho).reduce((a, b) => a + b, 0);
-  const total = produtos.reduce((acc, p) => acc + (carrinho[p.id] || 0) * parseFloat(p.preco), 0);
   const itensCarrinho = produtos.filter(p => carrinho[p.id] > 0);
+  console.log('DEBUG itensCarrinho:', itensCarrinho.map(p => ({ nome: p.nome, preco: p.preco, tipo: typeof p.preco, qty: carrinho[p.id] })));
+  const total = itensCarrinho.reduce((acc, p) => acc + carrinho[p.id] * Number(p.preco), 0);
+  console.log('DEBUG total:', total);
 
   async function confirmar() {
     const itens = Object.entries(carrinho).map(([produto_id, quantidade]) => ({ produto_id, quantidade }));

@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { usePendentes } from '../context/ReservasContext';
+import { useNotificacoes } from '../context/NotificacoesContext';
 import styles from './Navegacao.module.css';
 
 const IconMenu = () => (
@@ -63,11 +66,33 @@ const IconMoon = () => (
   </svg>
 );
 
+const IconSino = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+    <path d="M13.73 21a2 2 0 01-3.46 0"/>
+  </svg>
+);
+
+function formatarHora(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  } catch { return ''; }
+}
+
 export default function Navegacao() {
   const location = useLocation();
   const navigate = useNavigate();
   const tipo = localStorage.getItem('tipo');
   const { theme, toggle } = useTheme();
+  const { pendentes } = usePendentes();
+  const { notificacoes, naoLidas, marcarTodasLidas, limpar } = useNotificacoes();
+
+  const [painelAberto, setPainelAberto] = useState(false);
+
+  function abrirPainel() {
+    setPainelAberto(true);
+    marcarTodasLidas();
+  }
 
   const itens = tipo === 'cantina'
     ? [
@@ -86,6 +111,44 @@ export default function Navegacao() {
       <button className={styles.floatingTheme} onClick={toggle} title="Alternar tema">
         {theme === 'light' ? <IconMoon /> : <IconSun />}
       </button>
+
+      {tipo === 'usuario' && (
+        <button className={styles.floatingSino} onClick={abrirPainel} title="Notificações">
+          <IconSino />
+          {naoLidas > 0 && (
+            <span className={styles.sinoBadge}>{naoLidas > 9 ? '9+' : naoLidas}</span>
+          )}
+        </button>
+      )}
+
+      {painelAberto && (
+        <div className={styles.painelOverlay} onClick={() => setPainelAberto(false)}>
+          <div className={styles.painel} onClick={e => e.stopPropagation()}>
+            <div className={styles.painelHeader}>
+              <span className={styles.painelTitulo}>Notificações</span>
+              {notificacoes.length > 0 && (
+                <button className={styles.painelLimpar} onClick={limpar}>Limpar</button>
+              )}
+            </div>
+
+            <div className={styles.painelLista}>
+              {notificacoes.length === 0 && (
+                <p className={styles.painelVazio}>Nenhuma notificação ainda.</p>
+              )}
+              {notificacoes.map(n => (
+                <div key={n.id} className={`${styles.painelItem} ${n.tipo === 'success' ? styles.itemSuccess : styles.itemError}`}>
+                  <span className={styles.itemIcone}>{n.tipo === 'success' ? '✓' : '✕'}</span>
+                  <div className={styles.itemCorpo}>
+                    <p className={styles.itemMsg}>{n.mensagem}</p>
+                    <span className={styles.itemHora}>{formatarHora(n.hora)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <nav className={styles.bottomNav}>
         {itens.map((item) => (
           <div
@@ -93,7 +156,12 @@ export default function Navegacao() {
             className={`${styles.navItem} ${location.pathname === item.path ? styles.active : ''}`}
             onClick={() => navigate(item.path)}
           >
-            <span className={styles.navIcon}>{item.icon}</span>
+            <span className={styles.navIcon}>
+              {item.icon}
+              {item.path === '/reservas' && pendentes > 0 && (
+                <span className={styles.badge}>{pendentes > 9 ? '9+' : pendentes}</span>
+              )}
+            </span>
             <span className={styles.navText}>{item.label}</span>
           </div>
         ))}

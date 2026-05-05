@@ -4,6 +4,7 @@ import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
 import styles from './MinhasReservasPage.module.css';
 
+
 const STATUS_LABEL = {
   pendente:   { label: 'Pendente',   cor: styles.statusPendente },
   confirmada: { label: 'Confirmada', cor: styles.statusConfirmada },
@@ -11,29 +12,41 @@ const STATUS_LABEL = {
   cancelada:  { label: 'Cancelada',  cor: styles.statusCancelada },
 };
 
-const POLLING_INTERVAL = 30_000;
+const POLLING_INTERVAL = 10_000;
+const POR_PAGINA = 10;
 
 export default function MinhasReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [pagina, setPagina] = useState(1);
   const { addToast } = useToast();
   const statusAnterior = useRef({});
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  const totalPaginas = Math.ceil(reservas.length / POR_PAGINA);
+  const paginadas = reservas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+
   function detectarMudancas(novas) {
     novas.forEach(r => {
       const statusAnt = statusAnterior.current[r.id];
       if (statusAnt && statusAnt !== r.status) {
-        const label = STATUS_LABEL[r.status]?.label || r.status;
-        const tipo = r.status === 'confirmada' || r.status === 'concluida' ? 'success' : 'info';
-        addToast(`Pedido atualizado para: ${label}`, tipo);
+        if (r.status === 'concluida') {
+          addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
+        } else if (r.status === 'cancelada') {
+          addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
+        } else {
+          const label = STATUS_LABEL[r.status]?.label || r.status;
+          addToast(`Pedido atualizado para: ${label}`, 'info');
+        }
       }
       statusAnterior.current[r.id] = r.status;
     });
   }
 
   useEffect(() => {
+    api.limparReservasAntigasUsuario(user.id).catch(() => {});
+
     api.getReservasPorUsuario(user.id)
       .then((data) => {
         const lista = data || [];
@@ -87,7 +100,7 @@ export default function MinhasReservasPage() {
         )}
 
         <div className={styles.lista}>
-          {reservas.map((r) => {
+          {paginadas.map((r) => {
             const info = STATUS_LABEL[r.status] || STATUS_LABEL.pendente;
             return (
               <div key={r.id} className={styles.card}>
@@ -129,6 +142,28 @@ export default function MinhasReservasPage() {
             );
           })}
         </div>
+
+        {totalPaginas > 1 && (
+          <div className={styles.paginacao}>
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina(p => Math.max(1, p - 1))}
+              disabled={pagina === 1}
+            >‹</button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`${styles.paginaBtn} ${n === pagina ? styles.paginaAtiva : ''}`}
+                onClick={() => setPagina(n)}
+              >{n}</button>
+            ))}
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+              disabled={pagina === totalPaginas}
+            >›</button>
+          </div>
+        )}
 
       </div>
       <Navegacao />

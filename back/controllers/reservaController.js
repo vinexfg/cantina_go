@@ -80,6 +80,16 @@ class ReservaController {
     }
   }
 
+  static async limparAntigasUsuario(req, res, next) {
+    try {
+      const { usuario_id } = req.params;
+      const resultado = await ReservaService.limparAntigasUsuario(usuario_id);
+      Result.ok(resultado, 'Pedidos antigos removidos').send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
   static async remover(req, res, next) {
     try {
       const { id } = req.params;

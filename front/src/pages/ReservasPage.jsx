@@ -9,11 +9,17 @@ export function ReservasPage() {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  useEffect(() => {
+  function buscarReservas() {
     api.getReservasPorCantina(user.id)
       .then((data) => setReservas((data || []).filter((r) => r.status === 'pendente')))
-      .catch(() => setReservas([]))
+      .catch(() => {})
       .finally(() => setCarregando(false));
+  }
+
+  useEffect(() => {
+    buscarReservas();
+    const intervalo = setInterval(buscarReservas, 10000);
+    return () => clearInterval(intervalo);
   }, []);
 
   async function marcarEntregue(id) {
@@ -84,7 +90,7 @@ export function ReservasPage() {
                     Cancelar
                   </button>
                   <button className={styles.btnDeliver} onClick={() => marcarEntregue(r.id)}>
-                    Marcar Entregue
+                    Aceitar Reserva
                   </button>
                 </div>
               </div>

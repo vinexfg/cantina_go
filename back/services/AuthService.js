@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import UsuarioRepository from '../repositories/UsuarioRepository.js';
 import CantinaRepository from '../repositories/CantinaRepository.js';
+import ReservaRepository from '../repositories/ReservaRepository.js';
 import UsuarioService from './UsuarioService.js';
 import CantinaService from './CantinaService.js';
 import ValidationException from '../exceptions/ValidationException.js';
@@ -73,6 +74,19 @@ class AuthService {
 
     const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'usuario' });
     return { token, usuario: { id: row.id, nome: row.nome, email: row.email } };
+  }
+
+  async excluirConta(id, senha) {
+    if (!senha) throw new ValidationException('Senha é obrigatória para excluir a conta');
+
+    const row = await UsuarioRepository.findById(id);
+    if (!row) throw new NotFoundException('Usuário não encontrado');
+
+    const senhaCorreta = await bcrypt.compare(senha, row.senha);
+    if (!senhaCorreta) throw new ValidationException('Senha incorreta');
+
+    await ReservaRepository.deleteAllByUsuario(id);
+    await UsuarioRepository.delete(id);
   }
 
   static validarCredenciais(email, senha) {

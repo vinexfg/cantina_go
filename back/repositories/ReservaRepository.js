@@ -74,6 +74,29 @@ class ReservaRepository {
     }
   }
 
+  static async findHistoricoByCantina(cantina_id) {
+    const { rows } = await pool.query(
+      `SELECT r.*, u.nome AS usuario_nome
+       FROM reservas r
+       LEFT JOIN usuarios u ON r.usuario_id = u.id
+       WHERE r.cantina_id = $1
+         AND r.status = 'concluida'
+         AND r.created_at >= NOW() - INTERVAL '7 days'
+       ORDER BY r.created_at DESC`,
+      [cantina_id]
+    );
+    return rows;
+  }
+
+  static async limparAntigas() {
+    const { rowCount } = await pool.query(
+      `DELETE FROM reservas
+       WHERE status = 'concluida'
+         AND created_at < NOW() - INTERVAL '30 days'`
+    );
+    return rowCount;
+  }
+
   static async updateStatus(id, status) {
     const { rowCount } = await pool.query(
       'UPDATE reservas SET status = $1 WHERE id = $2',
@@ -101,6 +124,36 @@ class ReservaRepository {
       `DELETE FROM reservas
        WHERE status = 'concluida'
          AND created_at < NOW() - INTERVAL '7 days'`
+    );
+    return rowCount;
+  }
+
+  static async deleteAllByUsuario(usuario_id) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query(
+        `DELETE FROM reserva_itens
+         WHERE reserva_id IN (SELECT id FROM reservas WHERE usuario_id = $1)`,
+        [usuario_id]
+      );
+      await client.query('DELETE FROM reservas WHERE usuario_id = $1', [usuario_id]);
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async deleteAntigasUsuario(usuario_id) {
+    const { rowCount } = await pool.query(
+      `DELETE FROM reservas
+       WHERE usuario_id = $1
+         AND status IN ('concluida', 'cancelada')
+         AND created_at < NOW() - INTERVAL '7 days'`,
+      [usuario_id]
     );
     return rowCount;
   }
