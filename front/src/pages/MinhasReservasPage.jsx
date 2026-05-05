@@ -4,6 +4,7 @@ import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
 import styles from './MinhasReservasPage.module.css';
 
+
 const STATUS_LABEL = {
   pendente:   { label: 'Pendente',   cor: styles.statusPendente },
   confirmada: { label: 'Confirmada', cor: styles.statusConfirmada },
@@ -11,11 +12,13 @@ const STATUS_LABEL = {
   cancelada:  { label: 'Cancelada',  cor: styles.statusCancelada },
 };
 
-const POLLING_INTERVAL = 30_000;
+const POLLING_INTERVAL = 10_000;
+const POR_PAGINA = 10;
 
 export default function MinhasReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [pagina, setPagina] = useState(1);
   const { addToast } = useToast();
   const statusAnterior = useRef({});
 
@@ -25,9 +28,14 @@ export default function MinhasReservasPage() {
     novas.forEach(r => {
       const statusAnt = statusAnterior.current[r.id];
       if (statusAnt && statusAnt !== r.status) {
-        const label = STATUS_LABEL[r.status]?.label || r.status;
-        const tipo = r.status === 'confirmada' || r.status === 'concluida' ? 'success' : 'info';
-        addToast(`Pedido atualizado para: ${label}`, tipo);
+        if (r.status === 'concluida') {
+          addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
+        } else if (r.status === 'cancelada') {
+          addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
+        } else {
+          const label = STATUS_LABEL[r.status]?.label || r.status;
+          addToast(`Pedido atualizado para: ${label}`, 'info');
+        }
       }
       statusAnterior.current[r.id] = r.status;
     });

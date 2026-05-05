@@ -3,9 +3,13 @@ import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import styles from './HistoricoPage.module.css';
 
+const POR_PAGINA = 10;
+
 export function HistoricoPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [busca, setBusca] = useState('');
+  const [pagina, setPagina] = useState(1);
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -18,7 +22,19 @@ export function HistoricoPage() {
       .finally(() => setCarregando(false));
   }, []);
 
+  const filtradas = reservas.filter((r) =>
+    (r.usuario_nome || '').toLowerCase().includes(busca.toLowerCase())
+  );
+
+  const totalPaginas = Math.ceil(filtradas.length / POR_PAGINA);
+  const paginadas = filtradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+
   const total = reservas.reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
+
+  function handleBusca(e) {
+    setBusca(e.target.value);
+    setPagina(1);
+  }
 
   return (
     <div className={styles.container}>
@@ -40,12 +56,24 @@ export function HistoricoPage() {
           </div>
         </section>
 
+        <div className={styles.buscaWrapper}>
+          <input
+            className={styles.buscaInput}
+            type="text"
+            placeholder="Buscar por nome do aluno..."
+            value={busca}
+            onChange={handleBusca}
+          />
+        </div>
+
         <section className={styles.reservationsList}>
           {carregando && <p>Carregando...</p>}
-          {!carregando && reservas.length === 0 && (
-            <p className={styles.vazio}>Nenhum pedido entregue esta semana.</p>
+          {!carregando && filtradas.length === 0 && (
+            <p className={styles.vazio}>
+              {busca ? 'Nenhum pedido encontrado para esse nome.' : 'Nenhum pedido entregue esta semana.'}
+            </p>
           )}
-          {reservas.map((r) => (
+          {paginadas.map((r) => (
             <div key={r.id} className={styles.reservationCard}>
               <div className={styles.resHeader}>
                 <span className={styles.userName}>{r.usuario_nome || `#${r.id}`}</span>
@@ -73,6 +101,34 @@ export function HistoricoPage() {
             </div>
           ))}
         </section>
+
+        {totalPaginas > 1 && (
+          <div className={styles.paginacao}>
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina((p) => Math.max(1, p - 1))}
+              disabled={pagina === 1}
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                className={`${styles.paginaBtn} ${n === pagina ? styles.paginaAtiva : ''}`}
+                onClick={() => setPagina(n)}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              className={styles.paginaBtn}
+              onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+              disabled={pagina === totalPaginas}
+            >
+              ›
+            </button>
+          </div>
+        )}
 
       </div>
       <Navegacao />

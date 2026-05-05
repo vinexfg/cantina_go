@@ -33,7 +33,7 @@ async function request(method, path, body) {
 }
 
 export const api = {
-  getCantinas: () => request('GET', '/cantinas'),
+  getCantinas: () => request('GET', '/cantinas/lista'),
 
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),
@@ -53,4 +53,5 @@ export const api = {
   removerReserva: (id) => request('DELETE', `/reservas/${id}`),
   getHistorico: (cantina_id) => request('GET', `/reservas/cantina/${cantina_id}/historico`),
   limparReservasAntigas: () => request('DELETE', '/reservas/limpeza'),
+  excluirConta: (senha) => request('DELETE', '/auth/conta', { senha }),
 };

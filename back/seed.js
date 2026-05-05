@@ -9,15 +9,32 @@ const cantina = {
   senha: '123456',
 };
 
-const senhaHash = await bcrypt.hash(cantina.senha, 10);
+const usuario = {
+  id: crypto.randomUUID(),
+  nome: 'Aluno Teste',
+  email: 'aluno@teste.com',
+  senha: '123456',
+};
+
+const senhaHashCantina = await bcrypt.hash(cantina.senha, 10);
+const senhaHashUsuario = await bcrypt.hash(usuario.senha, 10);
 
 await pool.query(
-  'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO NOTHING',
-  [cantina.id, cantina.nome, cantina.email, senhaHash]
+  'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha',
+  [cantina.id, cantina.nome, cantina.email, senhaHashCantina]
 );
 
-console.log('Cantina de teste criada!');
+await pool.query(
+  'INSERT INTO usuarios (id, nome, email, senha) VALUES ($1, $2, $3, $4) ON CONFLICT (email) DO UPDATE SET senha = EXCLUDED.senha',
+  [usuario.id, usuario.nome, usuario.email, senhaHashUsuario]
+);
+
+console.log('--- Cantina (vendedor) ---');
 console.log('Email:', cantina.email);
 console.log('Senha:', cantina.senha);
+console.log('');
+console.log('--- Usuário (aluno) ---');
+console.log('Email:', usuario.email);
+console.log('Senha:', usuario.senha);
 
 await pool.end();

@@ -75,6 +75,18 @@ class AuthService {
     return { token, usuario: { id: row.id, nome: row.nome, email: row.email } };
   }
 
+  async excluirConta(id, senha) {
+    if (!senha) throw new ValidationException('Senha é obrigatória para excluir a conta');
+
+    const row = await UsuarioRepository.findById(id);
+    if (!row) throw new NotFoundException('Usuário não encontrado');
+
+    const senhaCorreta = await bcrypt.compare(senha, row.senha);
+    if (!senhaCorreta) throw new ValidationException('Senha incorreta');
+
+    await UsuarioRepository.delete(id);
+  }
+
   static validarCredenciais(email, senha) {
     const erros = {};
     if (!email) erros.email = 'Email é obrigatório';

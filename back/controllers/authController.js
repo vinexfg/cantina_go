@@ -49,6 +49,17 @@ class AuthController {
       next(erro);
     }
   }
+
+  static async excluirConta(req, res, next) {
+    try {
+      const { senha } = req.body;
+      const { id } = req.usuario;
+      await AuthService.excluirConta(id, senha);
+      Result.ok(null, 'Conta excluída com sucesso').send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
 }
 
 export default AuthController;
