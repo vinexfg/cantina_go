@@ -113,6 +113,43 @@
 
 .btnCancelar:hover { background: var(--btn-cancel-hover); }
 
+/* ── Paginação ── */
+.paginacao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.paginaBtn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.paginaBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.paginaBtn:disabled { opacity: 0.35; cursor: default; }
+
+.paginaAtiva {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
 @media (max-width: 480px) {
   .container { padding: 20px 12px 100px 12px; }
   .header h1 { font-size: 1.5rem; }
