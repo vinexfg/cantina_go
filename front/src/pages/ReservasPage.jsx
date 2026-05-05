@@ -6,14 +6,6 @@ import styles from './ReservasPage.module.css';
 export function ReservasPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const [filtroStatus, setFiltroStatus] = useState('pendente');
-
-  const FILTROS = [
-    { value: 'pendente',  label: 'Pendentes'  },
-    { value: 'concluida', label: 'Concluídas' },
-    { value: 'cancelada', label: 'Canceladas' },
-  ];
-
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   function buscarReservas() {
@@ -48,7 +40,7 @@ export function ReservasPage() {
     }
   }
 
-  const reservasFiltradas = reservas.filter((r) => r.status === filtroStatus);
+  const reservasFiltradas = reservas.filter((r) => r.status === 'pendente');
   const pendentesCount = reservas.filter((r) => r.status === 'pendente').length;
   const total = reservas
     .filter((r) => r.status === 'pendente')
@@ -74,16 +66,6 @@ export function ReservasPage() {
           </div>
         </section>
 
-        <div className={styles.filtros}>
-          {FILTROS.map(f => (
-            <button
-              key={f.value}
-              className={`${styles.filtroBtn} ${filtroStatus === f.value ? styles.filtroAtivo : ''}`}
-              onClick={() => setFiltroStatus(f.value)}
-            >{f.label}</button>
-          ))}
-        </div>
-
         <section className={styles.reservationsList}>
           {carregando && Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={`${styles.reservationCard} ${styles.skeletonCard}`}>
@@ -102,7 +84,7 @@ export function ReservasPage() {
             </div>
           ))}
           {!carregando && reservasFiltradas.length === 0 && (
-            <p style={{ color: '#64748b' }}>Nenhuma reserva {filtroStatus === 'pendente' ? 'pendente' : filtroStatus === 'concluida' ? 'concluída' : 'cancelada'}.</p>
+            <p style={{ color: '#64748b' }}>Nenhuma reserva pendente.</p>
           )}
           {reservasFiltradas.map((r) => (
             <div key={r.id} className={styles.reservationCard}>
