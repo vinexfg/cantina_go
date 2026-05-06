@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 
-const ReservasContext = createContext({ pendentes: 0 });
+const ReservasContext = createContext({ pendentes: 0, reservas: [], carregando: true, setReservas: () => {} });
 
 function tocarSom() {
   try {
@@ -40,12 +40,18 @@ function tocarSom() {
 
 export function ReservasProvider({ children }) {
   const [pendentes, setPendentes] = useState(0);
+  const [reservas, setReservas] = useState([]);
+  const [carregando, setCarregando] = useState(() => {
+    if (localStorage.getItem('tipo') !== 'cantina') return false;
+    return !!JSON.parse(localStorage.getItem('user') || '{}').id;
+  });
   const anteriorRef = useRef(null);
   const tituloOriginal = useRef(document.title);
 
   useEffect(() => {
     const tituloInicial = tituloOriginal.current;
     const tipo = localStorage.getItem('tipo');
+
     if (tipo !== 'cantina') return;
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -54,7 +60,8 @@ export function ReservasProvider({ children }) {
     function checar() {
       api.getReservasPorCantina(user.id)
         .then((data) => {
-          const count = (data || []).filter((r) => r.status === 'pendente').length;
+          const lista = data || [];
+          const count = lista.filter((r) => r.status === 'pendente').length;
 
           if (anteriorRef.current !== null && count > anteriorRef.current) {
             tocarSom();
@@ -62,6 +69,7 @@ export function ReservasProvider({ children }) {
 
           anteriorRef.current = count;
           setPendentes(count);
+          setReservas(lista);
 
           document.title = count > 0
             ? `(${count}) novo${count > 1 ? 's' : ''} pedido${count > 1 ? 's' : ''} — Cantina`
@@ -69,7 +77,8 @@ export function ReservasProvider({ children }) {
         })
         .catch(() => {
           // Falhas temporárias de polling não devem interromper a tela.
-        });
+        })
+        .finally(() => setCarregando(false));
     }
 
     checar();
@@ -82,12 +91,16 @@ export function ReservasProvider({ children }) {
   }, []);
 
   return (
-    <ReservasContext.Provider value={{ pendentes }}>
+    <ReservasContext.Provider value={{ pendentes, reservas, setReservas, carregando }}>
       {children}
     </ReservasContext.Provider>
   );
 }
 
 export function usePendentes() {
+  return useContext(ReservasContext);
+}
+
+export function useReservas() {
   return useContext(ReservasContext);
 }

@@ -1,3 +1,5 @@
+export const HISTORICO_DIAS = parseInt(process.env.HISTORICO_DIAS || '7', 10);
+
 class AppConfig {
   constructor() {
     this.corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';

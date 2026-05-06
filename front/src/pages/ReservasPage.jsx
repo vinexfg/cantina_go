@@ -1,25 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useReservas } from '../context/ReservasContext';
 import styles from './ReservasPage.module.css';
 
 export function ReservasPage() {
-  const [reservas, setReservas] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
-
-  const buscarReservas = useCallback(() => {
-    api.getReservasPorCantina(userId)
-      .then((data) => setReservas(data || []))
-      .catch(() => {})
-      .finally(() => setCarregando(false));
-  }, [userId]);
-
-  useEffect(() => {
-    buscarReservas();
-    const intervalo = setInterval(buscarReservas, 10000);
-    return () => clearInterval(intervalo);
-  }, [buscarReservas]);
+  const { reservas, setReservas, carregando } = useReservas();
 
   async function marcarEntregue(id) {
     try {
@@ -41,10 +26,8 @@ export function ReservasPage() {
   }
 
   const reservasFiltradas = reservas.filter((r) => r.status === 'pendente');
-  const pendentesCount = reservas.filter((r) => r.status === 'pendente').length;
-  const total = reservas
-    .filter((r) => r.status === 'pendente')
-    .reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
+  const pendentesCount = reservasFiltradas.length;
+  const total = reservasFiltradas.reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
 
   return (
     <div className={styles.container}>

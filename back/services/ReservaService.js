@@ -8,13 +8,13 @@ import ForbiddenException from '../exceptions/ForbiddenException.js';
 
 class ReservaService {
   validarCantinaAutenticada(usuario, cantina_id) {
-    if (!usuario || usuario.tipo !== 'cantina' || String(usuario.id) !== String(cantina_id)) {
+    if (!usuario || usuario.tipo !== 'cantina' || usuario.id !== String(cantina_id)) {
       throw new ForbiddenException('Você não pode acessar reservas de outra cantina');
     }
   }
 
   validarUsuarioAutenticado(usuario, usuario_id) {
-    if (!usuario || usuario.tipo !== 'usuario' || String(usuario.id) !== String(usuario_id)) {
+    if (!usuario || usuario.tipo !== 'usuario' || usuario.id !== String(usuario_id)) {
       throw new ForbiddenException('Você não pode acessar reservas de outro usuário');
     }
   }
@@ -24,11 +24,11 @@ class ReservaService {
       throw new ForbiddenException();
     }
 
-    if (usuario.tipo === 'cantina' && String(usuario.id) === String(reserva.cantina_id)) {
+    if (usuario.tipo === 'cantina' && usuario.id === String(reserva.cantina_id)) {
       return;
     }
 
-    if (usuario.tipo === 'usuario' && String(usuario.id) === String(reserva.usuario_id)) {
+    if (usuario.tipo === 'usuario' && usuario.id === String(reserva.usuario_id)) {
       return;
     }
 
@@ -118,7 +118,7 @@ class ReservaService {
         throw new ValidationException('Produto inválido', { produto_id: 'Produto não encontrado' });
       }
 
-      if (String(produto.cantina_id) !== String(reserva.cantina_id)) {
+      if (produto.cantina_id !== reserva.cantina_id) {
         throw new ValidationException('Produto inválido', {
           produto_id: 'Produto não pertence à cantina selecionada',
         });

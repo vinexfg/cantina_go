@@ -13,6 +13,7 @@ class AuthMiddleware {
 
     try {
       req.usuario = jwt.verify(token, process.env.JWT_SECRET);
+      req.usuario.id = String(req.usuario.id);
       return next();
     } catch {
       return Result.forbidden('Token inválido ou expirado').send(res);

@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import { HISTORICO_DIAS } from '../config/AppConfig.js';
 
 class ReservaRepository {
   static async findAll() {
@@ -81,9 +82,9 @@ class ReservaRepository {
        LEFT JOIN usuarios u ON r.usuario_id = u.id
        WHERE r.cantina_id = $1
          AND r.status = 'concluida'
-         AND r.created_at >= NOW() - INTERVAL '7 days'
+         AND r.created_at >= NOW() - ($2 * INTERVAL '1 day')
        ORDER BY r.created_at DESC`,
-      [cantina_id]
+      [cantina_id, HISTORICO_DIAS]
     );
     return rows;
   }
@@ -100,7 +101,8 @@ class ReservaRepository {
     const { rowCount } = await pool.query(
       `DELETE FROM reservas
        WHERE status = 'concluida'
-         AND created_at < NOW() - INTERVAL '7 days'`
+         AND created_at < NOW() - ($1 * INTERVAL '1 day')`,
+      [HISTORICO_DIAS]
     );
     return rowCount;
   }
@@ -129,8 +131,8 @@ class ReservaRepository {
       `DELETE FROM reservas
        WHERE usuario_id = $1
          AND status IN ('concluida', 'cancelada')
-         AND created_at < NOW() - INTERVAL '7 days'`,
-      [usuario_id]
+         AND created_at < NOW() - ($2 * INTERVAL '1 day')`,
+      [usuario_id, HISTORICO_DIAS]
     );
     return rowCount;
   }

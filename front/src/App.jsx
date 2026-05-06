@@ -10,6 +10,7 @@ import MinhasReservasPage from './pages/MinhasReservasPage';
 import VendedorPage from './pages/VendedorPage';
 import { ReservasPage } from './pages/ReservasPage';
 import { HistoricoPage } from './pages/HistoricoPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function RotaAluno({ children }) {
   const tipo = localStorage.getItem('tipo');
@@ -40,7 +41,7 @@ function App() {
           <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
           <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
           <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
       </NotificacoesProvider>

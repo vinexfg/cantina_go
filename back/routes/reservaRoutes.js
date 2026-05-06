@@ -1,6 +1,10 @@
 import express from 'express';
 const router = express.Router();
 import ReservaController from '../controllers/reservaController.js';
+import { validar } from '../middleware/ValidationMiddleware.js';
+
+const validarReserva = validar({ usuario_id: 'Usuário é obrigatório', cantina_id: 'Cantina é obrigatória', itens: 'Itens são obrigatórios' });
+const validarStatus  = validar({ status: 'Status é obrigatório' });
 
 // GET /api/reservas - Listar todas
 router.get('/', ReservaController.obterTodos);
@@ -24,10 +28,10 @@ router.delete('/usuario/:usuario_id/limpeza', ReservaController.limparAntigasUsu
 router.get('/:id', ReservaController.obterPorId);
 
 // POST /api/reservas - Criar reserva com itens
-router.post('/', ReservaController.criar);
+router.post('/', validarReserva, ReservaController.criar);
 
 // PATCH /api/reservas/:id/status - Atualizar status
-router.patch('/:id/status', ReservaController.atualizarStatus);
+router.patch('/:id/status', validarStatus, ReservaController.atualizarStatus);
 
 // DELETE /api/reservas/:id - Remover reserva
 router.delete('/:id', ReservaController.remover);
