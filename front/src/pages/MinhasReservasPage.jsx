@@ -46,7 +46,7 @@ export default function MinhasReservasPage() {
         const statusAnt = statusAnterior.current[r.id];
         if (statusAnt && statusAnt !== r.status) {
           if (r.status === 'concluida') {
-            addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
+            addToast('Reserva aceita com sucesso! Pedido reservado.', 'success', 8000);
           } else if (r.status === 'cancelada') {
             addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
           } else {

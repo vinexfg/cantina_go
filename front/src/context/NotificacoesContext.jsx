@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 
 const NotificacoesContext = createContext({ notificacoes: [], naoLidas: 0, marcarTodasLidas: () => {}, limpar: () => {} });
@@ -26,7 +27,7 @@ function tocarSom() {
 }
 
 const MENSAGENS = {
-  concluida: { texto: 'Seu pedido está pronto! Pode retirar na cantina.', tipo: 'success' },
+  concluida: { texto: 'Reserva aceita com sucesso! Pedido reservado.', tipo: 'success' },
   cancelada:  { texto: 'Seu pedido foi cancelado pela cantina.', tipo: 'error' },
 };
 
@@ -42,6 +43,7 @@ export function NotificacoesProvider({ children }) {
   const [notificacoes, setNotificacoes] = useState(carregarSalvas);
   const statusAnterior = useRef({});
   const inicializado = useRef(false);
+  const location = useLocation();
 
   const naoLidas = notificacoes.filter(n => !n.lida).length;
 
@@ -69,10 +71,18 @@ export function NotificacoesProvider({ children }) {
 
   useEffect(() => {
     const tipo = localStorage.getItem('tipo');
-    if (tipo !== 'usuario') return;
+    if (tipo !== 'usuario') {
+      statusAnterior.current = {};
+      inicializado.current = false;
+      return;
+    }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) return;
+    if (!user.id) {
+      statusAnterior.current = {};
+      inicializado.current = false;
+      return;
+    }
 
     function checar() {
       api.getReservasPorUsuario(user.id)
@@ -99,7 +109,7 @@ export function NotificacoesProvider({ children }) {
     checar();
     const intervalo = setInterval(checar, 10000);
     return () => clearInterval(intervalo);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <NotificacoesContext.Provider value={{ notificacoes, naoLidas, marcarTodasLidas, limpar }}>

@@ -32,9 +32,9 @@ function App() {
     <ThemeProvider>
       <ToastProvider>
       <ConfirmProvider>
+      <BrowserRouter>
       <ReservasProvider>
       <NotificacoesProvider>
-      <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
@@ -45,9 +45,9 @@ function App() {
           <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </BrowserRouter>
       </NotificacoesProvider>
       </ReservasProvider>
+      </BrowserRouter>
       </ConfirmProvider>
       </ToastProvider>
     </ThemeProvider>

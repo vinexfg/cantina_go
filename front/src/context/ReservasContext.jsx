@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 
 const ReservasContext = createContext({ pendentes: 0, reservas: [], carregando: true, setReservas: () => {} });
@@ -47,15 +48,24 @@ export function ReservasProvider({ children }) {
   });
   const anteriorRef = useRef(null);
   const tituloOriginal = useRef(document.title);
+  const location = useLocation();
 
   useEffect(() => {
     const tituloInicial = tituloOriginal.current;
     const tipo = localStorage.getItem('tipo');
 
-    if (tipo !== 'cantina') return;
+    if (tipo !== 'cantina') {
+      anteriorRef.current = null;
+      document.title = tituloInicial;
+      return;
+    }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) return;
+    if (!user.id) {
+      anteriorRef.current = null;
+      document.title = tituloInicial;
+      return;
+    }
 
     function checar() {
       api.getReservasPorCantina(user.id)
@@ -88,7 +98,7 @@ export function ReservasProvider({ children }) {
       clearInterval(intervalo);
       document.title = tituloInicial;
     };
-  }, []);
+  }, [location.pathname]);
 
   return (
     <ReservasContext.Provider value={{ pendentes, reservas, setReservas, carregando }}>
