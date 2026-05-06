@@ -33,9 +33,11 @@ export default function LoginPage() {
   const [sucesso, setSucesso] = useState('');
   const [carregando, setCarregando] = useState(false);
 
+  const [errosCampos, setErrosCampos] = useState({});
+
   const [cantinas, setCantinas] = useState([]);
   const [cantinaId, setCantinaId] = useState('');
-  const [carregandoCantinas, setCarregandoCantinas] = useState(false);
+  const [carregandoCantinas, setCarregandoCantinas] = useState(true);
 
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
@@ -47,12 +49,56 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAluno) return;
-    setCarregandoCantinas(true);
     api.getCantinas()
       .then(data => setCantinas(data || []))
       .catch(() => setCantinas([]))
       .finally(() => setCarregandoCantinas(false));
   }, [isAluno]);
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validarCampo(campo, valor) {
+    if (campo === 'nome') {
+      if (!valor.trim()) return 'Nome é obrigatório';
+      if (valor.trim().length < 3) return 'Nome deve ter pelo menos 3 caracteres';
+    }
+    if (campo === 'email') {
+      if (!valor.trim()) return 'Email é obrigatório';
+      if (!EMAIL_REGEX.test(valor.trim())) return 'Email inválido';
+    }
+    if (campo === 'confirmarEmail') {
+      if (!valor.trim()) return 'Confirmação de email é obrigatória';
+      if (valor !== email) return 'Os e-mails não coincidem';
+    }
+    if (campo === 'senha') {
+      if (!valor) return 'Senha é obrigatória';
+      if (valor.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
+    }
+    if (campo === 'cantinaId') {
+      if (!valor) return 'Selecione uma cantina';
+    }
+    return '';
+  }
+
+  function setCampoBorrado(campo, valor) {
+    const msg = validarCampo(campo, valor);
+    setErrosCampos(prev => ({ ...prev, [campo]: msg }));
+  }
+
+  function validarTudo() {
+    const erros = {};
+    if (modo === 'cadastro') {
+      erros.nome = validarCampo('nome', nome);
+      erros.confirmarEmail = validarCampo('confirmarEmail', confirmarEmail);
+    }
+    erros.email = validarCampo('email', email);
+    erros.senha = validarCampo('senha', senha);
+    if (isAluno && modo === 'login') {
+      erros.cantinaId = validarCampo('cantinaId', cantinaId);
+    }
+    setErrosCampos(erros);
+    return Object.values(erros).every(v => !v);
+  }
 
   function trocarAba(aluno) {
     setIsAluno(aluno);
@@ -64,21 +110,15 @@ export default function LoginPage() {
     setSenha('');
     setNome('');
     setCantinaId('');
+    setErrosCampos({});
+    setCarregandoCantinas(aluno);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErro('');
 
-    if (modo === 'cadastro' && email !== confirmarEmail) {
-      setErro('Os e-mails não coincidem.');
-      return;
-    }
-
-if (modo === 'login' && isAluno && !cantinaId) {
-      setErro('Selecione uma cantina para continuar.');
-      return;
-    }
+    if (!validarTudo()) return;
 
     setCarregando(true);
     try {
@@ -192,8 +232,10 @@ if (modo === 'login' && isAluno && !cantinaId) {
                   placeholder="Seu nome"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  required
+                  onBlur={(e) => setCampoBorrado('nome', e.target.value)}
+                  className={errosCampos.nome ? styles.inputErro : ''}
                 />
+                {errosCampos.nome && <span className={styles.erroMsg}>{errosCampos.nome}</span>}
               </div>
             )}
 
@@ -201,12 +243,14 @@ if (modo === 'login' && isAluno && !cantinaId) {
               <label htmlFor="email">Email</label>
               <input
                 id="email"
-                type="email"
+                type="text"
                 placeholder={isAluno ? 'seu.email@escola.br' : 'vendedor@cantinago.br'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
+                onBlur={(e) => setCampoBorrado('email', e.target.value)}
+                className={errosCampos.email ? styles.inputErro : ''}
               />
+              {errosCampos.email && <span className={styles.erroMsg}>{errosCampos.email}</span>}
             </div>
 
             {modo === 'cadastro' && (
@@ -214,12 +258,14 @@ if (modo === 'login' && isAluno && !cantinaId) {
                 <label htmlFor="confirmarEmail">Confirmar e-mail</label>
                 <input
                   id="confirmarEmail"
-                  type="email"
+                  type="text"
                   placeholder="Digite o e-mail novamente"
                   value={confirmarEmail}
                   onChange={(e) => setConfirmarEmail(e.target.value)}
-                  required
+                  onBlur={(e) => setCampoBorrado('confirmarEmail', e.target.value)}
+                  className={errosCampos.confirmarEmail ? styles.inputErro : ''}
                 />
+                {errosCampos.confirmarEmail && <span className={styles.erroMsg}>{errosCampos.confirmarEmail}</span>}
               </div>
             )}
 
@@ -231,10 +277,11 @@ if (modo === 'login' && isAluno && !cantinaId) {
                 placeholder="••••••••"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                required
+                onBlur={(e) => setCampoBorrado('senha', e.target.value)}
+                className={errosCampos.senha ? styles.inputErro : ''}
               />
+              {errosCampos.senha && <span className={styles.erroMsg}>{errosCampos.senha}</span>}
             </div>
-
 
             {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>
@@ -242,9 +289,10 @@ if (modo === 'login' && isAluno && !cantinaId) {
                 <select
                   id="cantina"
                   value={cantinaId}
-                  onChange={(e) => setCantinaId(e.target.value)}
+                  onChange={(e) => { setCantinaId(e.target.value); setCampoBorrado('cantinaId', e.target.value); }}
+                  onBlur={(e) => setCampoBorrado('cantinaId', e.target.value)}
                   disabled={carregandoCantinas}
-                  required
+                  className={errosCampos.cantinaId ? styles.inputErro : ''}
                 >
                   <option value="">
                     {carregandoCantinas ? 'Carregando...' : 'Selecione uma cantina'}
@@ -253,6 +301,7 @@ if (modo === 'login' && isAluno && !cantinaId) {
                     <option key={c.id} value={c.id}>{c.nome}</option>
                   ))}
                 </select>
+                {errosCampos.cantinaId && <span className={styles.erroMsg}>{errosCampos.cantinaId}</span>}
               </div>
             )}
 

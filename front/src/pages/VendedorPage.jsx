@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './VendedorPage.module.css';
 
 export default function VendedorPage() {
@@ -11,27 +12,41 @@ export default function VendedorPage() {
   const [preco, setPreco] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [editando, setEditando] = useState(null);
+  const [errosForm, setErrosForm] = useState({});
 
   const navigate = useNavigate();
+  const { confirm } = useConfirm();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = user.id;
 
   function sair() {
     localStorage.clear();
     navigate('/');
   }
 
-  useEffect(() => {
-    carregarProdutos();
-  }, []);
-
-  async function carregarProdutos() {
+  const carregarProdutos = useCallback(async () => {
     try {
-      const data = await api.getProdutosPorCantina(user.id);
+      const { data } = await api.getProdutosPorCantina(userId);
       setProdutos(data || []);
     } catch {
       setProdutos([]);
     }
-  }
+  }, [userId]);
+
+  useEffect(() => {
+    let ativo = true;
+    api.getProdutosPorCantina(userId)
+      .then(({ data }) => {
+        if (ativo) setProdutos(data || []);
+      })
+      .catch(() => {
+        if (ativo) setProdutos([]);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [userId]);
 
   async function toggleDisponivel(produto) {
     try {
@@ -65,10 +80,21 @@ export default function VendedorPage() {
     setDescricao('');
     setPreco('');
     setMensagem('');
+    setErrosForm({});
+  }
+
+  function validarFormProduto() {
+    const erros = {};
+    if (!nome.trim()) erros.nome = 'Nome é obrigatório';
+    const precoNum = parseFloat(preco);
+    if (!preco) erros.preco = 'Preço é obrigatório';
+    else if (isNaN(precoNum) || precoNum < 0) erros.preco = 'Preço deve ser um número positivo';
+    setErrosForm(erros);
+    return Object.keys(erros).length === 0;
   }
 
   async function excluirProduto(id) {
-    if (!confirm('Excluir este produto?')) return;
+    if (!await confirm('Excluir este produto?')) return;
     try {
       await api.removerProduto(id);
       setProdutos((prev) => prev.filter((p) => p.id !== id));
@@ -80,19 +106,20 @@ export default function VendedorPage() {
   async function salvarProduto(e) {
     e.preventDefault();
     setMensagem('');
+    if (!validarFormProduto()) return;
     try {
       if (editando) {
         await api.atualizarProduto(editando.id, {
           nome,
           descricao,
           preco: parseFloat(preco),
-          cantina_id: user.id,
+          cantina_id: userId,
           disponivel: editando.disponivel,
         });
         setMensagem('Produto atualizado com sucesso!');
         cancelarEdicao();
       } else {
-        await api.criarProduto({ nome, descricao, preco: parseFloat(preco), cantina_id: user.id });
+        await api.criarProduto({ nome, descricao, preco: parseFloat(preco), cantina_id: userId });
         setNome('');
         setDescricao('');
         setPreco('');
@@ -161,7 +188,14 @@ export default function VendedorPage() {
           <form className={`${styles.formCard} ${editando ? styles.formEditando : ''}`} onSubmit={salvarProduto}>
             <div className={styles.inputGroup}>
               <label>Nome do Alimento</label>
-              <input type="text" placeholder="Ex: Pastel de Carne" value={nome} onChange={(e) => setNome(e.target.value)} required />
+              <input
+                type="text"
+                placeholder="Ex: Pastel de Carne"
+                value={nome}
+                onChange={(e) => { setNome(e.target.value); if (errosForm.nome) setErrosForm(p => ({ ...p, nome: '' })); }}
+                className={errosForm.nome ? styles.inputErro : ''}
+              />
+              {errosForm.nome && <span className={styles.erroMsg}>{errosForm.nome}</span>}
             </div>
             <div className={styles.inputGroup}>
               <label>Descrição</label>
@@ -169,7 +203,16 @@ export default function VendedorPage() {
             </div>
             <div className={styles.inputGroup}>
               <label>Preço</label>
-              <input type="number" placeholder="0.00" step="0.01" min="0" value={preco} onChange={(e) => setPreco(e.target.value)} required />
+              <input
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                value={preco}
+                onChange={(e) => { setPreco(e.target.value); if (errosForm.preco) setErrosForm(p => ({ ...p, preco: '' })); }}
+                className={errosForm.preco ? styles.inputErro : ''}
+              />
+              {errosForm.preco && <span className={styles.erroMsg}>{errosForm.preco}</span>}
             </div>
             <button type="submit" className={styles.btnSave}>{editando ? 'Atualizar' : 'Salvar Produto'}</button>
             {editando && (

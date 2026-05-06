@@ -1,58 +1,37 @@
-import { useState, useEffect } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useReservas } from '../context/ReservasContext';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './ReservasPage.module.css';
 
 export function ReservasPage() {
-  const [reservas, setReservas] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [filtroStatus, setFiltroStatus] = useState('pendente');
-
-  const FILTROS = [
-    { value: 'pendente',  label: 'Pendentes'  },
-    { value: 'concluida', label: 'Concluídas' },
-    { value: 'cancelada', label: 'Canceladas' },
-  ];
-
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  function buscarReservas() {
-    api.getReservasPorCantina(user.id)
-      .then((data) => setReservas(data || []))
-      .catch(() => {})
-      .finally(() => setCarregando(false));
-  }
-
-  useEffect(() => {
-    buscarReservas();
-    const intervalo = setInterval(buscarReservas, 10000);
-    return () => clearInterval(intervalo);
-  }, []);
+  const { reservas, setReservas, carregando } = useReservas();
+  const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   async function marcarEntregue(id) {
     try {
       await api.atualizarStatusReserva(id, 'concluida');
       setReservas((prev) => prev.map((r) => r.id === id ? { ...r, status: 'concluida' } : r));
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   }
 
   async function cancelarPedido(id) {
-    if (!confirm('Cancelar este pedido? O cliente será notificado.')) return;
+    if (!await confirm('Cancelar este pedido? O cliente será notificado.')) return;
     try {
       await api.atualizarStatusReserva(id, 'cancelada');
       setReservas((prev) => prev.map((r) => r.id === id ? { ...r, status: 'cancelada' } : r));
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   }
 
-  const reservasFiltradas = reservas.filter((r) => r.status === filtroStatus);
-  const pendentesCount = reservas.filter((r) => r.status === 'pendente').length;
-  const total = reservas
-    .filter((r) => r.status === 'pendente')
-    .reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
+  const reservasFiltradas = reservas.filter((r) => r.status === 'pendente');
+  const pendentesCount = reservasFiltradas.length;
+  const total = reservasFiltradas.reduce((acc, r) => acc + parseFloat(r.total || 0), 0);
 
   return (
     <div className={styles.container}>
@@ -74,16 +53,6 @@ export function ReservasPage() {
           </div>
         </section>
 
-        <div className={styles.filtros}>
-          {FILTROS.map(f => (
-            <button
-              key={f.value}
-              className={`${styles.filtroBtn} ${filtroStatus === f.value ? styles.filtroAtivo : ''}`}
-              onClick={() => setFiltroStatus(f.value)}
-            >{f.label}</button>
-          ))}
-        </div>
-
         <section className={styles.reservationsList}>
           {carregando && Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className={`${styles.reservationCard} ${styles.skeletonCard}`}>
@@ -102,7 +71,7 @@ export function ReservasPage() {
             </div>
           ))}
           {!carregando && reservasFiltradas.length === 0 && (
-            <p style={{ color: '#64748b' }}>Nenhuma reserva {filtroStatus === 'pendente' ? 'pendente' : filtroStatus === 'concluida' ? 'concluída' : 'cancelada'}.</p>
+            <p style={{ color: '#64748b' }}>Nenhuma reserva pendente.</p>
           )}
           {reservasFiltradas.map((r) => (
             <div key={r.id} className={styles.reservationCard}>

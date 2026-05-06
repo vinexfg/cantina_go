@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 
-const ReservasContext = createContext({ pendentes: 0 });
+const ReservasContext = createContext({ pendentes: 0, reservas: [], carregando: true, setReservas: () => {} });
 
 function tocarSom() {
   try {
@@ -33,25 +34,44 @@ function tocarSom() {
     osc2.stop(ctx.currentTime + 0.9);
 
     osc1.onended = () => ctx.close();
-  } catch (_) {}
+  } catch {
+    // O aviso sonoro é opcional.
+  }
 }
 
 export function ReservasProvider({ children }) {
   const [pendentes, setPendentes] = useState(0);
+  const [reservas, setReservas] = useState([]);
+  const [carregando, setCarregando] = useState(() => {
+    if (localStorage.getItem('tipo') !== 'cantina') return false;
+    return !!JSON.parse(localStorage.getItem('user') || '{}').id;
+  });
   const anteriorRef = useRef(null);
   const tituloOriginal = useRef(document.title);
+  const location = useLocation();
 
   useEffect(() => {
+    const tituloInicial = tituloOriginal.current;
     const tipo = localStorage.getItem('tipo');
-    if (tipo !== 'cantina') return;
+
+    if (tipo !== 'cantina') {
+      anteriorRef.current = null;
+      document.title = tituloInicial;
+      return;
+    }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) return;
+    if (!user.id) {
+      anteriorRef.current = null;
+      document.title = tituloInicial;
+      return;
+    }
 
     function checar() {
       api.getReservasPorCantina(user.id)
-        .then((data) => {
-          const count = (data || []).filter((r) => r.status === 'pendente').length;
+        .then(({ data }) => {
+          const lista = data || [];
+          const count = lista.filter((r) => r.status === 'pendente').length;
 
           if (anteriorRef.current !== null && count > anteriorRef.current) {
             tocarSom();
@@ -59,12 +79,16 @@ export function ReservasProvider({ children }) {
 
           anteriorRef.current = count;
           setPendentes(count);
+          setReservas(lista);
 
           document.title = count > 0
             ? `(${count}) novo${count > 1 ? 's' : ''} pedido${count > 1 ? 's' : ''} — Cantina`
             : tituloOriginal.current;
         })
-        .catch(() => {});
+        .catch(() => {
+          // Falhas temporárias de polling não devem interromper a tela.
+        })
+        .finally(() => setCarregando(false));
     }
 
     checar();
@@ -72,17 +96,21 @@ export function ReservasProvider({ children }) {
 
     return () => {
       clearInterval(intervalo);
-      document.title = tituloOriginal.current;
+      document.title = tituloInicial;
     };
-  }, []);
+  }, [location.pathname]);
 
   return (
-    <ReservasContext.Provider value={{ pendentes }}>
+    <ReservasContext.Provider value={{ pendentes, reservas, setReservas, carregando }}>
       {children}
     </ReservasContext.Provider>
   );
 }
 
 export function usePendentes() {
+  return useContext(ReservasContext);
+}
+
+export function useReservas() {
   return useContext(ReservasContext);
 }

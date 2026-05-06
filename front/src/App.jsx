@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { ConfirmProvider } from './context/ConfirmContext';
 import { ReservasProvider } from './context/ReservasContext';
 import { NotificacoesProvider } from './context/NotificacoesContext';
 import LoginPage from './pages/LoginPage';
@@ -10,6 +11,7 @@ import MinhasReservasPage from './pages/MinhasReservasPage';
 import VendedorPage from './pages/VendedorPage';
 import { ReservasPage } from './pages/ReservasPage';
 import { HistoricoPage } from './pages/HistoricoPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function RotaAluno({ children }) {
   const tipo = localStorage.getItem('tipo');
@@ -29,9 +31,10 @@ function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
+      <ConfirmProvider>
+      <BrowserRouter>
       <ReservasProvider>
       <NotificacoesProvider>
-      <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
@@ -40,11 +43,12 @@ function App() {
           <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
           <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
           <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </BrowserRouter>
       </NotificacoesProvider>
       </ReservasProvider>
+      </BrowserRouter>
+      </ConfirmProvider>
       </ToastProvider>
     </ThemeProvider>
   );

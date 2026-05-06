@@ -151,6 +151,18 @@
 
 .drawerAberto { transform: translateY(0); }
 
+@media (min-width: 768px) {
+  .drawer {
+    left: 50%;
+    right: auto;
+    width: 480px;
+    transform: translateX(-50%) translateY(100%);
+    border-radius: 22px 22px 0 0;
+    max-height: 70vh;
+  }
+  .drawerAberto { transform: translateX(-50%) translateY(0); }
+}
+
 .drawerHeader {
   display: flex;
   justify-content: space-between;

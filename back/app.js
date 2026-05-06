@@ -1,9 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import AppConfig from './config/AppConfig.js';
 import LoggerMiddleware from './middleware/LoggerMiddleware.js';
 import AuthMiddleware from './middleware/AuthMiddleware.js';
 import ErrorMiddleware from './middleware/ErrorMiddleware.js';
+import { apiLimiter } from './middleware/RateLimitMiddleware.js';
 import WelcomePage from './views/WelcomePage.js';
 import CantinaController from './controllers/cantinaController.js';
 import authRoutes from './routes/authRoutes.js';
@@ -12,14 +16,19 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import cantinaRoutes from './routes/cantinaRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const config = new AppConfig();
 const app = express();
 const welcomePage = new WelcomePage(config);
 
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-origin' } }));
+app.use(express.static(join(__dirname, 'public')));
 app.use(cors(config.getCorsConfig()));
 app.use(express.json(config.getExpressJsonConfig()));
 app.use(express.urlencoded({ extended: true }));
 app.use(LoggerMiddleware.createLogger());
+app.use('/api', apiLimiter);
 
 // Rotas públicas
 app.get(['/', '/api', '/api/bemvindo'], (req, res) => {

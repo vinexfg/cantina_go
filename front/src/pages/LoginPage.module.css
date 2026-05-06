@@ -302,6 +302,21 @@
 
 .btnSubmit:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── Validação por campo ── */
+.formGroup input.inputErro,
+.formGroup select.inputErro {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+}
+
+.erroMsg {
+  display: block;
+  font-size: 0.76rem;
+  color: #dc2626;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 /* ── Mensagens ── */
 .sucesso {
   color: #15803d;

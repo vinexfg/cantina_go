@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 
 const NotificacoesContext = createContext({ notificacoes: [], naoLidas: 0, marcarTodasLidas: () => {}, limpar: () => {} });
@@ -20,11 +21,13 @@ function tocarSom() {
     osc1.start(ctx.currentTime); osc1.stop(ctx.currentTime + 0.9);
     osc2.start(ctx.currentTime); osc2.stop(ctx.currentTime + 0.9);
     osc1.onended = () => ctx.close();
-  } catch (_) {}
+  } catch {
+    // O aviso sonoro é opcional.
+  }
 }
 
 const MENSAGENS = {
-  concluida: { texto: 'Seu pedido está pronto! Pode retirar na cantina.', tipo: 'success' },
+  concluida: { texto: 'Reserva aceita com sucesso! Pedido reservado.', tipo: 'success' },
   cancelada:  { texto: 'Seu pedido foi cancelado pela cantina.', tipo: 'error' },
 };
 
@@ -40,6 +43,7 @@ export function NotificacoesProvider({ children }) {
   const [notificacoes, setNotificacoes] = useState(carregarSalvas);
   const statusAnterior = useRef({});
   const inicializado = useRef(false);
+  const location = useLocation();
 
   const naoLidas = notificacoes.filter(n => !n.lida).length;
 
@@ -67,14 +71,22 @@ export function NotificacoesProvider({ children }) {
 
   useEffect(() => {
     const tipo = localStorage.getItem('tipo');
-    if (tipo !== 'usuario') return;
+    if (tipo !== 'usuario') {
+      statusAnterior.current = {};
+      inicializado.current = false;
+      return;
+    }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) return;
+    if (!user.id) {
+      statusAnterior.current = {};
+      inicializado.current = false;
+      return;
+    }
 
     function checar() {
       api.getReservasPorUsuario(user.id)
-        .then(data => {
+        .then(({ data }) => {
           const lista = data || [];
           lista.forEach(r => {
             const anterior = statusAnterior.current[r.id];
@@ -89,13 +101,15 @@ export function NotificacoesProvider({ children }) {
           });
           if (!inicializado.current) inicializado.current = true;
         })
-        .catch(() => {});
+        .catch(() => {
+          // Falhas temporárias de polling não devem interromper a tela.
+        });
     }
 
     checar();
     const intervalo = setInterval(checar, 10000);
     return () => clearInterval(intervalo);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <NotificacoesContext.Provider value={{ notificacoes, naoLidas, marcarTodasLidas, limpar }}>

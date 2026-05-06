@@ -1,8 +1,19 @@
 import ProdutoRepository from '../repositories/ProdutoRepository.js';
 import Produto from '../valueObjects/Produto.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
+import ForbiddenException from '../exceptions/ForbiddenException.js';
 
 class ProdutoService {
+  validarCantinaAutenticada(usuario, cantina_id) {
+    if (!usuario || usuario.tipo !== 'cantina') {
+      throw new ForbiddenException('Apenas cantinas podem gerenciar produtos');
+    }
+
+    if (String(usuario.id) !== String(cantina_id)) {
+      throw new ForbiddenException('Você não pode gerenciar produtos de outra cantina');
+    }
+  }
+
   async obterTodos() {
     const produtos = await ProdutoRepository.findAll();
     return produtos.map(row => Produto.fromRow(row).toJSON());
@@ -16,17 +27,18 @@ class ProdutoService {
     return Produto.fromRow(produto).toJSON();
   }
 
-  async obterDisponiveis() {
-    const produtos = await ProdutoRepository.findDisponiveis();
-    return produtos.map(row => Produto.fromRow(row).toJSON());
+  async obterDisponiveis({ page, limit } = {}) {
+    const { dados, total } = await ProdutoRepository.findDisponiveis({ page, limit });
+    return { dados: dados.map(row => Produto.fromRow(row).toJSON()), total };
   }
 
-  async obterPorCantina(cantina_id) {
-    const produtos = await ProdutoRepository.findByCantina(cantina_id);
-    return produtos.map(row => Produto.fromRow(row).toJSON());
+  async obterPorCantina(cantina_id, { page, limit } = {}) {
+    const { dados, total } = await ProdutoRepository.findByCantina(cantina_id, { page, limit });
+    return { dados: dados.map(row => Produto.fromRow(row).toJSON()), total };
   }
 
-  async criar(dados) {
+  async criar(dados, usuarioAutenticado = null) {
+    this.validarCantinaAutenticada(usuarioAutenticado, dados.cantina_id);
     const produto = Produto.criar(dados);
     const produtoCriado = await ProdutoRepository.create({
       id: produto.id.toString(),
@@ -39,8 +51,11 @@ class ProdutoService {
     return Produto.fromRow(produtoCriado).toJSON();
   }
 
-  async atualizar(id, dados) {
-    await this.obterPorId(id);
+  async atualizar(id, dados, usuarioAutenticado = null) {
+    const produtoExistente = await this.obterPorId(id);
+    this.validarCantinaAutenticada(usuarioAutenticado, produtoExistente.cantina_id);
+    this.validarCantinaAutenticada(usuarioAutenticado, dados.cantina_id);
+
     const produto = Produto.criar({ ...dados, id });
 
     await ProdutoRepository.update(id, {
@@ -54,8 +69,9 @@ class ProdutoService {
     return { success: true };
   }
 
-  async remover(id) {
-    await this.obterPorId(id);
+  async remover(id, usuarioAutenticado = null) {
+    const produto = await this.obterPorId(id);
+    this.validarCantinaAutenticada(usuarioAutenticado, produto.cantina_id);
     await ProdutoRepository.delete(id);
   }
 }

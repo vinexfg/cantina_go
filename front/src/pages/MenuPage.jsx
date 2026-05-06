@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useToast } from '../context/ToastContext';
 import styles from './MenuPage.module.css';
+
+const POLLING_INTERVAL = 10_000;
 
 export function MenuPage() {
   const [produtos, setProdutos] = useState([]);
@@ -11,17 +14,57 @@ export function MenuPage() {
   const [mensagem, setMensagem] = useState('');
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const mensagemTimer = useRef(null);
+  const produtosRef = useRef([]);
+  const carrinhoRef = useRef({});
+  const { addToast } = useToast();
 
-  useEffect(() => {
+  useEffect(() => { carrinhoRef.current = carrinho; }, [carrinho]);
+
+  const buscarProdutos = useCallback(() => {
     const cantina_id = localStorage.getItem('cantina_id');
     const buscar = cantina_id
       ? api.getProdutosPorCantina(cantina_id)
       : api.getProdutosDisponiveis();
-    buscar
-      .then(data => setProdutos((data || []).filter(p => p.disponivel)))
-      .catch(() => setProdutos([]))
-      .finally(() => setCarregando(false));
+    return buscar
+      .then(({ data }) => (data || []).filter(p => p.disponivel))
+      .catch(() => []);
   }, []);
+
+  useEffect(() => {
+    buscarProdutos()
+      .then(lista => {
+        setProdutos(lista);
+        produtosRef.current = lista;
+      })
+      .finally(() => setCarregando(false));
+
+    const intervalo = setInterval(() => {
+      buscarProdutos().then(lista => {
+        const idsDisponiveis = new Set(lista.map(p => p.id));
+        const removidos = Object.keys(carrinhoRef.current).filter(id => !idsDisponiveis.has(id));
+
+        removidos.forEach(id => {
+          const produto = produtosRef.current.find(p => p.id === id);
+          addToast(
+            `"${produto?.nome || 'Item'}" ficou indisponível e foi removido do seu carrinho.`,
+            'error',
+            6000
+          );
+        });
+
+        setProdutos(lista);
+        produtosRef.current = lista;
+
+        if (removidos.length > 0) {
+          setCarrinho(prev => Object.fromEntries(
+            Object.entries(prev).filter(([id]) => idsDisponiveis.has(id))
+          ));
+        }
+      });
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(intervalo);
+  }, [buscarProdutos, addToast]);
 
   function alterar(id, delta) {
     setCarrinho((prev) => {

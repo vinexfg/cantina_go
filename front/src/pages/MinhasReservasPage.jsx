@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './MinhasReservasPage.module.css';
 
 
@@ -29,36 +30,38 @@ export default function MinhasReservasPage() {
     { value: 'cancelada',  label: 'Cancelada'  },
   ];
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const statusAnterior = useRef({});
-
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const reservasFiltradas = filtroStatus ? reservas.filter(r => r.status === filtroStatus) : reservas;
   const totalPaginas = Math.ceil(reservasFiltradas.length / POR_PAGINA);
   const paginadas = reservasFiltradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
-  function detectarMudancas(novas) {
-    novas.forEach(r => {
-      const statusAnt = statusAnterior.current[r.id];
-      if (statusAnt && statusAnt !== r.status) {
-        if (r.status === 'concluida') {
-          addToast('Seu pedido está pronto! Pode retirar na cantina.', 'success', 8000);
-        } else if (r.status === 'cancelada') {
-          addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
-        } else {
-          const label = STATUS_LABEL[r.status]?.label || r.status;
-          addToast(`Pedido atualizado para: ${label}`, 'info');
-        }
-      }
-      statusAnterior.current[r.id] = r.status;
-    });
-  }
-
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+
+    function detectarMudancas(novas) {
+      novas.forEach(r => {
+        const statusAnt = statusAnterior.current[r.id];
+        if (statusAnt && statusAnt !== r.status) {
+          if (r.status === 'concluida') {
+            addToast('Reserva aceita com sucesso! Pedido reservado.', 'success', 8000);
+          } else if (r.status === 'cancelada') {
+            addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
+          } else {
+            const label = STATUS_LABEL[r.status]?.label || r.status;
+            addToast(`Pedido atualizado para: ${label}`, 'info');
+          }
+        }
+        statusAnterior.current[r.id] = r.status;
+      });
+    }
+
     api.limparReservasAntigasUsuario(user.id).catch(() => {});
 
     api.getReservasPorUsuario(user.id)
-      .then((data) => {
+      .then(({ data }) => {
         const lista = data || [];
         lista.forEach(r => { statusAnterior.current[r.id] = r.status; });
         setReservas(lista);
@@ -68,7 +71,7 @@ export default function MinhasReservasPage() {
 
     const intervalo = setInterval(() => {
       api.getReservasPorUsuario(user.id)
-        .then((data) => {
+        .then(({ data }) => {
           const lista = data || [];
           detectarMudancas(lista);
           setReservas(lista);
@@ -77,10 +80,10 @@ export default function MinhasReservasPage() {
     }, POLLING_INTERVAL);
 
     return () => clearInterval(intervalo);
-  }, []);
+  }, [addToast]);
 
   async function cancelar(id) {
-    if (!confirm('Cancelar esta reserva?')) return;
+    if (!await confirm('Cancelar esta reserva?')) return;
     try {
       await api.removerReserva(id);
       setReservas((prev) => prev.filter((r) => r.id !== id));

@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import { HISTORICO_DIAS } from '../config/AppConfig.js';
 
 class ReservaRepository {
   static async findAll() {
@@ -24,24 +25,32 @@ class ReservaRepository {
     return rows;
   }
 
-  static async findByCantina(cantina_id) {
-    const { rows } = await pool.query(
-      `SELECT r.*, u.nome AS usuario_nome
-       FROM reservas r
-       LEFT JOIN usuarios u ON r.usuario_id = u.id
-       WHERE r.cantina_id = $1
-       ORDER BY r.created_at DESC`,
-      [cantina_id]
-    );
-    return rows;
+  static async findByCantina(cantina_id, { page = 1, limit = 20 } = {}) {
+    const offset = (page - 1) * limit;
+    const [{ rows }, { rows: [{ total }] }] = await Promise.all([
+      pool.query(
+        `SELECT r.*, u.nome AS usuario_nome
+         FROM reservas r
+         LEFT JOIN usuarios u ON r.usuario_id = u.id
+         WHERE r.cantina_id = $1
+         ORDER BY r.created_at DESC LIMIT $2 OFFSET $3`,
+        [cantina_id, limit, offset]
+      ),
+      pool.query('SELECT COUNT(*)::int AS total FROM reservas WHERE cantina_id = $1', [cantina_id]),
+    ]);
+    return { dados: rows, total: Number(total) };
   }
 
-  static async findByUsuario(usuario_id) {
-    const { rows } = await pool.query(
-      'SELECT * FROM reservas WHERE usuario_id = $1 ORDER BY created_at DESC',
-      [usuario_id]
-    );
-    return rows;
+  static async findByUsuario(usuario_id, { page = 1, limit = 20 } = {}) {
+    const offset = (page - 1) * limit;
+    const [{ rows }, { rows: [{ total }] }] = await Promise.all([
+      pool.query(
+        'SELECT * FROM reservas WHERE usuario_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+        [usuario_id, limit, offset]
+      ),
+      pool.query('SELECT COUNT(*)::int AS total FROM reservas WHERE usuario_id = $1', [usuario_id]),
+    ]);
+    return { dados: rows, total: Number(total) };
   }
 
   static async createComItens(reservaData, itensData) {
@@ -74,27 +83,24 @@ class ReservaRepository {
     }
   }
 
-  static async findHistoricoByCantina(cantina_id) {
-    const { rows } = await pool.query(
-      `SELECT r.*, u.nome AS usuario_nome
-       FROM reservas r
-       LEFT JOIN usuarios u ON r.usuario_id = u.id
-       WHERE r.cantina_id = $1
-         AND r.status = 'concluida'
-         AND r.created_at >= NOW() - INTERVAL '7 days'
-       ORDER BY r.created_at DESC`,
-      [cantina_id]
-    );
-    return rows;
-  }
-
-  static async limparAntigas() {
-    const { rowCount } = await pool.query(
-      `DELETE FROM reservas
-       WHERE status = 'concluida'
-         AND created_at < NOW() - INTERVAL '30 days'`
-    );
-    return rowCount;
+  static async findHistoricoByCantina(cantina_id, { page = 1, limit = 20 } = {}) {
+    const offset = (page - 1) * limit;
+    const baseWhere = `r.cantina_id = $1 AND r.status = 'concluida' AND r.created_at >= NOW() - ($2 * INTERVAL '1 day')`;
+    const [{ rows }, { rows: [{ total }] }] = await Promise.all([
+      pool.query(
+        `SELECT r.*, u.nome AS usuario_nome
+         FROM reservas r
+         LEFT JOIN usuarios u ON r.usuario_id = u.id
+         WHERE ${baseWhere}
+         ORDER BY r.created_at DESC LIMIT $3 OFFSET $4`,
+        [cantina_id, HISTORICO_DIAS, limit, offset]
+      ),
+      pool.query(
+        `SELECT COUNT(*)::int AS total FROM reservas r WHERE ${baseWhere}`,
+        [cantina_id, HISTORICO_DIAS]
+      ),
+    ]);
+    return { dados: rows, total: Number(total) };
   }
 
   static async updateStatus(id, status) {
@@ -105,25 +111,12 @@ class ReservaRepository {
     return rowCount > 0;
   }
 
-  static async findConcluidasByCantina(cantina_id) {
-    const { rows } = await pool.query(
-      `SELECT r.*, u.nome AS usuario_nome
-       FROM reservas r
-       LEFT JOIN usuarios u ON r.usuario_id = u.id
-       WHERE r.cantina_id = $1
-         AND r.status = 'concluida'
-         AND r.created_at >= NOW() - INTERVAL '7 days'
-       ORDER BY r.created_at DESC`,
-      [cantina_id]
-    );
-    return rows;
-  }
-
   static async deleteAntigas() {
     const { rowCount } = await pool.query(
       `DELETE FROM reservas
        WHERE status = 'concluida'
-         AND created_at < NOW() - INTERVAL '7 days'`
+         AND created_at < NOW() - ($1 * INTERVAL '1 day')`,
+      [HISTORICO_DIAS]
     );
     return rowCount;
   }
@@ -152,8 +145,8 @@ class ReservaRepository {
       `DELETE FROM reservas
        WHERE usuario_id = $1
          AND status IN ('concluida', 'cancelada')
-         AND created_at < NOW() - INTERVAL '7 days'`,
-      [usuario_id]
+         AND created_at < NOW() - ($2 * INTERVAL '1 day')`,
+      [usuario_id, HISTORICO_DIAS]
     );
     return rowCount;
   }
