@@ -87,7 +87,10 @@ export function MenuPage() {
   const itensNoCarrinho = Object.keys(carrinho).length;
   const totalQtd = Object.values(carrinho).reduce((a, b) => a + b, 0);
   const itensCarrinho = produtos.filter(p => carrinho[p.id] > 0);
-  const total = itensCarrinho.reduce((acc, p) => acc + carrinho[p.id] * Number(p.preco), 0);
+  console.log('DEBUG carrinho:', carrinho);
+  console.log('DEBUG itensCarrinho:', itensCarrinho.map(p => ({ id: p.id, preco: p.preco, tipoPreco: typeof p.preco, qty: carrinho[p.id] })));
+  const total = itensCarrinho.reduce((acc, p) => acc + carrinho[p.id] * parseFloat(p.preco), 0);
+  console.log('DEBUG total:', total);
 
   async function confirmar() {
     const itens = Object.entries(carrinho).map(([produto_id, quantidade]) => ({ produto_id, quantidade }));
