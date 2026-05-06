@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
+import { ConfirmProvider } from './context/ConfirmContext';
 import { ReservasProvider } from './context/ReservasContext';
 import { NotificacoesProvider } from './context/NotificacoesContext';
 import LoginPage from './pages/LoginPage';
@@ -30,6 +31,7 @@ function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
+      <ConfirmProvider>
       <ReservasProvider>
       <NotificacoesProvider>
       <BrowserRouter>
@@ -46,6 +48,7 @@ function App() {
       </BrowserRouter>
       </NotificacoesProvider>
       </ReservasProvider>
+      </ConfirmProvider>
       </ToastProvider>
     </ThemeProvider>
   );

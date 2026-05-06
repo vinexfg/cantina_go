@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './VendedorPage.module.css';
 
 export default function VendedorPage() {
@@ -13,6 +14,7 @@ export default function VendedorPage() {
   const [editando, setEditando] = useState(null);
 
   const navigate = useNavigate();
+  const { confirm } = useConfirm();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.id;
 
@@ -80,7 +82,7 @@ export default function VendedorPage() {
   }
 
   async function excluirProduto(id) {
-    if (!confirm('Excluir este produto?')) return;
+    if (!await confirm('Excluir este produto?')) return;
     try {
       await api.removerProduto(id);
       setProdutos((prev) => prev.filter((p) => p.id !== id));

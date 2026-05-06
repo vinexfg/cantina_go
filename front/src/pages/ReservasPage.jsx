@@ -1,27 +1,31 @@
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useReservas } from '../context/ReservasContext';
+import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './ReservasPage.module.css';
 
 export function ReservasPage() {
   const { reservas, setReservas, carregando } = useReservas();
+  const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   async function marcarEntregue(id) {
     try {
       await api.atualizarStatusReserva(id, 'concluida');
       setReservas((prev) => prev.map((r) => r.id === id ? { ...r, status: 'concluida' } : r));
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   }
 
   async function cancelarPedido(id) {
-    if (!confirm('Cancelar este pedido? O cliente será notificado.')) return;
+    if (!await confirm('Cancelar este pedido? O cliente será notificado.')) return;
     try {
       await api.atualizarStatusReserva(id, 'cancelada');
       setReservas((prev) => prev.map((r) => r.id === id ? { ...r, status: 'cancelada' } : r));
     } catch (err) {
-      alert(err.message);
+      addToast(err.message, 'error');
     }
   }
 

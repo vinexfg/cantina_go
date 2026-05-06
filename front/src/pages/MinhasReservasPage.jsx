@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
+import { useConfirm } from '../context/ConfirmContext';
 import styles from './MinhasReservasPage.module.css';
 
 
@@ -29,6 +30,7 @@ export default function MinhasReservasPage() {
     { value: 'cancelada',  label: 'Cancelada'  },
   ];
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const statusAnterior = useRef({});
 
   const reservasFiltradas = filtroStatus ? reservas.filter(r => r.status === filtroStatus) : reservas;
@@ -81,7 +83,7 @@ export default function MinhasReservasPage() {
   }, [addToast]);
 
   async function cancelar(id) {
-    if (!confirm('Cancelar esta reserva?')) return;
+    if (!await confirm('Cancelar esta reserva?')) return;
     try {
       await api.removerReserva(id);
       setReservas((prev) => prev.filter((r) => r.id !== id));

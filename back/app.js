@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import AppConfig from './config/AppConfig.js';
 import LoggerMiddleware from './middleware/LoggerMiddleware.js';
 import AuthMiddleware from './middleware/AuthMiddleware.js';
@@ -17,6 +18,7 @@ const config = new AppConfig();
 const app = express();
 const welcomePage = new WelcomePage(config);
 
+app.use(helmet());
 app.use(cors(config.getCorsConfig()));
 app.use(express.json(config.getExpressJsonConfig()));
 app.use(express.urlencoded({ extended: true }));
