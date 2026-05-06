@@ -4,7 +4,7 @@ class AppConfig {
   constructor() {
     this.corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
     this.port = process.env.PORT || 3000;
-    this.host = process.env.HOST || '127.0.0.1';
+    this.host = process.env.HOST || '0.0.0.0';
     this.environment = process.env.NODE_ENV || 'development';
     this.jsonLimit = '10mb';
   }
