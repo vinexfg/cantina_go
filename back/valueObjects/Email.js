@@ -1,7 +1,8 @@
 class Email {
   constructor(value) {
-    this.validate(value);
-    this.value = value.toLowerCase().trim();
+    const normalizado = value ? value.toLowerCase().trim() : value;
+    this.validate(normalizado);
+    this.value = normalizado;
   }
 
   validate(value) {

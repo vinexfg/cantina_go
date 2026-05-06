@@ -13,16 +13,24 @@ class ProdutoRepository {
     return rows[0] || null;
   }
 
-  static async findByCantina(cantina_id) {
-    const query = 'SELECT * FROM produtos WHERE cantina_id = $1 AND (arquivado = false OR arquivado IS NULL)';
-    const { rows } = await pool.query(query, [cantina_id]);
-    return rows;
+  static async findByCantina(cantina_id, { page = 1, limit = 50 } = {}) {
+    const offset = (page - 1) * limit;
+    const baseWhere = 'cantina_id = $1 AND (arquivado = false OR arquivado IS NULL)';
+    const [{ rows }, { rows: [{ total }] }] = await Promise.all([
+      pool.query(`SELECT * FROM produtos WHERE ${baseWhere} ORDER BY nome LIMIT $2 OFFSET $3`, [cantina_id, limit, offset]),
+      pool.query(`SELECT COUNT(*)::int AS total FROM produtos WHERE ${baseWhere}`, [cantina_id]),
+    ]);
+    return { dados: rows, total: Number(total) };
   }
 
-  static async findDisponiveis() {
-    const query = 'SELECT * FROM produtos WHERE disponivel = true AND (arquivado = false OR arquivado IS NULL)';
-    const { rows } = await pool.query(query);
-    return rows;
+  static async findDisponiveis({ page = 1, limit = 50 } = {}) {
+    const offset = (page - 1) * limit;
+    const baseWhere = 'disponivel = true AND (arquivado = false OR arquivado IS NULL)';
+    const [{ rows }, { rows: [{ total }] }] = await Promise.all([
+      pool.query(`SELECT * FROM produtos WHERE ${baseWhere} ORDER BY nome LIMIT $1 OFFSET $2`, [limit, offset]),
+      pool.query(`SELECT COUNT(*)::int AS total FROM produtos WHERE ${baseWhere}`),
+    ]);
+    return { dados: rows, total: Number(total) };
   }
 
   static async create(data) {

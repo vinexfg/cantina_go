@@ -27,14 +27,14 @@ class ProdutoService {
     return Produto.fromRow(produto).toJSON();
   }
 
-  async obterDisponiveis() {
-    const produtos = await ProdutoRepository.findDisponiveis();
-    return produtos.map(row => Produto.fromRow(row).toJSON());
+  async obterDisponiveis({ page, limit } = {}) {
+    const { dados, total } = await ProdutoRepository.findDisponiveis({ page, limit });
+    return { dados: dados.map(row => Produto.fromRow(row).toJSON()), total };
   }
 
-  async obterPorCantina(cantina_id) {
-    const produtos = await ProdutoRepository.findByCantina(cantina_id);
-    return produtos.map(row => Produto.fromRow(row).toJSON());
+  async obterPorCantina(cantina_id, { page, limit } = {}) {
+    const { dados, total } = await ProdutoRepository.findByCantina(cantina_id, { page, limit });
+    return { dados: dados.map(row => Produto.fromRow(row).toJSON()), total };
   }
 
   async criar(dados, usuarioAutenticado = null) {

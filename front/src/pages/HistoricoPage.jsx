@@ -18,7 +18,7 @@ export function HistoricoPage() {
     api.limparReservasAntigas().catch(() => {});
 
     api.getHistorico(user.id)
-      .then((data) => setReservas(data || []))
+      .then(({ data }) => setReservas(data || []))
       .catch(() => setReservas([]))
       .finally(() => setCarregando(false));
   }, []);

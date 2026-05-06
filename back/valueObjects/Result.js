@@ -10,6 +10,12 @@ class Result {
     return new Result(true, 200, data, message);
   }
 
+  static okPaginado(data, pagination, message = null) {
+    const result = new Result(true, 200, data, message);
+    result.pagination = pagination;
+    return result;
+  }
+
   static created(data, message = null) {
     return new Result(true, 201, data, message);
   }
@@ -46,6 +52,10 @@ class Result {
 
     if (this.message) {
       response.message = this.message;
+    }
+
+    if (this.pagination) {
+      response.pagination = this.pagination;
     }
 
     return response;

@@ -167,6 +167,18 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .inputGroup input::placeholder { color: var(--text-muted); }
 
+.inputGroup input.inputErro {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+}
+
+.erroMsg {
+  font-size: 0.76rem;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
 .btnSave {
   background: linear-gradient(135deg, #fb923c, #ea580c);
   color: white;

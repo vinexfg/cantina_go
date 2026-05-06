@@ -1,6 +1,12 @@
 import ReservaService from '../services/ReservaService.js';
 import Result from '../valueObjects/Result.js';
 
+function parsePagination(query) {
+  const page = Math.max(1, parseInt(query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 20));
+  return { page, limit };
+}
+
 class ReservaController {
   static async obterTodos(req, res, next) {
     try {
@@ -24,8 +30,9 @@ class ReservaController {
   static async obterPorCantina(req, res, next) {
     try {
       const { cantina_id } = req.params;
-      const reservas = await ReservaService.obterPorCantina(cantina_id, req.usuario);
-      Result.ok(reservas).send(res);
+      const { page, limit } = parsePagination(req.query);
+      const { dados, total } = await ReservaService.obterPorCantina(cantina_id, req.usuario, { page, limit });
+      Result.okPaginado(dados, { page, limit, total, totalPages: Math.ceil(total / limit) }).send(res);
     } catch (erro) {
       next(erro);
     }
@@ -34,8 +41,9 @@ class ReservaController {
   static async obterPorUsuario(req, res, next) {
     try {
       const { usuario_id } = req.params;
-      const reservas = await ReservaService.obterPorUsuario(usuario_id, req.usuario);
-      Result.ok(reservas).send(res);
+      const { page, limit } = parsePagination(req.query);
+      const { dados, total } = await ReservaService.obterPorUsuario(usuario_id, req.usuario, { page, limit });
+      Result.okPaginado(dados, { page, limit, total, totalPages: Math.ceil(total / limit) }).send(res);
     } catch (erro) {
       next(erro);
     }
@@ -64,8 +72,9 @@ class ReservaController {
   static async historico(req, res, next) {
     try {
       const { cantina_id } = req.params;
-      const reservas = await ReservaService.obterHistorico(cantina_id, req.usuario);
-      Result.ok(reservas).send(res);
+      const { page, limit } = parsePagination(req.query);
+      const { dados, total } = await ReservaService.obterHistorico(cantina_id, req.usuario, { page, limit });
+      Result.okPaginado(dados, { page, limit, total, totalPages: Math.ceil(total / limit) }).send(res);
     } catch (erro) {
       next(erro);
     }

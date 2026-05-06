@@ -76,7 +76,7 @@ export function NotificacoesProvider({ children }) {
 
     function checar() {
       api.getReservasPorUsuario(user.id)
-        .then(data => {
+        .then(({ data }) => {
           const lista = data || [];
           lista.forEach(r => {
             const anterior = statusAnterior.current[r.id];

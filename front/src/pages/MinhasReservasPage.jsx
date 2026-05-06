@@ -61,7 +61,7 @@ export default function MinhasReservasPage() {
     api.limparReservasAntigasUsuario(user.id).catch(() => {});
 
     api.getReservasPorUsuario(user.id)
-      .then((data) => {
+      .then(({ data }) => {
         const lista = data || [];
         lista.forEach(r => { statusAnterior.current[r.id] = r.status; });
         setReservas(lista);
@@ -71,7 +71,7 @@ export default function MinhasReservasPage() {
 
     const intervalo = setInterval(() => {
       api.getReservasPorUsuario(user.id)
-        .then((data) => {
+        .then(({ data }) => {
           const lista = data || [];
           detectarMudancas(lista);
           setReservas(lista);

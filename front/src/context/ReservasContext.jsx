@@ -59,7 +59,7 @@ export function ReservasProvider({ children }) {
 
     function checar() {
       api.getReservasPorCantina(user.id)
-        .then((data) => {
+        .then(({ data }) => {
           const lista = data || [];
           const count = lista.filter((r) => r.status === 'pendente').length;
 

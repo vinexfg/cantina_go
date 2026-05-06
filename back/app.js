@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import AppConfig from './config/AppConfig.js';
 import LoggerMiddleware from './middleware/LoggerMiddleware.js';
 import AuthMiddleware from './middleware/AuthMiddleware.js';
@@ -14,11 +16,14 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import cantinaRoutes from './routes/cantinaRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const config = new AppConfig();
 const app = express();
 const welcomePage = new WelcomePage(config);
 
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-origin' } }));
+app.use(express.static(join(__dirname, 'public')));
 app.use(cors(config.getCorsConfig()));
 app.use(express.json(config.getExpressJsonConfig()));
 app.use(express.urlencoded({ extended: true }));

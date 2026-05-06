@@ -72,28 +72,30 @@ class ReservaService {
     return Reserva.fromRow(reserva, itens).toJSON();
   }
 
-  async obterPorCantina(cantina_id, usuarioAutenticado = null) {
+  async obterPorCantina(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
     this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
 
-    const reservas = await ReservaRepository.findByCantina(cantina_id);
-    return Promise.all(
-      reservas.map(async (row) => {
+    const { dados, total } = await ReservaRepository.findByCantina(cantina_id, { page, limit });
+    const reservas = await Promise.all(
+      dados.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
         return this.montarReservaComItens(row, itensRows);
       })
     );
+    return { dados: reservas, total };
   }
 
-  async obterPorUsuario(usuario_id, usuarioAutenticado = null) {
+  async obterPorUsuario(usuario_id, usuarioAutenticado = null, { page, limit } = {}) {
     this.validarUsuarioAutenticado(usuarioAutenticado, usuario_id);
 
-    const reservas = await ReservaRepository.findByUsuario(usuario_id);
-    return Promise.all(
-      reservas.map(async (row) => {
+    const { dados, total } = await ReservaRepository.findByUsuario(usuario_id, { page, limit });
+    const reservas = await Promise.all(
+      dados.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
         return this.montarReservaComItens(row, itensRows);
       })
     );
+    return { dados: reservas, total };
   }
 
   async criar(dados, usuarioAutenticado = null) {
@@ -150,16 +152,17 @@ class ReservaService {
     return Reserva.fromRow(criada, itensJSON).toJSON();
   }
 
-  async obterHistorico(cantina_id, usuarioAutenticado = null) {
+  async obterHistorico(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
     this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
 
-    const reservas = await ReservaRepository.findHistoricoByCantina(cantina_id);
-    return Promise.all(
-      reservas.map(async (row) => {
+    const { dados, total } = await ReservaRepository.findHistoricoByCantina(cantina_id, { page, limit });
+    const reservas = await Promise.all(
+      dados.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
         return this.montarReservaComItens(row, itensRows);
       })
     );
+    return { dados: reservas, total };
   }
 
   async limparAntigas(usuarioAutenticado = null) {

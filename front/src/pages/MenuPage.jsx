@@ -26,7 +26,7 @@ export function MenuPage() {
       ? api.getProdutosPorCantina(cantina_id)
       : api.getProdutosDisponiveis();
     return buscar
-      .then(data => (data || []).filter(p => p.disponivel))
+      .then(({ data }) => (data || []).filter(p => p.disponivel))
       .catch(() => []);
   }, []);
 
