@@ -49,6 +49,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAluno) return;
+    setCarregandoCantinas(true);
     api.getCantinas()
       .then(data => setCantinas(data || []))
       .catch(() => setCantinas([]))
@@ -111,7 +112,6 @@ export default function LoginPage() {
     setNome('');
     setCantinaId('');
     setErrosCampos({});
-    setCarregandoCantinas(aluno);
   }
 
   async function handleSubmit(e) {
