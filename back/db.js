@@ -90,6 +90,6 @@ async function migrate() {
   `);
 }
 
-migrate().catch((err) => console.error('Erro na migração do banco:', err));
+export const migrationReady = migrate();
 
 export default pool;

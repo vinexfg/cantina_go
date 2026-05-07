@@ -15,6 +15,7 @@ import produtoRoutes from './routes/produtoRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import cantinaRoutes from './routes/cantinaRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
+import { migrationReady } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -47,8 +48,16 @@ app.use('/api/reservas', AuthMiddleware.verificar, reservaRoutes);
 app.use(ErrorMiddleware.handle);
 
 const serverInfo = config.getServerInfo();
-app.listen(serverInfo.port, serverInfo.host, () => {
-  console.log(`🚀 Servidor rodando em ${serverInfo.url}`);
-  console.log(`📖 Documentação: ${serverInfo.url}/`);
-  console.log(`🌍 Ambiente: ${serverInfo.environment}`);
-});
+
+try {
+  await migrationReady;
+
+  app.listen(serverInfo.port, serverInfo.host, () => {
+    console.log(`🚀 Servidor rodando em ${serverInfo.url}`);
+    console.log(`📖 Documentação: ${serverInfo.url}/`);
+    console.log(`🌍 Ambiente: ${serverInfo.environment}`);
+  });
+} catch (err) {
+  console.error('Erro na migração do banco:', err);
+  process.exit(1);
+}

@@ -68,6 +68,32 @@ A API utiliza JWT (JSON Web Tokens) para autenticação. Faça login nas rotas `
 - **Desenvolvimento**: `http://localhost:3000`
 - **Produção**: Configurar variável `PORT` no ambiente
 
+### Variáveis de ambiente
+
+Para rodar localmente, copie `.env.example` para `.env` dentro da pasta `back/` e ajuste a senha do PostgreSQL.
+
+No Render, configure pelo painel do serviço:
+
+```env
+NODE_ENV=production
+HOST=0.0.0.0
+PORT=10000
+DATABASE_URL=sua_internal_database_url_do_render
+CORS_ORIGIN=https://cantina-senac-projeto.vercel.app
+JWT_SECRET=um_segredo_forte
+JWT_EXPIRES_IN=8h
+GOOGLE_CLIENT_ID=
+HISTORICO_DIAS=7
+```
+
+Se `DATABASE_URL` estiver definida, o backend usa ela automaticamente e ignora `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` e `DB_NAME`.
+
+No front publicado na Vercel, configure:
+
+```env
+VITE_API_URL=https://cantina-go.onrender.com/api
+```
+
 ## 📞 Suporte
 
 Para dúvidas ou problemas, consulte a documentação em `http://localhost:3000/` após iniciar o servidor.
