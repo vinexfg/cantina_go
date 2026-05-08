@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -18,11 +19,18 @@ import reservaRoutes from './routes/reservaRoutes.js';
 import { migrationReady } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__dirname, '.env') });
+
+if (!process.env.JWT_SECRET) {
+  console.error('ERRO FATAL: JWT_SECRET não definido. Defina a variável de ambiente antes de iniciar.');
+  process.exit(1);
+}
 
 const config = new AppConfig();
 const app = express();
 const welcomePage = new WelcomePage(config);
 
+app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-origin' } }));
 app.use(express.static(join(__dirname, 'public')));
 app.use(cors(config.getCorsConfig()));

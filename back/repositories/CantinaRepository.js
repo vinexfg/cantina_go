@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import ConflictException from '../exceptions/ConflictException.js';
 
 class CantinaRepository {
   static async findAll() {
@@ -22,8 +23,13 @@ class CantinaRepository {
   static async create(data) {
     const { id, nome, email, senha } = data;
     const query = 'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) RETURNING *';
-    const { rows } = await pool.query(query, [id, nome, email, senha]);
-    return rows[0];
+    try {
+      const { rows } = await pool.query(query, [id, nome, email, senha]);
+      return rows[0];
+    } catch (err) {
+      if (err.code === '23505') throw new ConflictException('Este e-mail já está cadastrado');
+      throw err;
+    }
   }
 
   static async update(id, data) {
@@ -37,6 +43,14 @@ class CantinaRepository {
     const query = 'DELETE FROM cantinas WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rowCount > 0;
+  }
+
+  static async incrementTokenVersion(id) {
+    const { rows } = await pool.query(
+      'UPDATE cantinas SET token_version = token_version + 1 WHERE id = $1 RETURNING token_version',
+      [id]
+    );
+    return rows[0]?.token_version ?? null;
   }
 }
 

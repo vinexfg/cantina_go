@@ -170,7 +170,7 @@ class ReservaService {
       throw new ForbiddenException('Apenas cantinas podem limpar reservas antigas');
     }
 
-    const removidas = await ReservaRepository.deleteAntigas();
+    const removidas = await ReservaRepository.deleteAntigasByCantina(usuarioAutenticado.id);
     return { removidas };
   }
 

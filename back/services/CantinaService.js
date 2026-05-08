@@ -2,10 +2,18 @@ import bcrypt from 'bcrypt';
 import CantinaRepository from '../repositories/CantinaRepository.js';
 import Cantina from '../valueObjects/Cantina.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
+import ForbiddenException from '../exceptions/ForbiddenException.js';
+import ValidationException from '../exceptions/ValidationException.js';
 
 const SALT_ROUNDS = 10;
 
 class CantinaService {
+  validarProprietaria(usuarioAutenticado, cantina_id) {
+    if (!usuarioAutenticado || usuarioAutenticado.tipo !== 'cantina' || String(usuarioAutenticado.id) !== String(cantina_id)) {
+      throw new ForbiddenException('Acesso negado');
+    }
+  }
+
   async obterTodos() {
     const cantinas = await CantinaRepository.findAll();
     return cantinas.map(row => Cantina.fromRow(row).toJSON());
@@ -35,8 +43,15 @@ class CantinaService {
     return Cantina.fromRow(cantinaCriada).toJSON();
   }
 
-  async atualizar(id, dados) {
-    await this.obterPorId(id);
+  async atualizar(id, dados, usuarioAutenticado) {
+    this.validarProprietaria(usuarioAutenticado, id);
+    const registro = await CantinaRepository.findById(id);
+    if (!registro) throw new NotFoundException('Cantina não encontrada');
+
+    if (!dados.senha_atual) throw new ValidationException('Senha atual é obrigatória para atualizar o perfil');
+    const senhaCorreta = await bcrypt.compare(dados.senha_atual, registro.senha);
+    if (!senhaCorreta) throw new ForbiddenException('Senha atual incorreta');
+
     const cantina = Cantina.criar({ ...dados, id });
     const senhaHash = await bcrypt.hash(cantina.senha, SALT_ROUNDS);
     await CantinaRepository.update(id, {
@@ -44,10 +59,12 @@ class CantinaService {
       email: cantina.email.toString(),
       senha: senhaHash
     });
+    await CantinaRepository.incrementTokenVersion(id);
     return { success: true };
   }
 
-  async remover(id) {
+  async remover(id, usuarioAutenticado) {
+    this.validarProprietaria(usuarioAutenticado, id);
     await this.obterPorId(id);
     await CantinaRepository.delete(id);
   }
