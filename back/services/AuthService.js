@@ -10,6 +10,8 @@ import ValidationException from '../exceptions/ValidationException.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import Id from '../valueObjects/Id.js';
 
+// LIMITAÇÃO: loginAttempts é armazenado em memória e é perdido ao reiniciar o processo.
+// Em produção com múltiplas instâncias ou reinicializações frequentes, substituir por Redis ou tabela no banco.
 const loginAttempts = new Map(); // email -> { count, lockedUntil }
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
@@ -28,31 +30,22 @@ class AuthService {
   }
 
   async loginUsuario(email, senha) {
-    AuthService.validarCredenciais(email, senha);
-    AuthService._checkLockout(email);
-
-    const row = await UsuarioRepository.findByEmail(email);
-    if (!row) {
-      AuthService._recordFailedAttempt(email);
-      throw new NotFoundException('Email ou senha inválidos');
-    }
-
-    const senhaCorreta = await bcrypt.compare(senha, row.senha);
-    if (!senhaCorreta) {
-      AuthService._recordFailedAttempt(email);
-      throw new NotFoundException('Email ou senha inválidos');
-    }
-
-    AuthService._clearAttempts(email);
+    const row = await AuthService._autenticar(email, senha, UsuarioRepository, 'usuario');
     const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'usuario', token_version: row.token_version ?? 0 });
     return { token, usuario: { id: row.id, nome: row.nome, email: row.email } };
   }
 
   async loginCantina(email, senha) {
+    const row = await AuthService._autenticar(email, senha, CantinaRepository, 'cantina');
+    const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'cantina', token_version: row.token_version ?? 0 });
+    return { token, cantina: { id: row.id, nome: row.nome, email: row.email } };
+  }
+
+  static async _autenticar(email, senha, repository, tipo) {
     AuthService.validarCredenciais(email, senha);
     AuthService._checkLockout(email);
 
-    const row = await CantinaRepository.findByEmail(email);
+    const row = await repository.findByEmail(email);
     if (!row) {
       AuthService._recordFailedAttempt(email);
       throw new NotFoundException('Email ou senha inválidos');
@@ -65,8 +58,7 @@ class AuthService {
     }
 
     AuthService._clearAttempts(email);
-    const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'cantina', token_version: row.token_version ?? 0 });
-    return { token, cantina: { id: row.id, nome: row.nome, email: row.email } };
+    return row;
   }
 
   async googleLogin(idToken) {

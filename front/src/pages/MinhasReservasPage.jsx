@@ -3,6 +3,8 @@ import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
+import { STORAGE_KEYS } from '../constants/storage';
+import { POLLING_INTERVAL } from '../constants/app';
 import styles from './MinhasReservasPage.module.css';
 
 
@@ -13,7 +15,6 @@ const STATUS_LABEL = {
   cancelada:  { label: 'Cancelada',  cor: styles.statusCancelada },
 };
 
-const POLLING_INTERVAL = 10_000;
 const POR_PAGINA = 10;
 
 export default function MinhasReservasPage() {
@@ -38,7 +39,7 @@ export default function MinhasReservasPage() {
   const paginadas = reservasFiltradas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.id) return;
 
     function detectarMudancas(novas) {

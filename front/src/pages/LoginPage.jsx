@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
 import { useTheme } from '../context/ThemeContext';
+import { STORAGE_KEYS } from '../constants/storage';
+import { validarCampo as _validarCampo } from '../utils/validators';
 import styles from './LoginPage.module.css';
 
 const IconSun = () => (
@@ -22,6 +24,25 @@ const IconMoon = () => (
 );
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+function CampoFormulario({ id, label, type = 'text', placeholder, value, onChange, onBlur, erro }) {
+  return (
+    <div className={styles.formGroup}>
+      <label htmlFor={id}>{label}</label>
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        className={erro ? styles.inputErro : ''}
+      />
+      {erro && <span className={styles.erroMsg}>{erro}</span>}
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const [isAluno, setIsAluno] = useState(true);
   const [modo, setModo] = useState('login'); // 'login' | 'cadastro'
@@ -56,34 +77,12 @@ export default function LoginPage() {
       .finally(() => setCarregandoCantinas(false));
   }, [isAluno]);
 
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   function validarCampo(campo, valor) {
-    if (campo === 'nome') {
-      if (!valor.trim()) return 'Nome é obrigatório';
-      if (valor.trim().length < 3) return 'Nome deve ter pelo menos 3 caracteres';
-    }
-    if (campo === 'email') {
-      if (!valor.trim()) return 'Email é obrigatório';
-      if (!EMAIL_REGEX.test(valor.trim())) return 'Email inválido';
-    }
-    if (campo === 'confirmarEmail') {
-      if (!valor.trim()) return 'Confirmação de email é obrigatória';
-      if (valor !== email) return 'Os e-mails não coincidem';
-    }
-    if (campo === 'senha') {
-      if (!valor) return 'Senha é obrigatória';
-      if (valor.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
-    }
-    if (campo === 'cantinaId') {
-      if (!valor) return 'Selecione uma cantina';
-    }
-    return '';
+    return _validarCampo(campo, valor, { emailAtual: email });
   }
 
   function setCampoBorrado(campo, valor) {
-    const msg = validarCampo(campo, valor);
-    setErrosCampos(prev => ({ ...prev, [campo]: msg }));
+    setErrosCampos(prev => ({ ...prev, [campo]: validarCampo(campo, valor) }));
   }
 
   function validarTudo() {
@@ -133,17 +132,17 @@ export default function LoginPage() {
         return;
       } else if (isAluno) {
         const data = await api.loginUsuario(email, senha);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tipo', 'usuario');
-        localStorage.setItem('user', JSON.stringify(data.usuario));
-        localStorage.setItem('cantina_id', cantinaId);
-        localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
+        localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+        localStorage.setItem(STORAGE_KEYS.TIPO, 'usuario');
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.usuario));
+        localStorage.setItem(STORAGE_KEYS.CANTINA_ID, cantinaId);
+        localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
         navigate('/menu');
       } else {
         const data = await api.loginCantina(email, senha);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tipo', 'cantina');
-        localStorage.setItem('user', JSON.stringify(data.cantina));
+        localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+        localStorage.setItem(STORAGE_KEYS.TIPO, 'cantina');
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.cantina));
         navigate('/vendedor');
       }
     } catch (err) {
@@ -162,11 +161,11 @@ export default function LoginPage() {
     setCarregando(true);
     try {
       const data = await api.googleLogin(credentialResponse.credential);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('tipo', 'usuario');
-      localStorage.setItem('user', JSON.stringify(data.usuario));
-      localStorage.setItem('cantina_id', cantinaId);
-      localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
+      localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+      localStorage.setItem(STORAGE_KEYS.TIPO, 'usuario');
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.usuario));
+      localStorage.setItem(STORAGE_KEYS.CANTINA_ID, cantinaId);
+      localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
       navigate('/menu');
     } catch (err) {
       setErro(err.message);
@@ -224,64 +223,37 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             {modo === 'cadastro' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="nome">Nome completo</label>
-                <input
-                  id="nome"
-                  type="text"
-                  placeholder="Seu nome"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  onBlur={(e) => setCampoBorrado('nome', e.target.value)}
-                  className={errosCampos.nome ? styles.inputErro : ''}
-                />
-                {errosCampos.nome && <span className={styles.erroMsg}>{errosCampos.nome}</span>}
-              </div>
+              <CampoFormulario
+                id="nome" label="Nome completo" placeholder="Seu nome"
+                value={nome} onChange={(e) => setNome(e.target.value)}
+                onBlur={(e) => setCampoBorrado('nome', e.target.value)}
+                erro={errosCampos.nome}
+              />
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="text"
-                placeholder={isAluno ? 'seu.email@escola.br' : 'vendedor@cantinago.br'}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={(e) => setCampoBorrado('email', e.target.value)}
-                className={errosCampos.email ? styles.inputErro : ''}
-              />
-              {errosCampos.email && <span className={styles.erroMsg}>{errosCampos.email}</span>}
-            </div>
+            <CampoFormulario
+              id="email" label="Email"
+              placeholder={isAluno ? 'seu.email@escola.br' : 'vendedor@cantinago.br'}
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              onBlur={(e) => setCampoBorrado('email', e.target.value)}
+              erro={errosCampos.email}
+            />
 
             {modo === 'cadastro' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmarEmail">Confirmar e-mail</label>
-                <input
-                  id="confirmarEmail"
-                  type="text"
-                  placeholder="Digite o e-mail novamente"
-                  value={confirmarEmail}
-                  onChange={(e) => setConfirmarEmail(e.target.value)}
-                  onBlur={(e) => setCampoBorrado('confirmarEmail', e.target.value)}
-                  className={errosCampos.confirmarEmail ? styles.inputErro : ''}
-                />
-                {errosCampos.confirmarEmail && <span className={styles.erroMsg}>{errosCampos.confirmarEmail}</span>}
-              </div>
+              <CampoFormulario
+                id="confirmarEmail" label="Confirmar e-mail" placeholder="Digite o e-mail novamente"
+                value={confirmarEmail} onChange={(e) => setConfirmarEmail(e.target.value)}
+                onBlur={(e) => setCampoBorrado('confirmarEmail', e.target.value)}
+                erro={errosCampos.confirmarEmail}
+              />
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="senha">Senha</label>
-              <input
-                id="senha"
-                type="password"
-                placeholder="••••••••"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                onBlur={(e) => setCampoBorrado('senha', e.target.value)}
-                className={errosCampos.senha ? styles.inputErro : ''}
-              />
-              {errosCampos.senha && <span className={styles.erroMsg}>{errosCampos.senha}</span>}
-            </div>
+            <CampoFormulario
+              id="senha" label="Senha" type="password" placeholder="••••••••"
+              value={senha} onChange={(e) => setSenha(e.target.value)}
+              onBlur={(e) => setCampoBorrado('senha', e.target.value)}
+              erro={errosCampos.senha}
+            />
 
             {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>

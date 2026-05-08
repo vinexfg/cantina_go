@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { STORAGE_KEYS } from './constants/storage';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import { ConfirmProvider } from './context/ConfirmContext';
@@ -13,42 +14,43 @@ import { ReservasPage } from './pages/ReservasPage';
 import { HistoricoPage } from './pages/HistoricoPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-function RotaAluno({ children }) {
-  const tipo = localStorage.getItem('tipo');
+function RotaProtegida({ children, tipoRequerido, fallback }) {
+  const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
   if (!tipo) return <Navigate to="/" replace />;
-  if (tipo !== 'usuario') return <Navigate to="/vendedor" replace />;
+  if (tipo !== tipoRequerido) return <Navigate to={fallback} replace />;
   return children;
 }
 
+function RotaAluno({ children }) {
+  return <RotaProtegida tipoRequerido="usuario" fallback="/vendedor">{children}</RotaProtegida>;
+}
+
 function RotaVendedor({ children }) {
-  const tipo = localStorage.getItem('tipo');
-  if (!tipo) return <Navigate to="/" replace />;
-  if (tipo !== 'cantina') return <Navigate to="/menu" replace />;
-  return children;
+  return <RotaProtegida tipoRequerido="cantina" fallback="/menu">{children}</RotaProtegida>;
 }
 
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-      <ConfirmProvider>
-      <BrowserRouter>
-      <ReservasProvider>
-      <NotificacoesProvider>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
-          <Route path="/perfil" element={<RotaAluno><PerfilPage /></RotaAluno>} />
-          <Route path="/meus-pedidos" element={<RotaAluno><MinhasReservasPage /></RotaAluno>} />
-          <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
-          <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
-          <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </NotificacoesProvider>
-      </ReservasProvider>
-      </BrowserRouter>
-      </ConfirmProvider>
+        <ConfirmProvider>
+          <BrowserRouter>
+            <ReservasProvider>
+              <NotificacoesProvider>
+                <Routes>
+                  <Route path="/" element={<LoginPage />} />
+                  <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
+                  <Route path="/perfil" element={<RotaAluno><PerfilPage /></RotaAluno>} />
+                  <Route path="/meus-pedidos" element={<RotaAluno><MinhasReservasPage /></RotaAluno>} />
+                  <Route path="/vendedor" element={<RotaVendedor><VendedorPage /></RotaVendedor>} />
+                  <Route path="/reservas" element={<RotaVendedor><ReservasPage /></RotaVendedor>} />
+                  <Route path="/historico" element={<RotaVendedor><HistoricoPage /></RotaVendedor>} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </NotificacoesProvider>
+            </ReservasProvider>
+          </BrowserRouter>
+        </ConfirmProvider>
       </ToastProvider>
     </ThemeProvider>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
+import { STORAGE_KEYS } from '../constants/storage';
 import styles from './HistoricoPage.module.css';
 
 const POR_PAGINA = 10;
@@ -12,7 +13,7 @@ export function HistoricoPage() {
   const [pagina, setPagina] = useState(1);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.id) return;
 
     api.limparReservasAntigas().catch(() => {});

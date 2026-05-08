@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { usePendentes } from '../context/ReservasContext';
 import { useNotificacoes } from '../context/NotificacoesContext';
+import { STORAGE_KEYS } from '../constants/storage';
 import styles from './Navegacao.module.css';
 
 const IconMenu = () => (
@@ -82,7 +83,7 @@ function formatarHora(iso) {
 export default function Navegacao() {
   const location = useLocation();
   const navigate = useNavigate();
-  const tipo = localStorage.getItem('tipo');
+  const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
   const { theme, toggle } = useTheme();
   const { pendentes } = usePendentes();
   const { notificacoes, naoLidas, marcarTodasLidas, limpar } = useNotificacoes();

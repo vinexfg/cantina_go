@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { STORAGE_KEYS } from '../constants/storage';
 
 const CurrencyContext = createContext();
 
 const TAXA_FALLBACK_GBP = 0.155;
 
 export function CurrencyProvider({ children }) {
-  const [moeda, setMoeda] = useState(() => localStorage.getItem('moeda') || 'BRL');
+  const [moeda, setMoeda] = useState(() => localStorage.getItem(STORAGE_KEYS.MOEDA) || 'BRL');
   const [taxa, setTaxa] = useState(TAXA_FALLBACK_GBP);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export function CurrencyProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('moeda', moeda);
+    localStorage.setItem(STORAGE_KEYS.MOEDA, moeda);
   }, [moeda]);
 
   function trocarMoeda(m) { setMoeda(m); }

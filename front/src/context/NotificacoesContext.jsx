@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api';
+import { STORAGE_KEYS } from '../constants/storage';
+import { POLLING_INTERVAL } from '../constants/app';
 
 const NotificacoesContext = createContext({ notificacoes: [], naoLidas: 0, marcarTodasLidas: () => {}, limpar: () => {} });
 
@@ -32,11 +34,11 @@ const MENSAGENS = {
 };
 
 function carregarSalvas() {
-  try { return JSON.parse(localStorage.getItem('_notificacoes') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICACOES) || '[]'); } catch { return []; }
 }
 
 function salvar(lista) {
-  localStorage.setItem('_notificacoes', JSON.stringify(lista));
+  localStorage.setItem(STORAGE_KEYS.NOTIFICACOES, JSON.stringify(lista));
 }
 
 export function NotificacoesProvider({ children }) {
@@ -66,18 +68,18 @@ export function NotificacoesProvider({ children }) {
 
   function limpar() {
     setNotificacoes([]);
-    localStorage.removeItem('_notificacoes');
+    localStorage.removeItem(STORAGE_KEYS.NOTIFICACOES);
   }
 
   useEffect(() => {
-    const tipo = localStorage.getItem('tipo');
+    const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
     if (tipo !== 'usuario') {
       statusAnterior.current = {};
       inicializado.current = false;
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.id) {
       statusAnterior.current = {};
       inicializado.current = false;
@@ -107,7 +109,7 @@ export function NotificacoesProvider({ children }) {
     }
 
     checar();
-    const intervalo = setInterval(checar, 10000);
+    const intervalo = setInterval(checar, POLLING_INTERVAL);
     return () => clearInterval(intervalo);
   }, [location.pathname]);
 
