@@ -2,6 +2,15 @@ import CantinaService from '../services/CantinaService.js';
 import Result from '../valueObjects/Result.js';
 
 class CantinaController {
+  static async listar(req, res, next) {
+    try {
+      const cantinas = await CantinaService.listar();
+      Result.ok(cantinas).send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
   static async obterTodos(req, res, next) {
     try {
       const cantinas = await CantinaService.obterTodos();

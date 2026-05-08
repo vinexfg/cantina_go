@@ -14,6 +14,11 @@ class CantinaService {
     }
   }
 
+  async listar() {
+    const cantinas = await CantinaRepository.findAll();
+    return cantinas.map(row => Cantina.fromRow(row).toPublicJSON());
+  }
+
   async obterTodos() {
     const cantinas = await CantinaRepository.findAll();
     return cantinas.map(row => Cantina.fromRow(row).toJSON());

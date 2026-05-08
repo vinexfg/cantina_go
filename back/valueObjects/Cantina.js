@@ -48,11 +48,18 @@ class Cantina {
     }
   }
 
+  toPublicJSON() {
+    return {
+      id: this.id.toString(),
+      nome: this.nome,
+    };
+  }
+
   toJSON() {
     return {
       id: this.id.toString(),
       nome: this.nome,
-      email: this.email.toString()
+      email: this.email.toString(),
     };
   }
 }
