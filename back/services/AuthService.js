@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
@@ -6,9 +7,12 @@ import CantinaRepository from '../repositories/CantinaRepository.js';
 import ReservaRepository from '../repositories/ReservaRepository.js';
 import UsuarioService from './UsuarioService.js';
 import CantinaService from './CantinaService.js';
+import EmailService from './EmailService.js';
 import ValidationException from '../exceptions/ValidationException.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import Id from '../valueObjects/Id.js';
+
+const TOKEN_RESET_EXPIRA_MS = 60 * 60 * 1000;
 
 // LIMITAÇÃO: loginAttempts é armazenado em memória e é perdido ao reiniciar o processo.
 // Em produção com múltiplas instâncias ou reinicializações frequentes, substituir por Redis ou tabela no banco.
@@ -20,6 +24,12 @@ class AuthService {
   async registrarUsuario(dados) {
     const usuario = await UsuarioService.criar(dados);
     const token = AuthService.gerarToken({ id: usuario.id, email: usuario.email, tipo: 'usuario', token_version: 0 });
+
+    const verToken = crypto.randomBytes(32).toString('hex');
+    UsuarioRepository.setTokenVerificacao(usuario.id, verToken)
+      .then(() => EmailService.enviarVerificacao(usuario.email, verToken))
+      .catch(() => {});
+
     return { token, usuario };
   }
 
@@ -86,6 +96,35 @@ class AuthService {
 
     const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'usuario', token_version: row.token_version ?? 0 });
     return { token, usuario: { id: row.id, nome: row.nome, email: row.email } };
+  }
+
+  async verificarEmail(token) {
+    const row = await UsuarioRepository.findByTokenVerificacao(token);
+    if (!row) throw new NotFoundException('Token inválido ou expirado');
+    await UsuarioRepository.verificarEmail(row.id);
+    return { message: 'Email verificado com sucesso' };
+  }
+
+  async solicitarResetSenha(email) {
+    const row = await UsuarioRepository.findByEmail(email);
+    if (!row) return; // não revelar se o email existe
+    const token = crypto.randomBytes(32).toString('hex');
+    const expira = new Date(Date.now() + TOKEN_RESET_EXPIRA_MS);
+    await UsuarioRepository.setTokenReset(row.id, token, expira);
+    await EmailService.enviarResetSenha(row.email, token);
+  }
+
+  async resetarSenha(token, novaSenha) {
+    if (!novaSenha || novaSenha.length < 8) {
+      throw new ValidationException('Senha deve ter pelo menos 8 caracteres');
+    }
+    const row = await UsuarioRepository.findByTokenReset(token);
+    if (!row) throw new NotFoundException('Token inválido ou expirado');
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+    await UsuarioRepository.updateSenha(row.id, senhaHash);
+    await UsuarioRepository.incrementTokenVersion(row.id);
+    await UsuarioRepository.limparTokenReset(row.id);
+    return { message: 'Senha redefinida com sucesso' };
   }
 
   async excluirConta(id, senha) {

@@ -73,11 +73,18 @@ class ReservaService {
   }
 
   async _popularItens(dados, total) {
-    const reservas = await Promise.all(
-      dados.map(async (row) => {
-        const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        return this.montarReservaComItens(row, itensRows);
-      })
+    if (dados.length === 0) return { dados: [], total };
+
+    const todosItens = await ReservaRepository.findItensByReservas(dados.map(r => r.id));
+
+    const itensPorReserva = {};
+    todosItens.forEach(item => {
+      if (!itensPorReserva[item.reserva_id]) itensPorReserva[item.reserva_id] = [];
+      itensPorReserva[item.reserva_id].push(item);
+    });
+
+    const reservas = dados.map(row =>
+      this.montarReservaComItens(row, itensPorReserva[row.id] || [])
     );
     return { dados: reservas, total };
   }

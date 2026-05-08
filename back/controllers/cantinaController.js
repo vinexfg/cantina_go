@@ -2,6 +2,15 @@ import CantinaService from '../services/CantinaService.js';
 import Result from '../valueObjects/Result.js';
 
 class CantinaController {
+  static async listar(req, res, next) {
+    try {
+      const cantinas = await CantinaService.listar();
+      Result.ok(cantinas).send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
   static async obterTodos(req, res, next) {
     try {
       const cantinas = await CantinaService.obterTodos();
@@ -14,17 +23,7 @@ class CantinaController {
   static async obterPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const cantina = await CantinaService.obterPorId(id);
-      Result.ok(cantina).send(res);
-    } catch (erro) {
-      next(erro);
-    }
-  }
-
-  static async obterPorEmail(req, res, next) {
-    try {
-      const { email } = req.params;
-      const cantina = await CantinaService.obterPorEmail(email);
+      const cantina = await CantinaService.obterPorId(id, req.usuario);
       Result.ok(cantina).send(res);
     } catch (erro) {
       next(erro);

@@ -45,7 +45,7 @@ app.get(['/', '/api', '/api/bemvindo'], (req, res) => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/produtos', produtoRoutes);
-app.get('/api/cantinas/lista', CantinaController.obterTodos);
+app.get('/api/cantinas/lista', CantinaController.listar);
 
 // Rotas protegidas (exigem token JWT)
 app.use('/api/usuarios', AuthMiddleware.verificar, usuarioRoutes);

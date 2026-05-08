@@ -6,6 +6,9 @@ import { ConfirmProvider } from './context/ConfirmContext';
 import { ReservasProvider } from './context/ReservasContext';
 import { NotificacoesProvider } from './context/NotificacoesContext';
 import LoginPage from './pages/LoginPage';
+import EsqueciSenhaPage from './pages/EsqueciSenhaPage';
+import ResetarSenhaPage from './pages/ResetarSenhaPage';
+import VerificarEmailPage from './pages/VerificarEmailPage';
 import { MenuPage } from './pages/MenuPage';
 import PerfilPage from './pages/PerfilPage';
 import MinhasReservasPage from './pages/MinhasReservasPage';
@@ -39,6 +42,9 @@ function App() {
               <NotificacoesProvider>
                 <Routes>
                   <Route path="/" element={<LoginPage />} />
+                  <Route path="/esqueci-senha" element={<EsqueciSenhaPage />} />
+                  <Route path="/resetar-senha" element={<ResetarSenhaPage />} />
+                  <Route path="/verificar-email" element={<VerificarEmailPage />} />
                   <Route path="/menu" element={<RotaAluno><MenuPage /></RotaAluno>} />
                   <Route path="/perfil" element={<RotaAluno><PerfilPage /></RotaAluno>} />
                   <Route path="/meus-pedidos" element={<RotaAluno><MinhasReservasPage /></RotaAluno>} />

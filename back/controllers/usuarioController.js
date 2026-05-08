@@ -50,16 +50,6 @@ class UsuarioController {
     }
   }
 
-  static async atualizarPorEmail(req, res, next) {
-    try {
-      const { email } = req.params;
-      const atualizado = await UsuarioService.atualizarPorEmail(email, req.body);
-      Result.ok(atualizado, 'Usuário atualizado com sucesso').send(res);
-    } catch (erro) {
-      next(erro);
-    }
-  }
-
   static async remover(req, res, next) {
     try {
       const { id } = req.params;

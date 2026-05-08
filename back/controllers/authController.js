@@ -60,6 +60,36 @@ class AuthController {
       next(erro);
     }
   }
+
+  static async verificarEmail(req, res, next) {
+    try {
+      const { token } = req.query;
+      const resultado = await AuthService.verificarEmail(token);
+      Result.ok(resultado).send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
+  static async solicitarResetSenha(req, res, next) {
+    try {
+      const { email } = req.body;
+      await AuthService.solicitarResetSenha(email);
+      Result.ok(null, 'Se o email estiver cadastrado, você receberá as instruções em breve').send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
+  static async resetarSenha(req, res, next) {
+    try {
+      const { token, novaSenha } = req.body;
+      const resultado = await AuthService.resetarSenha(token, novaSenha);
+      Result.ok(resultado).send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
 }
 
 export default AuthController;
