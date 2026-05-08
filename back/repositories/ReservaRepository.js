@@ -30,6 +30,21 @@ class ReservaRepository {
     return rows;
   }
 
+  static async findItensByReservas(reserva_ids) {
+    if (reserva_ids.length === 0) return [];
+    const placeholders = reserva_ids.map((_, i) => `$${i + 1}`).join(', ');
+    const { rows } = await pool.query(
+      `SELECT ri.*,
+         COALESCE(ri.nome_produto, p.nome) AS produto_nome,
+         COALESCE(ri.preco_unitario, p.preco) AS produto_preco
+       FROM reserva_itens ri
+       LEFT JOIN produtos p ON ri.produto_id = p.id
+       WHERE ri.reserva_id IN (${placeholders})`,
+      reserva_ids
+    );
+    return rows;
+  }
+
   static async findByCantina(cantina_id, { page = 1, limit = 20 } = {}) {
     const offset = (page - 1) * limit;
     return paginado(

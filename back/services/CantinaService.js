@@ -21,19 +21,15 @@ class CantinaService {
 
   async obterTodos() {
     const cantinas = await CantinaRepository.findAll();
-    return cantinas.map(row => Cantina.fromRow(row).toJSON());
+    return cantinas.map(row => Cantina.fromRow(row).toPublicJSON());
   }
 
-  async obterPorId(id) {
+  async obterPorId(id, usuarioAutenticado = null) {
     const cantina = await CantinaRepository.findById(id);
     if (!cantina) throw new NotFoundException('Cantina não encontrada');
-    return Cantina.fromRow(cantina).toJSON();
-  }
-
-  async obterPorEmail(email) {
-    const cantina = await CantinaRepository.findByEmail(email);
-    if (!cantina) throw new NotFoundException('Cantina não encontrada');
-    return Cantina.fromRow(cantina).toJSON();
+    const obj = Cantina.fromRow(cantina);
+    const ehDona = usuarioAutenticado?.tipo === 'cantina' && String(usuarioAutenticado.id) === String(cantina.id);
+    return ehDona ? obj.toJSON() : obj.toPublicJSON();
   }
 
   async criar(dados) {

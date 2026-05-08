@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
 import { useTheme } from '../context/ThemeContext';
@@ -279,6 +279,14 @@ export default function LoginPage() {
 
             {sucesso && <p className={styles.sucesso}>✓ {sucesso}</p>}
             {erro && <p className={styles.erro}>⚠ {erro}</p>}
+
+            {isAluno && modo === 'login' && (
+              <div style={{ textAlign: 'right', marginBottom: '6px' }}>
+                <Link to="/esqueci-senha" className={styles.linkBtn} style={{ fontSize: '0.82rem' }}>
+                  Esqueci minha senha
+                </Link>
+              </div>
+            )}
 
             <button type="submit" className={styles.btnSubmit} disabled={carregando}>
               {carregando
