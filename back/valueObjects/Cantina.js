@@ -37,6 +37,10 @@ class Cantina {
 
     if (!dados.senha || dados.senha.trim() === '') {
       erros.senha = 'Senha é obrigatória';
+    } else if (dados.senha.length < 8) {
+      erros.senha = 'Senha deve ter pelo menos 8 caracteres';
+    } else if (!/[a-zA-Z]/.test(dados.senha) || !/[0-9]/.test(dados.senha)) {
+      erros.senha = 'Senha deve conter letras e números';
     }
 
     if (Object.keys(erros).length > 0) {

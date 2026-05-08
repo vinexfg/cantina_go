@@ -6,7 +6,7 @@ class AppConfig {
     this.port = process.env.PORT || 3000;
     this.host = process.env.HOST || '0.0.0.0';
     this.environment = process.env.NODE_ENV || 'development';
-    this.jsonLimit = '10mb';
+    this.jsonLimit = '50kb';
   }
 
   getCorsConfig() {

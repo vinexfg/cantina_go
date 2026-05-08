@@ -6,7 +6,9 @@ class ErrorMiddleware {
     if (erro instanceof AppException) {
       return erro.toResult().send(res);
     }
-    return Result.internalError(erro.message).send(res);
+    const isProd = process.env.NODE_ENV === 'production';
+    if (!isProd) console.error(erro);
+    return Result.internalError(isProd ? 'Erro interno do servidor' : erro.message).send(res);
   }
 }
 

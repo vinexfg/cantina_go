@@ -111,12 +111,13 @@ class ReservaRepository {
     return rowCount > 0;
   }
 
-  static async deleteAntigas() {
+  static async deleteAntigasByCantina(cantina_id) {
     const { rowCount } = await pool.query(
       `DELETE FROM reservas
-       WHERE status = 'concluida'
-         AND created_at < NOW() - ($1 * INTERVAL '1 day')`,
-      [HISTORICO_DIAS]
+       WHERE cantina_id = $1
+         AND status = 'concluida'
+         AND created_at < NOW() - ($2 * INTERVAL '1 day')`,
+      [cantina_id, HISTORICO_DIAS]
     );
     return rowCount;
   }

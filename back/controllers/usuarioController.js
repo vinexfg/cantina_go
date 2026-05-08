@@ -43,7 +43,7 @@ class UsuarioController {
   static async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const atualizado = await UsuarioService.atualizar(id, req.body);
+      const atualizado = await UsuarioService.atualizar(id, req.body, req.usuario);
       Result.ok(atualizado, 'Usuário atualizado com sucesso').send(res);
     } catch (erro) {
       next(erro);
@@ -63,7 +63,7 @@ class UsuarioController {
   static async remover(req, res, next) {
     try {
       const { id } = req.params;
-      await UsuarioService.remover(id);
+      await UsuarioService.remover(id, req.usuario);
       Result.ok(null, 'Usuário removido com sucesso').send(res);
     } catch (erro) {
       next(erro);

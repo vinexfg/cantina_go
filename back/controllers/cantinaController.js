@@ -43,7 +43,7 @@ class CantinaController {
   static async atualizar(req, res, next) {
     try {
       const { id } = req.params;
-      const atualizado = await CantinaService.atualizar(id, req.body);
+      const atualizado = await CantinaService.atualizar(id, req.body, req.usuario);
       Result.ok(atualizado, 'Cantina atualizada com sucesso').send(res);
     } catch (erro) {
       next(erro);
@@ -53,7 +53,7 @@ class CantinaController {
   static async remover(req, res, next) {
     try {
       const { id } = req.params;
-      await CantinaService.remover(id);
+      await CantinaService.remover(id, req.usuario);
       Result.ok(null, 'Cantina removida com sucesso').send(res);
     } catch (erro) {
       next(erro);

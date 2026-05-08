@@ -76,6 +76,8 @@ async function migrate() {
     )
   `);
 
+  await pool.query(`ALTER TABLE IF EXISTS usuarios ADD COLUMN IF NOT EXISTS token_version INT DEFAULT 0`);
+  await pool.query(`ALTER TABLE IF EXISTS cantinas ADD COLUMN IF NOT EXISTS token_version INT DEFAULT 0`);
   await pool.query(`ALTER TABLE IF EXISTS produtos ADD COLUMN IF NOT EXISTS arquivado BOOLEAN DEFAULT FALSE`);
   await pool.query(`ALTER TABLE IF EXISTS reserva_itens ADD COLUMN IF NOT EXISTS nome_produto TEXT`);
   await pool.query(`ALTER TABLE IF EXISTS reserva_itens ADD COLUMN IF NOT EXISTS preco_unitario NUMERIC(10,2)`);
