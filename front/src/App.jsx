@@ -9,12 +9,12 @@ import LoginPage from './pages/LoginPage';
 import EsqueciSenhaPage from './pages/EsqueciSenhaPage';
 import ResetarSenhaPage from './pages/ResetarSenhaPage';
 import VerificarEmailPage from './pages/VerificarEmailPage';
-import { MenuPage } from './pages/MenuPage';
+import MenuPage from './pages/MenuPage';
 import PerfilPage from './pages/PerfilPage';
 import MinhasReservasPage from './pages/MinhasReservasPage';
 import VendedorPage from './pages/VendedorPage';
-import { ReservasPage } from './pages/ReservasPage';
-import { HistoricoPage } from './pages/HistoricoPage';
+import ReservasPage from './pages/ReservasPage';
+import HistoricoPage from './pages/HistoricoPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function RotaProtegida({ children, tipoRequerido, fallback }) {

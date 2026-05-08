@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
@@ -25,14 +25,14 @@ export default function VendedorPage() {
     navigate('/');
   }
 
-  const carregarProdutos = useCallback(async () => {
+  async function carregarProdutos() {
     try {
       const { data } = await api.getProdutosPorCantina(userId);
       setProdutos(data || []);
     } catch {
       setProdutos([]);
     }
-  }, [userId]);
+  }
 
   useEffect(() => {
     let ativo = true;
@@ -137,9 +137,9 @@ export default function VendedorPage() {
       <div className={styles.contentWrapper}>
 
         <header className={styles.header}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1 style={{ margin: 0 }}>Gestão do Dia</h1>
-            <button onClick={sair} style={{ background: 'none', border: '1px solid #f97316', color: '#f97316', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontWeight: 600 }}>
+          <div className={styles.headerRow}>
+            <h1>Gestão do Dia</h1>
+            <button onClick={sair} className={styles.btnSair}>
               Sair
             </button>
           </div>
@@ -149,7 +149,7 @@ export default function VendedorPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Itens Cadastrados</h2>
           <div className={styles.inventoryList}>
-            {produtos.length === 0 && <p style={{ color: '#64748b' }}>Nenhum produto cadastrado.</p>}
+            {produtos.length === 0 && <p className={styles.listaVazia}>Nenhum produto cadastrado.</p>}
             {produtos.map((p) => (
               <div key={p.id} className={`${styles.itemCard} ${p.disponivel ? styles.activeItem : styles.inactiveItem}`}>
                 <div className={styles.itemInfo}>
@@ -222,7 +222,7 @@ export default function VendedorPage() {
               </button>
             )}
             {mensagem && (
-              <p style={{ marginTop: 8, color: mensagem.includes('sucesso') ? '#16a34a' : '#dc2626', fontSize: '0.875rem' }}>
+              <p className={mensagem.includes('sucesso') ? styles.mensagemSucesso : styles.mensagemErro}>
                 {mensagem}
               </p>
             )}

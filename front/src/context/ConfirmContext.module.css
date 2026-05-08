@@ -1,0 +1,54 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.dialog {
+  background: var(--bg-card, #fff);
+  border-radius: 16px;
+  padding: 24px 28px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.mensagem {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  color: var(--text-primary, #1e293b);
+  line-height: 1.5;
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btnCancelar {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: var(--text-primary, #1e293b);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.btnConfirmar {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #f97316;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
