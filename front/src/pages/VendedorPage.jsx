@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useConfirm } from '../context/ConfirmContext';
+import { STORAGE_KEYS } from '../constants/storage';
 import styles from './VendedorPage.module.css';
 
 export default function VendedorPage() {
@@ -16,7 +17,7 @@ export default function VendedorPage() {
 
   const navigate = useNavigate();
   const { confirm } = useConfirm();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
   const userId = user.id;
 
   function sair() {

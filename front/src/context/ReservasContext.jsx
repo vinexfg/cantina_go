@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api';
+import { STORAGE_KEYS } from '../constants/storage';
+import { POLLING_INTERVAL } from '../constants/app';
 
 const ReservasContext = createContext({ pendentes: 0, reservas: [], carregando: true, setReservas: () => {} });
 
@@ -43,8 +45,8 @@ export function ReservasProvider({ children }) {
   const [pendentes, setPendentes] = useState(0);
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(() => {
-    if (localStorage.getItem('tipo') !== 'cantina') return false;
-    return !!JSON.parse(localStorage.getItem('user') || '{}').id;
+    if (localStorage.getItem(STORAGE_KEYS.TIPO) !== 'cantina') return false;
+    return !!JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}').id;
   });
   const anteriorRef = useRef(null);
   const tituloOriginal = useRef(document.title);
@@ -52,7 +54,7 @@ export function ReservasProvider({ children }) {
 
   useEffect(() => {
     const tituloInicial = tituloOriginal.current;
-    const tipo = localStorage.getItem('tipo');
+    const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
 
     if (tipo !== 'cantina') {
       anteriorRef.current = null;
@@ -60,7 +62,7 @@ export function ReservasProvider({ children }) {
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.id) {
       anteriorRef.current = null;
       document.title = tituloInicial;
@@ -92,7 +94,7 @@ export function ReservasProvider({ children }) {
     }
 
     checar();
-    const intervalo = setInterval(checar, 10000);
+    const intervalo = setInterval(checar, POLLING_INTERVAL);
 
     return () => {
       clearInterval(intervalo);
@@ -107,10 +109,8 @@ export function ReservasProvider({ children }) {
   );
 }
 
-export function usePendentes() {
-  return useContext(ReservasContext);
-}
-
 export function useReservas() {
   return useContext(ReservasContext);
 }
+
+export const usePendentes = useReservas;

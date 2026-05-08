@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navegacao from '../components/Navegacao.jsx';
 import { api } from '../api.js';
+import { STORAGE_KEYS } from '../constants/storage';
 import styles from './PerfilPage.module.css';
 
 export default function PerfilPage() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const cantinaId = localStorage.getItem('cantina_id');
-  const [cantinaNome, setCantinaNome] = useState(localStorage.getItem('cantina_nome') || '');
+  const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
+  const cantinaId = localStorage.getItem(STORAGE_KEYS.CANTINA_ID);
+  const [cantinaNome, setCantinaNome] = useState(localStorage.getItem(STORAGE_KEYS.CANTINA_NOME) || '');
 
   const [modalAberto, setModalAberto] = useState(false);
   const [senha, setSenha] = useState('');
@@ -22,7 +23,7 @@ export default function PerfilPage() {
         const found = lista.find(c => String(c.id) === String(cantinaId));
         if (found) {
           setCantinaNome(found.nome);
-          localStorage.setItem('cantina_nome', found.nome);
+          localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, found.nome);
         }
       })
       .catch(() => {});

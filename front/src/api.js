@@ -1,13 +1,15 @@
+import { STORAGE_KEYS } from './constants/storage';
+
 const BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 function getToken() {
-  return localStorage.getItem('token');
+  return localStorage.getItem(STORAGE_KEYS.TOKEN);
 }
 
 function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('tipo');
-  localStorage.removeItem('user');
+  localStorage.removeItem(STORAGE_KEYS.TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.TIPO);
+  localStorage.removeItem(STORAGE_KEYS.USER);
   window.location.href = '/';
 }
 

@@ -2,7 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
+import { formatPrice } from '../utils/formatPrice';
+import { STORAGE_KEYS } from '../constants/storage';
 import styles from './MenuPage.module.css';
+
+const TOAST_DURATION = 6000;
+const MENSAGEM_TIMEOUT = 2000;
 
 const POLLING_INTERVAL = 10_000;
 
@@ -21,7 +26,7 @@ export function MenuPage() {
   useEffect(() => { carrinhoRef.current = carrinho; }, [carrinho]);
 
   const buscarProdutos = useCallback(() => {
-    const cantina_id = localStorage.getItem('cantina_id');
+    const cantina_id = localStorage.getItem(STORAGE_KEYS.CANTINA_ID);
     const buscar = cantina_id
       ? api.getProdutosPorCantina(cantina_id)
       : api.getProdutosDisponiveis();
@@ -48,7 +53,7 @@ export function MenuPage() {
           addToast(
             `"${produto?.nome || 'Item'}" ficou indisponível e foi removido do seu carrinho.`,
             'error',
-            6000
+            TOAST_DURATION
           );
         });
 
@@ -87,16 +92,13 @@ export function MenuPage() {
   const itensNoCarrinho = Object.keys(carrinho).length;
   const totalQtd = Object.values(carrinho).reduce((a, b) => a + b, 0);
   const itensCarrinho = produtos.filter(p => carrinho[p.id] > 0);
-  console.log('DEBUG carrinho:', carrinho);
-  console.log('DEBUG itensCarrinho:', itensCarrinho.map(p => ({ id: p.id, preco: p.preco, tipoPreco: typeof p.preco, qty: carrinho[p.id] })));
   const total = itensCarrinho.reduce((acc, p) => acc + carrinho[p.id] * parseFloat(p.preco), 0);
-  console.log('DEBUG total:', total);
 
   async function confirmar() {
     const itens = Object.entries(carrinho).map(([produto_id, quantidade]) => ({ produto_id, quantidade }));
     if (itens.length === 0) return;
 
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER));
     const primeiroProduto = produtos.find(p => p.id === itens[0].produto_id);
     const cantina_id = primeiroProduto?.cantina_id;
 
@@ -108,7 +110,7 @@ export function MenuPage() {
       setCarrinhoAberto(false);
       setMensagem('Reserva feita com sucesso!');
       clearTimeout(mensagemTimer.current);
-      mensagemTimer.current = setTimeout(() => setMensagem(''), 2000);
+      mensagemTimer.current = setTimeout(() => setMensagem(''), MENSAGEM_TIMEOUT);
     } catch (err) {
       setMensagem(err.message);
     } finally {
@@ -121,8 +123,8 @@ export function MenuPage() {
       <div className={styles.contentWrapper}>
 
         <header className={styles.header}>
-          {localStorage.getItem('cantina_nome') && (
-            <p className={styles.cantinaNome}>{localStorage.getItem('cantina_nome')}</p>
+          {localStorage.getItem(STORAGE_KEYS.CANTINA_NOME) && (
+            <p className={styles.cantinaNome}>{localStorage.getItem(STORAGE_KEYS.CANTINA_NOME)}</p>
           )}
           <h1>Cardápio do Dia</h1>
           <p>Selecione os itens para sua reserva</p>
@@ -152,9 +154,7 @@ export function MenuPage() {
               <div className={styles.itemInfo}>
                 <h3>{p.nome}</h3>
                 {p.descricao && <p>{p.descricao}</p>}
-                <span className={styles.price}>
-                  R$ {parseFloat(p.preco).toFixed(2).replace('.', ',')}
-                </span>
+                <span className={styles.price}>{formatPrice(p.preco)}</span>
               </div>
               <div className={styles.qtdControl}>
                 <button onClick={() => alterar(p.id, -1)} disabled={!carrinho[p.id]}>−</button>
@@ -172,7 +172,7 @@ export function MenuPage() {
         <button className={styles.btnCarrinho} onClick={() => { setCarrinhoAberto(true); setMensagem(''); clearTimeout(mensagemTimer.current); }}>
           <span className={styles.carriNhoBadge}>{totalQtd}</span>
           Ver carrinho
-          <span className={styles.carrinhoTotal}>R$ {total.toFixed(2).replace('.', ',')}</span>
+          <span className={styles.carrinhoTotal}>{formatPrice(total)}</span>
         </button>
       )}
 
@@ -194,7 +194,7 @@ export function MenuPage() {
               <div className={styles.carrinhoItemInfo}>
                 <span className={styles.carrinhoItemNome}>{p.nome}</span>
                 <span className={styles.carrinhoItemPreco}>
-                  R$ {(parseFloat(p.preco) * carrinho[p.id]).toFixed(2).replace('.', ',')}
+                  {formatPrice(parseFloat(p.preco) * carrinho[p.id])}
                 </span>
               </div>
               <div className={styles.carrinhoItemControle}>
@@ -216,7 +216,7 @@ export function MenuPage() {
         <div className={styles.drawerFooter}>
           <div className={styles.drawerTotal}>
             <span>Total</span>
-            <span className={styles.drawerTotalValor}>R$ {total.toFixed(2).replace('.', ',')}</span>
+            <span className={styles.drawerTotalValor}>{formatPrice(total)}</span>
           </div>
           {mensagem && (
             <p className={`${styles.mensagem} ${mensagem.includes('sucesso') ? styles.sucesso : styles.erro}`}>

@@ -72,10 +72,7 @@ class ReservaService {
     return Reserva.fromRow(reserva, itens).toJSON();
   }
 
-  async obterPorCantina(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
-    this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
-
-    const { dados, total } = await ReservaRepository.findByCantina(cantina_id, { page, limit });
+  async _popularItens(dados, total) {
     const reservas = await Promise.all(
       dados.map(async (row) => {
         const itensRows = await ReservaRepository.findItensByReserva(row.id);
@@ -85,24 +82,47 @@ class ReservaService {
     return { dados: reservas, total };
   }
 
+  async obterPorCantina(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
+    this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
+    const { dados, total } = await ReservaRepository.findByCantina(cantina_id, { page, limit });
+    return this._popularItens(dados, total);
+  }
+
   async obterPorUsuario(usuario_id, usuarioAutenticado = null, { page, limit } = {}) {
     this.validarUsuarioAutenticado(usuarioAutenticado, usuario_id);
-
     const { dados, total } = await ReservaRepository.findByUsuario(usuario_id, { page, limit });
-    const reservas = await Promise.all(
-      dados.map(async (row) => {
-        const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        return this.montarReservaComItens(row, itensRows);
-      })
-    );
-    return { dados: reservas, total };
+    return this._popularItens(dados, total);
+  }
+
+  async _validarEMontarItem(item, reserva) {
+    const produto = await ProdutoRepository.findById(item.produto_id);
+    if (!produto) {
+      throw new ValidationException('Produto inválido', { produto_id: 'Produto não encontrado' });
+    }
+    if (produto.cantina_id !== reserva.cantina_id) {
+      throw new ValidationException('Produto inválido', { produto_id: 'Produto não pertence à cantina selecionada' });
+    }
+    if (!produto.disponivel || produto.arquivado) {
+      throw new ValidationException('Produto inválido', { produto_id: 'Produto indisponível para reserva' });
+    }
+    if (produto.quantidade_limite !== null && item.quantidade > Number(produto.quantidade_limite)) {
+      throw new ValidationException('Quantidade inválida', {
+        quantidade: `Quantidade máxima para ${produto.nome}: ${produto.quantidade_limite}`,
+      });
+    }
+    return {
+      id: item.id.toString(),
+      produto_id: item.produto_id,
+      quantidade: item.quantidade,
+      nome_produto: produto.nome ?? null,
+      preco_unitario: produto.preco ?? null,
+    };
   }
 
   async criar(dados, usuarioAutenticado = null) {
     this.validarUsuarioAutenticado(usuarioAutenticado, dados.usuario_id);
 
     const reserva = Reserva.criar(dados);
-
     const itensVO = dados.itens.map(item =>
       ReservaItem.criar({ ...item, reserva_id: reserva.id.toString() })
     );
@@ -111,41 +131,10 @@ class ReservaService {
       id: reserva.id.toString(),
       cantina_id: reserva.cantina_id,
       usuario_id: reserva.usuario_id,
-      status: reserva.status
+      status: reserva.status,
     };
 
-    const itensData = await Promise.all(itensVO.map(async (item) => {
-      const produto = await ProdutoRepository.findById(item.produto_id);
-      if (!produto) {
-        throw new ValidationException('Produto inválido', { produto_id: 'Produto não encontrado' });
-      }
-
-      if (produto.cantina_id !== reserva.cantina_id) {
-        throw new ValidationException('Produto inválido', {
-          produto_id: 'Produto não pertence à cantina selecionada',
-        });
-      }
-
-      if (!produto.disponivel || produto.arquivado) {
-        throw new ValidationException('Produto inválido', {
-          produto_id: 'Produto indisponível para reserva',
-        });
-      }
-
-      if (produto.quantidade_limite !== null && item.quantidade > Number(produto.quantidade_limite)) {
-        throw new ValidationException('Quantidade inválida', {
-          quantidade: `Quantidade máxima para ${produto.nome}: ${produto.quantidade_limite}`,
-        });
-      }
-
-      return {
-        id: item.id.toString(),
-        produto_id: item.produto_id,
-        quantidade: item.quantidade,
-        nome_produto: produto?.nome ?? null,
-        preco_unitario: produto?.preco ?? null,
-      };
-    }));
+    const itensData = await Promise.all(itensVO.map(item => this._validarEMontarItem(item, reserva)));
 
     const { reserva: criada, itens } = await ReservaRepository.createComItens(reservaData, itensData);
     const itensJSON = itens.map(row => ReservaItem.fromRow(row).toJSON());
@@ -154,15 +143,8 @@ class ReservaService {
 
   async obterHistorico(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
     this.validarCantinaAutenticada(usuarioAutenticado, cantina_id);
-
     const { dados, total } = await ReservaRepository.findHistoricoByCantina(cantina_id, { page, limit });
-    const reservas = await Promise.all(
-      dados.map(async (row) => {
-        const itensRows = await ReservaRepository.findItensByReserva(row.id);
-        return this.montarReservaComItens(row, itensRows);
-      })
-    );
-    return { dados: reservas, total };
+    return this._popularItens(dados, total);
   }
 
   async limparAntigas(usuarioAutenticado = null) {
