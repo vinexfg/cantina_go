@@ -6,7 +6,7 @@ import styles from './HistoricoPage.module.css';
 
 const POR_PAGINA = 10;
 
-export function HistoricoPage() {
+export default function HistoricoPage() {
   const [reservas, setReservas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [busca, setBusca] = useState('');

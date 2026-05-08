@@ -11,7 +11,7 @@ const MENSAGEM_TIMEOUT = 2000;
 
 const POLLING_INTERVAL = 10_000;
 
-export function MenuPage() {
+export default function MenuPage() {
   const [produtos, setProdutos] = useState([]);
   const [carrinho, setCarrinho] = useState({});
   const [carregando, setCarregando] = useState(true);
