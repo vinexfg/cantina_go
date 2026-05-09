@@ -2,29 +2,10 @@ import UsuarioService from '../services/UsuarioService.js';
 import Result from '../valueObjects/Result.js';
 
 class UsuarioController {
-  static async obterTodos(req, res, next) {
-    try {
-      const usuarios = await UsuarioService.obterTodos();
-      Result.ok(usuarios).send(res);
-    } catch (erro) {
-      next(erro);
-    }
-  }
-
   static async obterPorId(req, res, next) {
     try {
       const { id } = req.params;
-      const usuario = await UsuarioService.obterPorId(id);
-      Result.ok(usuario).send(res);
-    } catch (erro) {
-      next(erro);
-    }
-  }
-
-  static async obterPorEmail(req, res, next) {
-    try {
-      const { email } = req.params;
-      const usuario = await UsuarioService.obterPorEmail(email);
+      const usuario = await UsuarioService.obterPorId(id, req.usuario);
       Result.ok(usuario).send(res);
     } catch (erro) {
       next(erro);

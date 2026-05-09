@@ -19,7 +19,8 @@ class UsuarioService {
     return usuarios.map(row => Usuario.fromRow(row).toJSON());
   }
 
-  async obterPorId(id) {
+  async obterPorId(id, usuarioAutenticado) {
+    this.validarProprietario(usuarioAutenticado, id);
     const usuario = await UsuarioRepository.findById(id);
     if (!usuario) throw new NotFoundException('Usuário não encontrado');
     return Usuario.fromRow(usuario).toJSON();
