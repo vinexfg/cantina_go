@@ -23,8 +23,4 @@ const pool = process.env.DATABASE_URL
       database: process.env.DB_NAME || 'cantina'
     });
 
-import { migrate } from './migrations.js';
-
-export const migrationReady = migrate();
-
 export default pool;

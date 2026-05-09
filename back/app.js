@@ -16,7 +16,7 @@ import produtoRoutes from './routes/produtoRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import cantinaRoutes from './routes/cantinaRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
-import { migrationReady } from './db.js';
+import { migrate } from './migrations.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '.env') });
@@ -58,7 +58,7 @@ app.use(ErrorMiddleware.handle);
 const serverInfo = config.getServerInfo();
 
 try {
-  await migrationReady;
+  await migrate();
 
   app.listen(serverInfo.port, serverInfo.host, () => {
     console.log(`🚀 Servidor rodando em ${serverInfo.url}`);
