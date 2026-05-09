@@ -50,6 +50,7 @@ export const api = {
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),
   registrarUsuario: (dados) => request('POST', '/auth/registro/usuario', dados),
+  registrarCantina: (dados) => request('POST', '/auth/registro/cantina', dados),
   googleLogin: (idToken) => request('POST', '/auth/google', { idToken }),
 
   getProdutosDisponiveis: (params) => request('GET', `/produtos/disponiveis${buildQuery(params)}`),

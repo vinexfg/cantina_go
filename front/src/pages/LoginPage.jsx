@@ -107,9 +107,14 @@ export default function LoginPage() {
     setCarregando(true);
     try {
       if (modo === 'cadastro') {
-        await api.registrarUsuario({ nome, email, senha });
+        if (isAluno) {
+          await api.registrarUsuario({ nome, email, senha });
+          setSucesso('Conta criada! Faça login e escolha sua cantina.');
+        } else {
+          await api.registrarCantina({ nome, email, senha });
+          setSucesso('Cantina cadastrada! Faça login para acessar o painel.');
+        }
         setModo('login');
-        setSucesso('Conta criada! Faça login e escolha sua cantina.');
         setErro('');
         setSenha('');
         setNome('');
@@ -195,14 +200,16 @@ export default function LoginPage() {
             <h2>
               {isAluno
                 ? modo === 'cadastro' ? 'Cadastro de Aluno' : 'Login de Aluno'
-                : 'Login da Cantina'}
+                : modo === 'cadastro' ? 'Cadastro de Cantina' : 'Login da Cantina'}
             </h2>
             <p>
               {isAluno
                 ? modo === 'cadastro'
                   ? 'Crie sua conta para fazer reservas'
                   : 'Entre para ver o menu e fazer reservas'
-                : 'Acesse o painel para gerenciar o menu'}
+                : modo === 'cadastro'
+                  ? 'Cadastre sua cantina no sistema'
+                  : 'Acesse o painel para gerenciar o menu'}
             </p>
           </div>
 
@@ -280,25 +287,23 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {isAluno && (
-            <div className={styles.alternar}>
-              {modo === 'login' ? (
-                <p>
-                  Não tem conta?{' '}
-                  <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
-                    Cadastre-se
-                  </button>
-                </p>
-              ) : (
-                <p>
-                  Já tem conta?{' '}
-                  <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
-                    Entrar
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
+          <div className={styles.alternar}>
+            {modo === 'login' ? (
+              <p>
+                {isAluno ? 'Não tem conta?' : 'Cantina não cadastrada?'}{' '}
+                <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
+                  Cadastre-se
+                </button>
+              </p>
+            ) : (
+              <p>
+                Já tem {isAluno ? 'conta' : 'cadastro'}?{' '}
+                <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
+                  Entrar
+                </button>
+              </p>
+            )}
+          </div>
 
           {isAluno && googleClientId && (
             <div className={styles.googleSection}>
