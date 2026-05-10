@@ -23,7 +23,8 @@ function validar() {
   else mostrarErro('err-email', '');
 
   if (!senha) { mostrarErro('err-senha', 'Senha é obrigatória'); ok = false; }
-  else if (senha.length < 6) { mostrarErro('err-senha', 'Mínimo 6 caracteres'); ok = false; }
+  else if (senha.length < 8) { mostrarErro('err-senha', 'Mínimo 8 caracteres'); ok = false; }
+  else if (!/[a-zA-Z]/.test(senha) || !/[0-9]/.test(senha)) { mostrarErro('err-senha', 'Senha deve conter letras e números'); ok = false; }
   else mostrarErro('err-senha', '');
 
   if (!confirmar) { mostrarErro('err-confirmar', 'Confirme a senha'); ok = false; }
