@@ -1,13 +1,15 @@
-const BASE = '/api';
+import { STORAGE_KEYS } from './constants/storage';
+
+const BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 function getToken() {
-  return localStorage.getItem('token');
+  return localStorage.getItem(STORAGE_KEYS.TOKEN);
 }
 
 function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('tipo');
-  localStorage.removeItem('user');
+  localStorage.removeItem(STORAGE_KEYS.TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.TIPO);
+  localStorage.removeItem(STORAGE_KEYS.USER);
   window.location.href = '/';
 }
 
@@ -43,11 +45,12 @@ function buildQuery(params = {}) {
 }
 
 export const api = {
-  getCantinas: () => request('GET', '/cantinas/lista'),
+  getCantinas: () => request('GET', '/cantinas'),
 
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),
   registrarUsuario: (dados) => request('POST', '/auth/registro/usuario', dados),
+  registrarCantina: (dados) => request('POST', '/auth/registro/cantina', dados),
   googleLogin: (idToken) => request('POST', '/auth/google', { idToken }),
 
   getProdutosDisponiveis: (params) => request('GET', `/produtos/disponiveis${buildQuery(params)}`),
@@ -62,7 +65,10 @@ export const api = {
   atualizarStatusReserva: (id, status) => request('PATCH', `/reservas/${id}/status`, { status }),
   removerReserva: (id) => request('DELETE', `/reservas/${id}`),
   getHistorico: (cantina_id, params) => request('GET', `/reservas/cantina/${cantina_id}/historico${buildQuery(params)}`),
-  limparReservasAntigas: () => request('DELETE', '/reservas/limpeza'),
-  limparReservasAntigasUsuario: (usuario_id) => request('DELETE', `/reservas/usuario/${usuario_id}/limpeza`),
+  limparReservasAntigas: () => request('DELETE', '/reservas/antigas'),
+  limparReservasAntigasUsuario: (usuario_id) => request('DELETE', `/reservas/usuario/${usuario_id}/antigas`),
   excluirConta: (senha) => request('DELETE', '/auth/conta', { senha }),
+  verificarEmail: (token) => request('GET', `/auth/verificar-email?token=${encodeURIComponent(token)}`),
+  solicitarResetSenha: (email) => request('POST', '/auth/esqueci-senha', { email }),
+  resetarSenha: (token, novaSenha) => request('POST', '/auth/resetar-senha', { token, novaSenha }),
 };

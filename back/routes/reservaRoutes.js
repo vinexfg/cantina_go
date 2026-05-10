@@ -6,9 +6,6 @@ import { validar } from '../middleware/ValidationMiddleware.js';
 const validarReserva = validar({ usuario_id: 'Usuário é obrigatório', cantina_id: 'Cantina é obrigatória', itens: 'Itens são obrigatórios' });
 const validarStatus  = validar({ status: 'Status é obrigatório' });
 
-// GET /api/reservas - Listar todas
-router.get('/', ReservaController.obterTodos);
-
 // GET /api/reservas/cantina/:cantina_id - Listar por cantina
 router.get('/cantina/:cantina_id', ReservaController.obterPorCantina);
 
@@ -18,11 +15,11 @@ router.get('/usuario/:usuario_id', ReservaController.obterPorUsuario);
 // GET /api/reservas/cantina/:cantina_id/historico - Historico da semana
 router.get('/cantina/:cantina_id/historico', ReservaController.historico);
 
-// DELETE /api/reservas/limpeza - Remover concluidas com mais de 7 dias
-router.delete('/limpeza', ReservaController.limparAntigas);
+// DELETE /api/reservas/antigas - Remover concluidas com mais de 7 dias
+router.delete('/antigas', ReservaController.limparAntigas);
 
-// DELETE /api/reservas/usuario/:usuario_id/limpeza - Remover pedidos antigos do usuário
-router.delete('/usuario/:usuario_id/limpeza', ReservaController.limparAntigasUsuario);
+// DELETE /api/reservas/usuario/:usuario_id/antigas - Remover pedidos antigos do usuário
+router.delete('/usuario/:usuario_id/antigas', ReservaController.limparAntigasUsuario);
 
 // GET /api/reservas/:id - Buscar por ID (com itens)
 router.get('/:id', ReservaController.obterPorId);

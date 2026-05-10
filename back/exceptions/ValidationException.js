@@ -9,7 +9,7 @@ class ValidationException extends AppException {
   }
 
   toResult() {
-    return Result.badRequest(this.message);
+    return Result.badRequest(this.message, this.fields);
   }
 }
 

@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
 import styles from './ReservasPage.module.css';
 
-export function ReservasPage() {
+export default function ReservasPage() {
   const { reservas, setReservas, carregando } = useReservas();
   const { addToast } = useToast();
   const { confirm } = useConfirm();

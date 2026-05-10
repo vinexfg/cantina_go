@@ -1,27 +1,33 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
 import { useTheme } from '../context/ThemeContext';
+import { STORAGE_KEYS } from '../constants/storage';
+import { validarCampo as _validarCampo } from '../utils/validators';
+import { IconSun, IconMoon } from '../components/ThemeIcons';
 import styles from './LoginPage.module.css';
 
-const IconSun = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="5"/>
-    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-  </svg>
-);
-
-const IconMoon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-  </svg>
-);
-
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+function CampoFormulario({ id, label, type = 'text', placeholder, value, onChange, onBlur, erro }) {
+  return (
+    <div className={styles.formGroup}>
+      <label htmlFor={id}>{label}</label>
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        className={erro ? styles.inputErro : ''}
+      />
+      {erro && <span className={styles.erroMsg}>{erro}</span>}
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const [isAluno, setIsAluno] = useState(true);
   const [modo, setModo] = useState('login'); // 'login' | 'cadastro'
@@ -49,40 +55,19 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAluno) return;
+    setCarregandoCantinas(true);
     api.getCantinas()
       .then(data => setCantinas(data || []))
       .catch(() => setCantinas([]))
       .finally(() => setCarregandoCantinas(false));
   }, [isAluno]);
 
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
   function validarCampo(campo, valor) {
-    if (campo === 'nome') {
-      if (!valor.trim()) return 'Nome é obrigatório';
-      if (valor.trim().length < 3) return 'Nome deve ter pelo menos 3 caracteres';
-    }
-    if (campo === 'email') {
-      if (!valor.trim()) return 'Email é obrigatório';
-      if (!EMAIL_REGEX.test(valor.trim())) return 'Email inválido';
-    }
-    if (campo === 'confirmarEmail') {
-      if (!valor.trim()) return 'Confirmação de email é obrigatória';
-      if (valor !== email) return 'Os e-mails não coincidem';
-    }
-    if (campo === 'senha') {
-      if (!valor) return 'Senha é obrigatória';
-      if (valor.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
-    }
-    if (campo === 'cantinaId') {
-      if (!valor) return 'Selecione uma cantina';
-    }
-    return '';
+    return _validarCampo(campo, valor, { emailAtual: email });
   }
 
   function setCampoBorrado(campo, valor) {
-    const msg = validarCampo(campo, valor);
-    setErrosCampos(prev => ({ ...prev, [campo]: msg }));
+    setErrosCampos(prev => ({ ...prev, [campo]: validarCampo(campo, valor) }));
   }
 
   function validarTudo() {
@@ -111,7 +96,6 @@ export default function LoginPage() {
     setNome('');
     setCantinaId('');
     setErrosCampos({});
-    setCarregandoCantinas(aluno);
   }
 
   async function handleSubmit(e) {
@@ -123,9 +107,14 @@ export default function LoginPage() {
     setCarregando(true);
     try {
       if (modo === 'cadastro') {
-        await api.registrarUsuario({ nome, email, senha });
+        if (isAluno) {
+          await api.registrarUsuario({ nome, email, senha });
+          setSucesso('Conta criada! Faça login e escolha sua cantina.');
+        } else {
+          await api.registrarCantina({ nome, email, senha });
+          setSucesso('Cantina cadastrada! Faça login para acessar o painel.');
+        }
         setModo('login');
-        setSucesso('Conta criada! Faça login e escolha sua cantina.');
         setErro('');
         setSenha('');
         setNome('');
@@ -133,17 +122,17 @@ export default function LoginPage() {
         return;
       } else if (isAluno) {
         const data = await api.loginUsuario(email, senha);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tipo', 'usuario');
-        localStorage.setItem('user', JSON.stringify(data.usuario));
-        localStorage.setItem('cantina_id', cantinaId);
-        localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
+        localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+        localStorage.setItem(STORAGE_KEYS.TIPO, 'usuario');
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.usuario));
+        localStorage.setItem(STORAGE_KEYS.CANTINA_ID, cantinaId);
+        localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
         navigate('/menu');
       } else {
         const data = await api.loginCantina(email, senha);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tipo', 'cantina');
-        localStorage.setItem('user', JSON.stringify(data.cantina));
+        localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+        localStorage.setItem(STORAGE_KEYS.TIPO, 'cantina');
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.cantina));
         navigate('/vendedor');
       }
     } catch (err) {
@@ -162,11 +151,11 @@ export default function LoginPage() {
     setCarregando(true);
     try {
       const data = await api.googleLogin(credentialResponse.credential);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('tipo', 'usuario');
-      localStorage.setItem('user', JSON.stringify(data.usuario));
-      localStorage.setItem('cantina_id', cantinaId);
-      localStorage.setItem('cantina_nome', cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
+      localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
+      localStorage.setItem(STORAGE_KEYS.TIPO, 'usuario');
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.usuario));
+      localStorage.setItem(STORAGE_KEYS.CANTINA_ID, cantinaId);
+      localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
       navigate('/menu');
     } catch (err) {
       setErro(err.message);
@@ -211,77 +200,52 @@ export default function LoginPage() {
             <h2>
               {isAluno
                 ? modo === 'cadastro' ? 'Cadastro de Aluno' : 'Login de Aluno'
-                : 'Login da Cantina'}
+                : modo === 'cadastro' ? 'Cadastro de Cantina' : 'Login da Cantina'}
             </h2>
             <p>
               {isAluno
                 ? modo === 'cadastro'
                   ? 'Crie sua conta para fazer reservas'
                   : 'Entre para ver o menu e fazer reservas'
-                : 'Acesse o painel para gerenciar o menu'}
+                : modo === 'cadastro'
+                  ? 'Cadastre sua cantina no sistema'
+                  : 'Acesse o painel para gerenciar o menu'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit}>
             {modo === 'cadastro' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="nome">Nome completo</label>
-                <input
-                  id="nome"
-                  type="text"
-                  placeholder="Seu nome"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  onBlur={(e) => setCampoBorrado('nome', e.target.value)}
-                  className={errosCampos.nome ? styles.inputErro : ''}
-                />
-                {errosCampos.nome && <span className={styles.erroMsg}>{errosCampos.nome}</span>}
-              </div>
+              <CampoFormulario
+                id="nome" label="Nome completo" placeholder="Seu nome"
+                value={nome} onChange={(e) => setNome(e.target.value)}
+                onBlur={(e) => setCampoBorrado('nome', e.target.value)}
+                erro={errosCampos.nome}
+              />
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="text"
-                placeholder={isAluno ? 'seu.email@escola.br' : 'vendedor@cantinago.br'}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={(e) => setCampoBorrado('email', e.target.value)}
-                className={errosCampos.email ? styles.inputErro : ''}
-              />
-              {errosCampos.email && <span className={styles.erroMsg}>{errosCampos.email}</span>}
-            </div>
+            <CampoFormulario
+              id="email" label="Email"
+              placeholder={isAluno ? 'seu.email@escola.br' : 'vendedor@cantinago.br'}
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              onBlur={(e) => setCampoBorrado('email', e.target.value)}
+              erro={errosCampos.email}
+            />
 
             {modo === 'cadastro' && (
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmarEmail">Confirmar e-mail</label>
-                <input
-                  id="confirmarEmail"
-                  type="text"
-                  placeholder="Digite o e-mail novamente"
-                  value={confirmarEmail}
-                  onChange={(e) => setConfirmarEmail(e.target.value)}
-                  onBlur={(e) => setCampoBorrado('confirmarEmail', e.target.value)}
-                  className={errosCampos.confirmarEmail ? styles.inputErro : ''}
-                />
-                {errosCampos.confirmarEmail && <span className={styles.erroMsg}>{errosCampos.confirmarEmail}</span>}
-              </div>
+              <CampoFormulario
+                id="confirmarEmail" label="Confirmar e-mail" placeholder="Digite o e-mail novamente"
+                value={confirmarEmail} onChange={(e) => setConfirmarEmail(e.target.value)}
+                onBlur={(e) => setCampoBorrado('confirmarEmail', e.target.value)}
+                erro={errosCampos.confirmarEmail}
+              />
             )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="senha">Senha</label>
-              <input
-                id="senha"
-                type="password"
-                placeholder="••••••••"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                onBlur={(e) => setCampoBorrado('senha', e.target.value)}
-                className={errosCampos.senha ? styles.inputErro : ''}
-              />
-              {errosCampos.senha && <span className={styles.erroMsg}>{errosCampos.senha}</span>}
-            </div>
+            <CampoFormulario
+              id="senha" label="Senha" type="password" placeholder="••••••••"
+              value={senha} onChange={(e) => setSenha(e.target.value)}
+              onBlur={(e) => setCampoBorrado('senha', e.target.value)}
+              erro={errosCampos.senha}
+            />
 
             {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>
@@ -308,6 +272,14 @@ export default function LoginPage() {
             {sucesso && <p className={styles.sucesso}>✓ {sucesso}</p>}
             {erro && <p className={styles.erro}>⚠ {erro}</p>}
 
+            {isAluno && modo === 'login' && (
+              <div style={{ textAlign: 'right', marginBottom: '6px' }}>
+                <Link to="/esqueci-senha" className={styles.linkBtn} style={{ fontSize: '0.82rem' }}>
+                  Esqueci minha senha
+                </Link>
+              </div>
+            )}
+
             <button type="submit" className={styles.btnSubmit} disabled={carregando}>
               {carregando
                 ? modo === 'cadastro' ? 'Cadastrando...' : 'Entrando...'
@@ -315,25 +287,23 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {isAluno && (
-            <div className={styles.alternar}>
-              {modo === 'login' ? (
-                <p>
-                  Não tem conta?{' '}
-                  <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
-                    Cadastre-se
-                  </button>
-                </p>
-              ) : (
-                <p>
-                  Já tem conta?{' '}
-                  <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
-                    Entrar
-                  </button>
-                </p>
-              )}
-            </div>
-          )}
+          <div className={styles.alternar}>
+            {modo === 'login' ? (
+              <p>
+                {isAluno ? 'Não tem conta?' : 'Cantina não cadastrada?'}{' '}
+                <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
+                  Cadastre-se
+                </button>
+              </p>
+            ) : (
+              <p>
+                Já tem {isAluno ? 'conta' : 'cadastro'}?{' '}
+                <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
+                  Entrar
+                </button>
+              </p>
+            )}
+          </div>
 
           {isAluno && googleClientId && (
             <div className={styles.googleSection}>

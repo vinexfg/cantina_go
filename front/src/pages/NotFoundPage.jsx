@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { STORAGE_KEYS } from '../constants/storage';
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
-  const tipo = localStorage.getItem('tipo');
+  const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
   const destino = tipo === 'cantina' ? '/vendedor' : tipo === 'usuario' ? '/menu' : '/';
 
   return (

@@ -7,11 +7,12 @@ vi.mock('../../repositories/ReservaRepository.js', () => ({
     findByCantina: vi.fn(),
     findByUsuario: vi.fn(),
     findItensByReserva: vi.fn(),
+    findItensByReservas: vi.fn(),
     findHistoricoByCantina: vi.fn(),
     createComItens: vi.fn(),
     updateStatus: vi.fn(),
     delete: vi.fn(),
-    deleteAntigas: vi.fn(),
+    deleteAntigasByCantina: vi.fn(),
     deleteAntigasUsuario: vi.fn(),
   }
 }));
@@ -61,7 +62,7 @@ beforeEach(() => { vi.clearAllMocks(); });
 describe('ReservaService.obterPorCantina', () => {
   it('retorna reservas paginadas da cantina', async () => {
     ReservaRepository.findByCantina.mockResolvedValue({ dados: [rowReserva], total: 1 });
-    ReservaRepository.findItensByReserva.mockResolvedValue([rowItem]);
+    ReservaRepository.findItensByReservas.mockResolvedValue([rowItem]);
     const result = await ReservaService.obterPorCantina(cantinaId, usuarioCantina, { page: 1, limit: 20 });
     expect(result.dados).toHaveLength(1);
     expect(result.total).toBe(1);
@@ -77,7 +78,7 @@ describe('ReservaService.obterPorCantina', () => {
 describe('ReservaService.obterPorUsuario', () => {
   it('retorna reservas paginadas do usuário', async () => {
     ReservaRepository.findByUsuario.mockResolvedValue({ dados: [rowReserva], total: 1 });
-    ReservaRepository.findItensByReserva.mockResolvedValue([rowItem]);
+    ReservaRepository.findItensByReservas.mockResolvedValue([rowItem]);
     const result = await ReservaService.obterPorUsuario(usuarioId, usuarioAluno, { page: 1, limit: 20 });
     expect(result.dados).toHaveLength(1);
     expect(result.total).toBe(1);
@@ -134,9 +135,111 @@ describe('ReservaService.remover', () => {
   });
 });
 
+const rowProduto = {
+  id: produtoId,
+  cantina_id: cantinaId,
+  nome: 'Pastel',
+  preco: 5.5,
+  disponivel: true,
+  arquivado: false,
+  quantidade_limite: null,
+};
+
+const rowItemCriado = {
+  id: 'd47ac10b-58cc-4372-a567-0e02b2c3d483',
+  reserva_id: reservaId,
+  produto_id: produtoId,
+  quantidade: 2,
+};
+
+const dadosCriar = {
+  cantina_id: cantinaId,
+  usuario_id: usuarioId,
+  itens: [{ produto_id: produtoId, quantidade: 2 }],
+};
+
+describe('ReservaService.criar', () => {
+  it('cria reserva com itens válidos', async () => {
+    ProdutoRepository.findById.mockResolvedValue(rowProduto);
+    ReservaRepository.createComItens.mockResolvedValue({ reserva: rowReserva, itens: [rowItemCriado] });
+    const result = await ReservaService.criar(dadosCriar, usuarioAluno);
+    expect(ReservaRepository.createComItens).toHaveBeenCalledOnce();
+    expect(result).toHaveProperty('status', 'pendente');
+  });
+
+  it('lança ForbiddenException para usuário diferente do dono', async () => {
+    const outro = { id: 'ffffffff-ffff-4372-a567-0e02b2c3d000', tipo: 'usuario' };
+    await expect(ReservaService.criar(dadosCriar, outro)).rejects.toThrow(ForbiddenException);
+  });
+
+  it('lança ValidationException quando produto não existe', async () => {
+    ProdutoRepository.findById.mockResolvedValue(null);
+    await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
+  });
+
+  it('lança ValidationException quando produto é de outra cantina', async () => {
+    ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, cantina_id: 'outra-cantina-id' });
+    await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
+  });
+
+  it('lança ValidationException quando produto está indisponível', async () => {
+    ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, disponivel: false });
+    await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
+  });
+
+  it('lança ValidationException quando produto está arquivado', async () => {
+    ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, arquivado: true });
+    await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
+  });
+
+  it('lança ValidationException quando quantidade excede o limite', async () => {
+    ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, quantidade_limite: 1 });
+    const dados = { ...dadosCriar, itens: [{ produto_id: produtoId, quantidade: 5 }] };
+    await expect(ReservaService.criar(dados, usuarioAluno)).rejects.toThrow(ValidationException);
+  });
+
+  it('aceita quantidade dentro do limite', async () => {
+    ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, quantidade_limite: 3 });
+    ReservaRepository.createComItens.mockResolvedValue({ reserva: rowReserva, itens: [rowItemCriado] });
+    const dados = { ...dadosCriar, itens: [{ produto_id: produtoId, quantidade: 3 }] };
+    await expect(ReservaService.criar(dados, usuarioAluno)).resolves.toBeDefined();
+  });
+});
+
+describe('ReservaService.obterHistorico', () => {
+  it('retorna histórico paginado da cantina', async () => {
+    ReservaRepository.findHistoricoByCantina.mockResolvedValue({ dados: [rowReserva], total: 1 });
+    ReservaRepository.findItensByReservas.mockResolvedValue([rowItem]);
+    const result = await ReservaService.obterHistorico(cantinaId, usuarioCantina, { page: 1, limit: 20 });
+    expect(result.dados).toHaveLength(1);
+    expect(result.total).toBe(1);
+  });
+
+  it('lança ForbiddenException para cantina não-dona', async () => {
+    await expect(
+      ReservaService.obterHistorico(cantinaId, usuarioAluno)
+    ).rejects.toThrow(ForbiddenException);
+  });
+});
+
+describe('ReservaService.limparAntigasUsuario', () => {
+  it('limpa reservas antigas do usuário dono', async () => {
+    ReservaRepository.deleteAntigasUsuario.mockResolvedValue(2);
+    const result = await ReservaService.limparAntigasUsuario(usuarioId, usuarioAluno);
+    expect(result).toEqual({ removidas: 2 });
+  });
+
+  it('lança ForbiddenException para outro usuário', async () => {
+    const outro = { id: 'ffffffff-ffff-4372-a567-0e02b2c3d000', tipo: 'usuario' };
+    await expect(
+      ReservaService.limparAntigasUsuario(usuarioId, outro)
+    ).rejects.toThrow(ForbiddenException);
+  });
+});
+
 describe('ReservaService.limparAntigas', () => {
   it('limpa reservas quando chamado por cantina', async () => {
-    ReservaRepository.deleteAntigas.mockResolvedValue(3);
+    ReservaRepository.deleteAntigasByCantina.mockResolvedValue(3);
     const result = await ReservaService.limparAntigas(usuarioCantina);
     expect(result).toEqual({ removidas: 3 });
   });
