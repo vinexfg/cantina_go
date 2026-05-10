@@ -45,7 +45,7 @@ function buildQuery(params = {}) {
 }
 
 export const api = {
-  getCantinas: () => request('GET', '/cantinas/lista'),
+  getCantinas: () => request('GET', '/cantinas'),
 
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),
@@ -65,8 +65,8 @@ export const api = {
   atualizarStatusReserva: (id, status) => request('PATCH', `/reservas/${id}/status`, { status }),
   removerReserva: (id) => request('DELETE', `/reservas/${id}`),
   getHistorico: (cantina_id, params) => request('GET', `/reservas/cantina/${cantina_id}/historico${buildQuery(params)}`),
-  limparReservasAntigas: () => request('DELETE', '/reservas/limpeza'),
-  limparReservasAntigasUsuario: (usuario_id) => request('DELETE', `/reservas/usuario/${usuario_id}/limpeza`),
+  limparReservasAntigas: () => request('DELETE', '/reservas/antigas'),
+  limparReservasAntigasUsuario: (usuario_id) => request('DELETE', `/reservas/usuario/${usuario_id}/antigas`),
   excluirConta: (senha) => request('DELETE', '/auth/conta', { senha }),
   verificarEmail: (token) => request('GET', `/auth/verificar-email?token=${encodeURIComponent(token)}`),
   solicitarResetSenha: (email) => request('POST', '/auth/esqueci-senha', { email }),
