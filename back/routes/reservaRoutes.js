@@ -6,9 +6,6 @@ import { validar } from '../middleware/ValidationMiddleware.js';
 const validarReserva = validar({ usuario_id: 'Usuário é obrigatório', cantina_id: 'Cantina é obrigatória', itens: 'Itens são obrigatórios' });
 const validarStatus  = validar({ status: 'Status é obrigatório' });
 
-// GET /api/reservas - Listar todas
-router.get('/', ReservaController.obterTodos);
-
 // GET /api/reservas/cantina/:cantina_id - Listar por cantina
 router.get('/cantina/:cantina_id', ReservaController.obterPorCantina);
 

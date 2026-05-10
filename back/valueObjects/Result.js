@@ -24,8 +24,10 @@ class Result {
     return new Result(false, 404, null, message);
   }
 
-  static badRequest(message = 'Requisição inválida') {
-    return new Result(false, 400, null, message);
+  static badRequest(message = 'Requisição inválida', fields = null) {
+    const result = new Result(false, 400, null, message);
+    if (fields && Object.keys(fields).length > 0) result.fields = fields;
+    return result;
   }
 
   static internalError(message = 'Erro interno do servidor') {
@@ -41,22 +43,12 @@ class Result {
   }
 
   toJSON() {
-    const response = {
-      success: this.success,
-      statusCode: this.statusCode
-    };
+    const response = {};
 
-    if (this.data !== null) {
-      response.data = this.data;
-    }
-
-    if (this.message) {
-      response.message = this.message;
-    }
-
-    if (this.pagination) {
-      response.pagination = this.pagination;
-    }
+    if (this.data !== null) response.data = this.data;
+    if (this.message) response.message = this.message;
+    if (this.pagination) response.pagination = this.pagination;
+    if (this.fields) response.fields = this.fields;
 
     return response;
   }
