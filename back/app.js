@@ -17,6 +17,8 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import cantinaRoutes from './routes/cantinaRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
 import { migrate } from './migrations.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '.env') });
@@ -38,6 +40,9 @@ app.use(express.json(config.getExpressJsonConfig()));
 app.use(express.urlencoded({ extended: true }));
 app.use(LoggerMiddleware.createLogger());
 app.use('/api', apiLimiter);
+
+// Documentação Swagger
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas públicas
 app.get(['/', '/api', '/api/bemvindo'], (req, res) => {
