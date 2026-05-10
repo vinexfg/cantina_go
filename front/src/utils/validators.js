@@ -18,6 +18,7 @@ export function validarCampo(campo, valor, { emailAtual } = {}) {
   if (campo === 'senha') {
     if (!valor) return 'Senha é obrigatória';
     if (valor.length < MIN_SENHA_LENGTH) return `Senha deve ter pelo menos ${MIN_SENHA_LENGTH} caracteres`;
+    if (!/[a-zA-Z]/.test(valor) || !/[0-9]/.test(valor)) return 'Senha deve conter letras e números';
   }
   if (campo === 'cantinaId') {
     if (!valor) return 'Selecione uma cantina';
