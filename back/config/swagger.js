@@ -237,8 +237,7 @@ const spec = {
     '/api/cantinas/{id}': {
       get: {
         tags: ['Cantinas'],
-        summary: 'Buscar cantina por ID',
-        security: [{ bearerAuth: [] }],
+        summary: 'Buscar cantina por ID (público)',
         parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'string', format: 'uuid' } }],
         responses: {
           200: { description: 'Dados da cantina' },
@@ -464,16 +463,16 @@ const spec = {
         responses: { 200: { description: 'Lista paginada de reservas do aluno' } },
       },
     },
-    '/api/reservas/antigas': {
-      delete: {
+    '/api/reservas/antigas/limpar': {
+      post: {
         tags: ['Reservas'],
         summary: 'Remover reservas concluídas com mais de 7 dias (somente cantina)',
         security: [{ bearerAuth: [] }],
         responses: { 200: { description: 'Reservas antigas removidas' } },
       },
     },
-    '/api/reservas/usuario/{usuario_id}/antigas': {
-      delete: {
+    '/api/reservas/usuario/{usuario_id}/antigas/limpar': {
+      post: {
         tags: ['Reservas'],
         summary: 'Remover reservas antigas de um aluno',
         security: [{ bearerAuth: [] }],
