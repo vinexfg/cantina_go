@@ -83,7 +83,7 @@ describe('Result.send', () => {
     Result.ok({ id: 1 }, 'msg').send(res);
 
     expect(statusMock).toHaveBeenCalledWith(200);
-    expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+    expect(jsonMock).toHaveBeenCalledWith(expect.objectContaining({ data: { id: 1 }, message: 'msg' }));
   });
 });
 
