@@ -35,6 +35,7 @@ export default function LoginPage() {
   const [confirmarEmail, setConfirmarEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [nome, setNome] = useState('');
+  const [chaveAdmin, setChaveAdmin] = useState('');
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -94,6 +95,7 @@ export default function LoginPage() {
     setConfirmarEmail('');
     setSenha('');
     setNome('');
+    setChaveAdmin('');
     setCantinaId('');
     setErrosCampos({});
   }
@@ -111,13 +113,14 @@ export default function LoginPage() {
           await api.registrarUsuario({ nome, email, senha });
           setSucesso('Conta criada! Faça login e escolha sua cantina.');
         } else {
-          await api.registrarCantina({ nome, email, senha });
+          await api.registrarCantina({ nome, email, senha, chaveAdmin });
           setSucesso('Cantina cadastrada! Faça login para acessar o painel.');
         }
         setModo('login');
         setErro('');
         setSenha('');
         setNome('');
+        setChaveAdmin('');
         setConfirmarEmail('');
         return;
       } else if (isAluno) {
@@ -246,6 +249,14 @@ export default function LoginPage() {
               onBlur={(e) => setCampoBorrado('senha', e.target.value)}
               erro={errosCampos.senha}
             />
+
+            {!isAluno && modo === 'cadastro' && (
+              <CampoFormulario
+                id="chaveAdmin" label="Chave administrativa" type="password" placeholder="••••••••"
+                value={chaveAdmin} onChange={(e) => setChaveAdmin(e.target.value)}
+                erro={errosCampos.chaveAdmin}
+              />
+            )}
 
             {isAluno && modo === 'login' && (
               <div className={styles.formGroup}>
