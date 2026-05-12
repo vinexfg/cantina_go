@@ -63,18 +63,19 @@ const spec = {
     '/api/auth/registro/cantina': {
       post: {
         tags: ['Autenticação'],
-        summary: 'Cadastrar cantina',
+        summary: 'Cadastrar cantina (requer chave administrativa)',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['nome', 'email', 'senha'],
+                required: ['nome', 'email', 'senha', 'chaveAdmin'],
                 properties: {
                   nome: { type: 'string', example: 'Cantina Central' },
                   email: { type: 'string', example: 'cantina@escola.br' },
                   senha: { type: 'string', example: 'Senha123' },
+                  chaveAdmin: { type: 'string', example: '••••••••', description: 'Chave administrativa necessária para criar uma cantina' },
                 },
               },
             },
@@ -83,6 +84,7 @@ const spec = {
         responses: {
           201: { description: 'Cantina criada com sucesso' },
           400: { description: 'Dados inválidos' },
+          403: { description: 'Chave administrativa inválida' },
           409: { description: 'Email já cadastrado' },
         },
       },
