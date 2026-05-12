@@ -11,7 +11,10 @@ class Cantina {
   }
 
   static fromRow(row) {
-    return new Cantina(row.id, row.nome, row.email, row.senha);
+    const c = new Cantina(row.id, row.nome, row.email, row.senha);
+    c.horario_abertura = row.horario_abertura || null;
+    c.horario_fechamento = row.horario_fechamento || null;
+    return c;
   }
 
   static criar(dados) {
@@ -52,6 +55,8 @@ class Cantina {
     return {
       id: this.id.toString(),
       nome: this.nome,
+      horario_abertura: this.horario_abertura || null,
+      horario_fechamento: this.horario_fechamento || null,
     };
   }
 
@@ -60,6 +65,8 @@ class Cantina {
       id: this.id.toString(),
       nome: this.nome,
       email: this.email.toString(),
+      horario_abertura: this.horario_abertura || null,
+      horario_fechamento: this.horario_fechamento || null,
     };
   }
 }

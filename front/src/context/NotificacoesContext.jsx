@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { api } from '../api';
 import { STORAGE_KEYS } from '../constants/storage';
-import { POLLING_INTERVAL } from '../constants/app';
 import { tocarSom } from '../utils/audio';
+
+const BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 const NotificacoesContext = createContext({ notificacoes: [], naoLidas: 0, marcarTodasLidas: () => {}, limpar: () => {} });
 
@@ -22,8 +22,6 @@ function salvar(lista) {
 
 export function NotificacoesProvider({ children }) {
   const [notificacoes, setNotificacoes] = useState(carregarSalvas);
-  const statusAnterior = useRef({});
-  const inicializado = useRef(false);
   const location = useLocation();
 
   const naoLidas = notificacoes.filter(n => !n.lida).length;
@@ -52,44 +50,25 @@ export function NotificacoesProvider({ children }) {
 
   useEffect(() => {
     const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
-    if (tipo !== 'usuario') {
-      statusAnterior.current = {};
-      inicializado.current = false;
-      return;
-    }
+    if (tipo !== 'usuario') return;
 
     const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
-    if (!user.id) {
-      statusAnterior.current = {};
-      inicializado.current = false;
-      return;
-    }
+    if (!user.id) return;
 
-    function checar() {
-      api.getReservasPorUsuario(user.id)
-        .then(({ data }) => {
-          const lista = data || [];
-          lista.forEach(r => {
-            const anterior = statusAnterior.current[r.id];
-            if (inicializado.current && anterior && anterior !== r.status) {
-              const info = MENSAGENS[r.status];
-              if (info) {
-                tocarSom();
-                adicionar(info.texto, info.tipo);
-              }
-            }
-            statusAnterior.current[r.id] = r.status;
-          });
-          if (!inicializado.current) inicializado.current = true;
-        })
-        .catch(() => {
-          // Falhas temporárias de polling não devem interromper a tela.
-        });
-    }
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (!token) return;
 
-    checar();
-    const intervalo = setInterval(checar, POLLING_INTERVAL);
-    return () => clearInterval(intervalo);
+    const es = new EventSource(`${BASE}/sse?token=${encodeURIComponent(token)}`);
+
+    es.addEventListener('status_atualizado', (e) => {
+      try {
+        const { status } = JSON.parse(e.data);
+        const info = MENSAGENS[status];
+        if (info) { tocarSom(); adicionar(info.texto, info.tipo); }
+      } catch {}
+    });
+
+    return () => es.close();
   }, [location.pathname]);
 
   return (

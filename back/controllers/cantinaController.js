@@ -49,6 +49,16 @@ class CantinaController {
     }
   }
 
+  static async atualizarHorario(req, res, next) {
+    try {
+      const { id } = req.params;
+      const resultado = await CantinaService.atualizarHorario(id, req.body, req.usuario);
+      Result.ok(resultado, 'Horário de funcionamento atualizado').send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
   static async remover(req, res, next) {
     try {
       const { id } = req.params;

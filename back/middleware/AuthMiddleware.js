@@ -6,12 +6,11 @@ import Result from '../valueObjects/Result.js';
 class AuthMiddleware {
   static async verificar(req, res, next) {
     const authHeader = req.headers['authorization'];
+    const token = (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null) || req.query.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return Result.forbidden('Token não fornecido').send(res);
     }
-
-    const token = authHeader.split(' ')[1];
 
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET);

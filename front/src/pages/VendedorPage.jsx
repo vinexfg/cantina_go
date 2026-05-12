@@ -14,6 +14,10 @@ export default function VendedorPage() {
   const [mensagem, setMensagem] = useState('');
   const [editando, setEditando] = useState(null);
   const [errosForm, setErrosForm] = useState({});
+  const [horarioAbertura, setHorarioAbertura] = useState('');
+  const [horarioFechamento, setHorarioFechamento] = useState('');
+  const [salvandoHorario, setSalvandoHorario] = useState(false);
+  const [msgHorario, setMsgHorario] = useState('');
 
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -37,17 +41,36 @@ export default function VendedorPage() {
   useEffect(() => {
     let ativo = true;
     api.getProdutosPorCantina(userId)
-      .then(({ data }) => {
-        if (ativo) setProdutos(data || []);
-      })
-      .catch(() => {
-        if (ativo) setProdutos([]);
-      });
+      .then(({ data }) => { if (ativo) setProdutos(data || []); })
+      .catch(() => { if (ativo) setProdutos([]); });
 
-    return () => {
-      ativo = false;
-    };
+    api.getCantinaPorId(userId)
+      .then(data => {
+        if (!ativo) return;
+        setHorarioAbertura(data?.horario_abertura || '');
+        setHorarioFechamento(data?.horario_fechamento || '');
+      })
+      .catch(() => {});
+
+    return () => { ativo = false; };
   }, [userId]);
+
+  async function salvarHorario(e) {
+    e.preventDefault();
+    setSalvandoHorario(true);
+    setMsgHorario('');
+    try {
+      await api.atualizarHorario(userId, {
+        horario_abertura: horarioAbertura || null,
+        horario_fechamento: horarioFechamento || null,
+      });
+      setMsgHorario('Horário salvo com sucesso!');
+    } catch (err) {
+      setMsgHorario(err.message);
+    } finally {
+      setSalvandoHorario(false);
+    }
+  }
 
   async function toggleDisponivel(produto) {
     try {
@@ -182,6 +205,38 @@ export default function VendedorPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Horário de Funcionamento</h2>
+          <form className={styles.formCard} onSubmit={salvarHorario}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div className={styles.inputGroup} style={{ flex: 1, minWidth: '120px' }}>
+                <label>Abertura</label>
+                <input
+                  type="time"
+                  value={horarioAbertura}
+                  onChange={(e) => setHorarioAbertura(e.target.value)}
+                />
+              </div>
+              <div className={styles.inputGroup} style={{ flex: 1, minWidth: '120px' }}>
+                <label>Fechamento</label>
+                <input
+                  type="time"
+                  value={horarioFechamento}
+                  onChange={(e) => setHorarioFechamento(e.target.value)}
+                />
+              </div>
+            </div>
+            <button type="submit" className={styles.btnSave} disabled={salvandoHorario}>
+              {salvandoHorario ? 'Salvando...' : 'Salvar Horário'}
+            </button>
+            {msgHorario && (
+              <p className={msgHorario.includes('sucesso') ? styles.mensagemSucesso : styles.mensagemErro}>
+                {msgHorario}
+              </p>
+            )}
+          </form>
         </section>
 
         <section className={styles.section}>

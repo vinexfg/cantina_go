@@ -2,8 +2,9 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { STORAGE_KEYS } from '../constants/storage';
-import { POLLING_INTERVAL } from '../constants/app';
 import { tocarSom } from '../utils/audio';
+
+const BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 const ReservasContext = createContext({ pendentes: 0, reservas: [], carregando: true, setReservas: () => {} });
 
@@ -14,56 +15,60 @@ export function ReservasProvider({ children }) {
     if (localStorage.getItem(STORAGE_KEYS.TIPO) !== 'cantina') return false;
     return !!JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}').id;
   });
-  const anteriorRef = useRef(null);
   const tituloOriginal = useRef(document.title);
   const location = useLocation();
 
   useEffect(() => {
     const tituloInicial = tituloOriginal.current;
     const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
-
-    if (tipo !== 'cantina') {
-      anteriorRef.current = null;
-      document.title = tituloInicial;
-      return;
-    }
+    if (tipo !== 'cantina') { document.title = tituloInicial; return; }
 
     const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
-    if (!user.id) {
-      anteriorRef.current = null;
-      document.title = tituloInicial;
-      return;
+    if (!user.id) { document.title = tituloInicial; return; }
+
+    function atualizarTitulo(lista) {
+      const count = lista.filter(r => r.status === 'pendente').length;
+      setPendentes(count);
+      document.title = count > 0
+        ? `(${count}) novo${count > 1 ? 's' : ''} pedido${count > 1 ? 's' : ''} — Cantina`
+        : tituloInicial;
     }
 
-    function checar() {
+    function carregar() {
       api.getReservasPorCantina(user.id)
         .then(({ data }) => {
           const lista = data || [];
-          const count = lista.filter((r) => r.status === 'pendente').length;
-
-          if (anteriorRef.current !== null && count > anteriorRef.current) {
-            tocarSom();
-          }
-
-          anteriorRef.current = count;
-          setPendentes(count);
           setReservas(lista);
-
-          document.title = count > 0
-            ? `(${count}) novo${count > 1 ? 's' : ''} pedido${count > 1 ? 's' : ''} — Cantina`
-            : tituloOriginal.current;
+          atualizarTitulo(lista);
         })
-        .catch(() => {
-          // Falhas temporárias de polling não devem interromper a tela.
-        })
+        .catch(() => {})
         .finally(() => setCarregando(false));
     }
 
-    checar();
-    const intervalo = setInterval(checar, POLLING_INTERVAL);
+    carregar();
+
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (!token) return () => { document.title = tituloInicial; };
+
+    const es = new EventSource(`${BASE}/sse?token=${encodeURIComponent(token)}`);
+
+    // Sincroniza lista ao reconectar (ex: Render acordou)
+    es.addEventListener('conectado', carregar);
+
+    es.addEventListener('nova_reserva', (e) => {
+      try {
+        const nova = JSON.parse(e.data);
+        tocarSom();
+        setReservas(prev => {
+          const atualizado = [nova, ...prev.filter(r => r.id !== nova.id)];
+          atualizarTitulo(atualizado);
+          return atualizado;
+        });
+      } catch {}
+    });
 
     return () => {
-      clearInterval(intervalo);
+      es.close();
       document.title = tituloInicial;
     };
   }, [location.pathname]);

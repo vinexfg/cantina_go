@@ -46,6 +46,8 @@ function buildQuery(params = {}) {
 
 export const api = {
   getCantinas: () => request('GET', '/cantinas'),
+  getCantinaPorId: (id) => request('GET', `/cantinas/${id}`),
+  atualizarHorario: (id, dados) => request('PATCH', `/cantinas/${id}/horario`, dados),
 
   loginUsuario: (email, senha) => request('POST', '/auth/login/usuario', { email, senha }),
   loginCantina: (email, senha) => request('POST', '/auth/login/cantina', { email, senha }),

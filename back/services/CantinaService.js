@@ -64,6 +64,17 @@ class CantinaService {
     return { success: true };
   }
 
+  async atualizarHorario(id, dados, usuarioAutenticado) {
+    this.validarProprietaria(usuarioAutenticado, id);
+    const { horario_abertura, horario_fechamento } = dados;
+    const validarHora = (h) => !h || /^\d{2}:\d{2}$/.test(h);
+    if (!validarHora(horario_abertura) || !validarHora(horario_fechamento)) {
+      throw new ValidationException('Horário inválido. Use o formato HH:MM (ex: 08:00)');
+    }
+    await CantinaRepository.updateHorario(id, horario_abertura || null, horario_fechamento || null);
+    return { success: true };
+  }
+
   async remover(id, usuarioAutenticado) {
     this.validarProprietaria(usuarioAutenticado, id);
     await this.obterPorId(id);

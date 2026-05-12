@@ -3,19 +3,19 @@ import ConflictException from '../exceptions/ConflictException.js';
 
 class CantinaRepository {
   static async findAll() {
-    const query = 'SELECT id, nome, email, token_version FROM cantinas';
+    const query = 'SELECT id, nome, email, token_version, horario_abertura, horario_fechamento FROM cantinas';
     const { rows } = await pool.query(query);
     return rows;
   }
 
   static async findById(id) {
-    const query = 'SELECT id, nome, email, senha, token_version FROM cantinas WHERE id = $1';
+    const query = 'SELECT id, nome, email, senha, token_version, horario_abertura, horario_fechamento FROM cantinas WHERE id = $1';
     const { rows } = await pool.query(query, [id]);
     return rows[0] || null;
   }
 
   static async findByEmail(email) {
-    const query = 'SELECT id, nome, email, senha, token_version FROM cantinas WHERE email = $1';
+    const query = 'SELECT id, nome, email, senha, token_version, horario_abertura, horario_fechamento FROM cantinas WHERE email = $1';
     const { rows } = await pool.query(query, [email]);
     return rows[0] || null;
   }
@@ -43,6 +43,13 @@ class CantinaRepository {
     const query = 'DELETE FROM cantinas WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rowCount > 0;
+  }
+
+  static async updateHorario(id, horario_abertura, horario_fechamento) {
+    await pool.query(
+      'UPDATE cantinas SET horario_abertura = $1, horario_fechamento = $2 WHERE id = $3',
+      [horario_abertura, horario_fechamento, id]
+    );
   }
 
   static async incrementTokenVersion(id) {

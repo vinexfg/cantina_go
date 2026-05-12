@@ -1,10 +1,12 @@
 import ReservaRepository from '../repositories/ReservaRepository.js';
 import ProdutoRepository from '../repositories/ProdutoRepository.js';
+import CantinaRepository from '../repositories/CantinaRepository.js';
 import Reserva, { STATUS_VALIDOS } from '../valueObjects/Reserva.js';
 import ReservaItem from '../valueObjects/ReservaItem.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ValidationException from '../exceptions/ValidationException.js';
 import ForbiddenException from '../exceptions/ForbiddenException.js';
+import SseManager from '../sse/SseManager.js';
 
 class ReservaService {
   validarCantinaAutenticada(usuario, cantina_id) {
@@ -129,6 +131,21 @@ class ReservaService {
   async criar(dados, usuarioAutenticado = null) {
     this.validarUsuarioAutenticado(usuarioAutenticado, dados.usuario_id);
 
+    const cantina = await CantinaRepository.findById(dados.cantina_id);
+    if (!cantina) throw new NotFoundException('Cantina não encontrada');
+
+    if (cantina.horario_fechamento) {
+      const agora = new Date();
+      const local = new Date(agora.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      const horaAtual = `${String(local.getHours()).padStart(2, '0')}:${String(local.getMinutes()).padStart(2, '0')}`;
+      const abertura = cantina.horario_abertura || '00:00';
+      if (horaAtual < abertura || horaAtual >= cantina.horario_fechamento) {
+        throw new ValidationException(
+          `A cantina está fechada. Horário de funcionamento: ${abertura} às ${cantina.horario_fechamento}`
+        );
+      }
+    }
+
     const reserva = Reserva.criar(dados);
     const itensVO = dados.itens.map(item =>
       ReservaItem.criar({ ...item, reserva_id: reserva.id.toString() })
@@ -145,7 +162,11 @@ class ReservaService {
 
     const { reserva: criada, itens } = await ReservaRepository.createComItens(reservaData, itensData);
     const itensJSON = itens.map(row => ReservaItem.fromRow(row).toJSON());
-    return Reserva.fromRow(criada, itensJSON).toJSON();
+    const resultado = Reserva.fromRow(criada, itensJSON).toJSON();
+
+    SseManager.emit('cantina', resultado.cantina_id, 'nova_reserva', resultado);
+
+    return resultado;
   }
 
   async obterHistorico(cantina_id, usuarioAutenticado = null, { page, limit } = {}) {
@@ -179,6 +200,9 @@ class ReservaService {
     this.validarCantinaAutenticada(usuarioAutenticado, reserva.cantina_id);
 
     await ReservaRepository.updateStatus(id, status);
+
+    SseManager.emit('usuario', reserva.usuario_id, 'status_atualizado', { id, status });
+
     return { success: true };
   }
 

@@ -18,6 +18,7 @@ import reservaRoutes from './routes/reservaRoutes.js';
 import { migrate } from './migrations.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
+import sseRoutes from './routes/sseRoutes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '.env') });
@@ -42,6 +43,9 @@ app.use('/api', apiLimiter);
 
 // Documentação Swagger
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Notificações em tempo real (SSE)
+app.use('/api/sse', sseRoutes);
 
 // Rotas públicas
 app.get(['/', '/api', '/api/bemvindo'], (req, res) => {

@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../api';
 import Navegacao from '../components/Navegacao';
 import { useToast } from '../context/ToastContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { STORAGE_KEYS } from '../constants/storage';
-import { POLLING_INTERVAL } from '../constants/app';
 import styles from './MinhasReservasPage.module.css';
+
+const BASE = (import.meta.env.VITE_API_URL || '') + '/api';
 
 
 const STATUS_LABEL = {
@@ -32,7 +33,6 @@ export default function MinhasReservasPage() {
   ];
   const { addToast } = useToast();
   const { confirm } = useConfirm();
-  const statusAnterior = useRef({});
 
   const reservasFiltradas = filtroStatus ? reservas.filter(r => r.status === filtroStatus) : reservas;
   const totalPaginas = Math.ceil(reservasFiltradas.length / POR_PAGINA);
@@ -42,45 +42,28 @@ export default function MinhasReservasPage() {
     const user = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || '{}');
     if (!user.id) return;
 
-    function detectarMudancas(novas) {
-      novas.forEach(r => {
-        const statusAnt = statusAnterior.current[r.id];
-        if (statusAnt && statusAnt !== r.status) {
-          if (r.status === 'concluida') {
-            addToast('Reserva aceita com sucesso! Pedido reservado.', 'success', 8000);
-          } else if (r.status === 'cancelada') {
-            addToast('Seu pedido foi cancelado pela cantina.', 'error', 8000);
-          } else {
-            const label = STATUS_LABEL[r.status]?.label || r.status;
-            addToast(`Pedido atualizado para: ${label}`, 'info');
-          }
-        }
-        statusAnterior.current[r.id] = r.status;
-      });
-    }
-
     api.limparReservasAntigasUsuario(user.id).catch(() => {});
 
     api.getReservasPorUsuario(user.id)
-      .then(({ data }) => {
-        const lista = data || [];
-        lista.forEach(r => { statusAnterior.current[r.id] = r.status; });
-        setReservas(lista);
-      })
+      .then(({ data }) => setReservas(data || []))
       .catch(() => addToast('Erro ao carregar pedidos.', 'error'))
       .finally(() => setCarregando(false));
 
-    const intervalo = setInterval(() => {
-      api.getReservasPorUsuario(user.id)
-        .then(({ data }) => {
-          const lista = data || [];
-          detectarMudancas(lista);
-          setReservas(lista);
-        })
-        .catch(() => {});
-    }, POLLING_INTERVAL);
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (!token) return;
 
-    return () => clearInterval(intervalo);
+    const es = new EventSource(`${BASE}/sse?token=${encodeURIComponent(token)}`);
+
+    es.addEventListener('status_atualizado', (e) => {
+      try {
+        const { id, status } = JSON.parse(e.data);
+        setReservas(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+        const label = STATUS_LABEL[status]?.label;
+        if (label) addToast(`Pedido atualizado para: ${label}`, status === 'concluida' ? 'success' : status === 'cancelada' ? 'error' : 'info', 8000);
+      } catch {}
+    });
+
+    return () => es.close();
   }, [addToast]);
 
   async function cancelar(id) {
