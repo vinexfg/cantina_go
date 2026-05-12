@@ -49,7 +49,10 @@ vi.mock('jsonwebtoken', () => ({
 }));
 
 vi.mock('crypto', () => ({
-  default: { randomBytes: vi.fn(() => ({ toString: () => 'abc123token' })) }
+  default: {
+    randomBytes: vi.fn(() => ({ toString: () => 'abc123token' })),
+    randomInt: vi.fn(() => 123456),
+  }
 }));
 
 import UsuarioRepository from '../../repositories/UsuarioRepository.js';
@@ -63,7 +66,7 @@ import AuthService from '../../services/AuthService.js';
 import ValidationException from '../../exceptions/ValidationException.js';
 import NotFoundException from '../../exceptions/NotFoundException.js';
 
-const rowUsuario = { id: 'u1', nome: 'João', email: 'joao@escola.br', senha: '$hashed', token_version: 0 };
+const rowUsuario = { id: 'u1', nome: 'João', email: 'joao@escola.br', senha: '$hashed', token_version: 0, email_verificado: true };
 const rowCantina = { id: 'c1', nome: 'Cantina A', email: 'cantina@escola.br', senha: '$hashed', token_version: 0 };
 
 beforeEach(() => { vi.clearAllMocks(); });

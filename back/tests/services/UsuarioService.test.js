@@ -49,13 +49,13 @@ describe('UsuarioService.obterTodos', () => {
 describe('UsuarioService.obterPorId', () => {
   it('retorna usuário existente', async () => {
     UsuarioRepository.findById.mockResolvedValue(rowUsuario);
-    const result = await UsuarioService.obterPorId(usuarioId);
+    const result = await UsuarioService.obterPorId(usuarioId, dono);
     expect(result).toHaveProperty('nome', 'João Silva');
   });
 
   it('lança NotFoundException quando usuário não existe', async () => {
     UsuarioRepository.findById.mockResolvedValue(null);
-    await expect(UsuarioService.obterPorId(usuarioId)).rejects.toThrow(NotFoundException);
+    await expect(UsuarioService.obterPorId(usuarioId, dono)).rejects.toThrow(NotFoundException);
   });
 });
 

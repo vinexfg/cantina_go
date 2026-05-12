@@ -67,10 +67,9 @@ describe('Usuario.toJSON', () => {
   });
 });
 
-describe('Usuario.toJSONComSenha', () => {
-  it('retorna id, nome, email e senha', () => {
+describe('Usuario.toJSON', () => {
+  it('não expõe senha no JSON público', () => {
     const u = Usuario.fromRow({ id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', nome: 'Ana', email: 'ana@escola.br', senha: '$hash' });
-    const json = u.toJSONComSenha();
-    expect(json).toHaveProperty('senha', '$hash');
+    expect(u.toJSON()).not.toHaveProperty('senha');
   });
 });

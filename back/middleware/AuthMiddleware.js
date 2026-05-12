@@ -6,7 +6,7 @@ import Result from '../valueObjects/Result.js';
 class AuthMiddleware {
   static async verificar(req, res, next) {
     const authHeader = req.headers['authorization'];
-    const token = (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null) || req.query.token;
+    const token = (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null) || req.query?.token;
 
     if (!token) {
       return Result.forbidden('Token não fornecido').send(res);

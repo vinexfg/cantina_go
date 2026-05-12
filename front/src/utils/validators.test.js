@@ -59,8 +59,8 @@ describe('validarCampo — senha', () => {
     expect(validarCampo('senha', '1234567')).toBe(`Senha deve ter pelo menos ${MIN_SENHA_LENGTH} caracteres`);
   });
 
-  it('aceita senha com 8 ou mais caracteres', () => {
-    expect(validarCampo('senha', '12345678')).toBe('');
+  it('aceita senha com 8 ou mais caracteres e letras+números', () => {
+    expect(validarCampo('senha', 'Abc12345')).toBe('');
     expect(validarCampo('senha', 'senhaForte123')).toBe('');
   });
 });

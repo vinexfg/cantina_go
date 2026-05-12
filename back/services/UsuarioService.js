@@ -66,7 +66,8 @@ class UsuarioService {
 
   async remover(id, usuarioAutenticado) {
     this.validarProprietario(usuarioAutenticado, id);
-    await this.obterPorId(id);
+    const usuario = await UsuarioRepository.findById(id);
+    if (!usuario) throw new NotFoundException('Usuário não encontrado');
     await UsuarioRepository.delete(id);
   }
 }

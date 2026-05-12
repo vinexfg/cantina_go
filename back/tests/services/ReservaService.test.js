@@ -23,8 +23,17 @@ vi.mock('../../repositories/ProdutoRepository.js', () => ({
   }
 }));
 
+vi.mock('../../repositories/CantinaRepository.js', () => ({
+  default: { findById: vi.fn() }
+}));
+
+vi.mock('../../sse/SseManager.js', () => ({
+  default: { emit: vi.fn() }
+}));
+
 import ReservaRepository from '../../repositories/ReservaRepository.js';
 import ProdutoRepository from '../../repositories/ProdutoRepository.js';
+import CantinaRepository from '../../repositories/CantinaRepository.js';
 import ReservaService from '../../services/ReservaService.js';
 import ForbiddenException from '../../exceptions/ForbiddenException.js';
 import NotFoundException from '../../exceptions/NotFoundException.js';
@@ -158,8 +167,11 @@ const dadosCriar = {
   itens: [{ produto_id: produtoId, quantidade: 2 }],
 };
 
+const rowCantina = { id: cantinaId, nome: 'Cantina A', horario_abertura: null, horario_fechamento: null };
+
 describe('ReservaService.criar', () => {
   it('cria reserva com itens válidos', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue(rowProduto);
     ReservaRepository.createComItens.mockResolvedValue({ reserva: rowReserva, itens: [rowItemCriado] });
     const result = await ReservaService.criar(dadosCriar, usuarioAluno);
@@ -173,32 +185,38 @@ describe('ReservaService.criar', () => {
   });
 
   it('lança ValidationException quando produto não existe', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue(null);
     await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
   });
 
   it('lança ValidationException quando produto é de outra cantina', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, cantina_id: 'outra-cantina-id' });
     await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
   });
 
   it('lança ValidationException quando produto está indisponível', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, disponivel: false });
     await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
   });
 
   it('lança ValidationException quando produto está arquivado', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, arquivado: true });
     await expect(ReservaService.criar(dadosCriar, usuarioAluno)).rejects.toThrow(ValidationException);
   });
 
   it('lança ValidationException quando quantidade excede o limite', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, quantidade_limite: 1 });
     const dados = { ...dadosCriar, itens: [{ produto_id: produtoId, quantidade: 5 }] };
     await expect(ReservaService.criar(dados, usuarioAluno)).rejects.toThrow(ValidationException);
   });
 
   it('aceita quantidade dentro do limite', async () => {
+    CantinaRepository.findById.mockResolvedValue(rowCantina);
     ProdutoRepository.findById.mockResolvedValue({ ...rowProduto, quantidade_limite: 3 });
     ReservaRepository.createComItens.mockResolvedValue({ reserva: rowReserva, itens: [rowItemCriado] });
     const dados = { ...dadosCriar, itens: [{ produto_id: produtoId, quantidade: 3 }] };
