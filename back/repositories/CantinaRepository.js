@@ -3,26 +3,26 @@ import ConflictException from '../exceptions/ConflictException.js';
 
 class CantinaRepository {
   static async findAll() {
-    const query = 'SELECT * FROM cantinas';
+    const query = 'SELECT id, nome, email, token_version FROM cantinas';
     const { rows } = await pool.query(query);
     return rows;
   }
 
   static async findById(id) {
-    const query = 'SELECT * FROM cantinas WHERE id = $1';
+    const query = 'SELECT id, nome, email, senha, token_version FROM cantinas WHERE id = $1';
     const { rows } = await pool.query(query, [id]);
     return rows[0] || null;
   }
 
   static async findByEmail(email) {
-    const query = 'SELECT * FROM cantinas WHERE email = $1';
+    const query = 'SELECT id, nome, email, senha, token_version FROM cantinas WHERE email = $1';
     const { rows } = await pool.query(query, [email]);
     return rows[0] || null;
   }
 
   static async create(data) {
     const { id, nome, email, senha } = data;
-    const query = 'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) RETURNING *';
+    const query = 'INSERT INTO cantinas (id, nome, email, senha) VALUES ($1, $2, $3, $4) RETURNING id, nome, email, token_version';
     try {
       const { rows } = await pool.query(query, [id, nome, email, senha]);
       return rows[0];
@@ -34,7 +34,7 @@ class CantinaRepository {
 
   static async update(id, data) {
     const { nome, email, senha } = data;
-    const query = 'UPDATE cantinas SET nome = $1, email = $2, senha = $3 WHERE id = $4 RETURNING *';
+    const query = 'UPDATE cantinas SET nome = $1, email = $2, senha = $3 WHERE id = $4';
     const result = await pool.query(query, [nome, email, senha, id]);
     return result.rowCount > 0;
   }

@@ -56,14 +56,6 @@ class Usuario {
     };
   }
 
-  toJSONComSenha() {
-    return {
-      id: this.id.toString(),
-      nome: this.nome,
-      email: this.email.toString(),
-      senha: this.senha
-    };
-  }
 }
 
 export default Usuario;

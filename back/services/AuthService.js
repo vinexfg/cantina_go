@@ -13,6 +13,7 @@ import NotFoundException from '../exceptions/NotFoundException.js';
 import Id from '../valueObjects/Id.js';
 
 const TOKEN_RESET_EXPIRA_MS = 60 * 60 * 1000;
+const TOKEN_VERIFICACAO_EXPIRA_MS = 24 * 60 * 60 * 1000;
 
 // LIMITAÇÃO: loginAttempts é armazenado em memória e é perdido ao reiniciar o processo.
 // Em produção com múltiplas instâncias ou reinicializações frequentes, substituir por Redis ou tabela no banco.
@@ -26,7 +27,8 @@ class AuthService {
     const token = AuthService.gerarToken({ id: usuario.id, email: usuario.email, tipo: 'usuario', token_version: 0 });
 
     const verToken = crypto.randomBytes(32).toString('hex');
-    UsuarioRepository.setTokenVerificacao(usuario.id, verToken)
+    const verExpira = new Date(Date.now() + TOKEN_VERIFICACAO_EXPIRA_MS);
+    UsuarioRepository.setTokenVerificacao(usuario.id, verToken, verExpira)
       .then(() => EmailService.enviarVerificacao(usuario.email, verToken))
       .catch(() => {});
 

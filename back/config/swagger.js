@@ -6,7 +6,7 @@ const spec = {
     description: 'API REST do sistema de reservas da cantina escolar',
   },
   servers: [
-    { url: 'https://cantina-go-415n.onrender.com', description: 'Produção' },
+    { url: process.env.SERVER_URL || 'https://cantina-go-415n.onrender.com', description: 'Produção' },
     { url: 'http://localhost:3000', description: 'Local' },
   ],
   components: {
