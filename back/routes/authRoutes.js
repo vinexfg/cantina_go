@@ -9,7 +9,7 @@ const validarRegistro = validar({ nome: 'Nome é obrigatório', email: 'Email é
 const validarLogin    = validar({ email: 'Email é obrigatório', senha: 'Senha é obrigatória' });
 
 router.post('/registro/usuario', registroLimiter, validarRegistro, AuthController.registrarUsuario);
-router.post('/registro/cantina', registroLimiter, validarRegistro, AuthController.registrarCantina);
+router.post('/registro/cantina', registroLimiter, AuthMiddleware.verificarChaveAdmin, validarRegistro, AuthController.registrarCantina);
 router.post('/login/usuario',   loginLimiter,    validarLogin,    AuthController.loginUsuario);
 router.post('/login/cantina',   loginLimiter,    validarLogin,    AuthController.loginCantina);
 router.post('/google', loginLimiter, validar({ idToken: 'Token do Google é obrigatório' }), AuthController.googleLogin);
