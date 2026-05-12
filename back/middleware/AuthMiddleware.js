@@ -4,6 +4,14 @@ import CantinaRepository from '../repositories/CantinaRepository.js';
 import Result from '../valueObjects/Result.js';
 
 class AuthMiddleware {
+  static verificarChaveAdmin(req, res, next) {
+    const chave = req.body.chaveAdmin;
+    if (!chave || chave !== process.env.CANTINA_REGISTER_KEY) {
+      return Result.forbidden('Chave administrativa inválida').send(res);
+    }
+    next();
+  }
+
   static async verificar(req, res, next) {
     const authHeader = req.headers['authorization'];
 
