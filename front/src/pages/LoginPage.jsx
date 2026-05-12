@@ -38,6 +38,9 @@ export default function LoginPage() {
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [codigo, setCodigo] = useState('');
+  const [loadingVerif, setLoadingVerif] = useState(false);
+  const [loadingReenviar, setLoadingReenviar] = useState(false);
 
   const [errosCampos, setErrosCampos] = useState({});
 
@@ -85,6 +88,36 @@ export default function LoginPage() {
     return Object.values(erros).every(v => !v);
   }
 
+  async function handleVerificarEmail(e) {
+    e.preventDefault();
+    if (!codigo || codigo.length !== 6) { setErro('Digite o código de 6 dígitos.'); return; }
+    setErro('');
+    setLoadingVerif(true);
+    try {
+      await api.verificarEmail(codigo);
+      setSucesso('E-mail verificado! Agora você pode fazer login.');
+      setModo('login');
+      setCodigo('');
+    } catch (err) {
+      setErro(err.message || 'Código inválido ou expirado.');
+    } finally {
+      setLoadingVerif(false);
+    }
+  }
+
+  async function handleReenviarCodigo() {
+    setErro('');
+    setLoadingReenviar(true);
+    try {
+      await api.reenviarVerificacao(email);
+      setSucesso('Novo código enviado! Verifique sua caixa de entrada.');
+    } catch {
+      setErro('Não foi possível reenviar o código. Tente novamente.');
+    } finally {
+      setLoadingReenviar(false);
+    }
+  }
+
   function trocarAba(aluno) {
     setIsAluno(aluno);
     setModo('login');
@@ -109,12 +142,14 @@ export default function LoginPage() {
       if (modo === 'cadastro') {
         if (isAluno) {
           await api.registrarUsuario({ nome, email, senha });
-          setSucesso('Conta criada! Faça login e escolha sua cantina.');
+          setSucesso('Conta criada! Digite o código enviado para ' + email);
+          setModo('verificando');
+          setCodigo('');
         } else {
           await api.registrarCantina({ nome, email, senha });
           setSucesso('Cantina cadastrada! Faça login para acessar o painel.');
+          setModo('login');
         }
-        setModo('login');
         setErro('');
         setSenha('');
         setNome('');
@@ -136,7 +171,14 @@ export default function LoginPage() {
         navigate('/vendedor');
       }
     } catch (err) {
-      setErro(err.message);
+      if (err.message && err.message.includes('não verificado')) {
+        setModo('verificando');
+        setSucesso('Insira o código enviado para ' + email);
+        setErro('');
+        setCodigo('');
+      } else {
+        setErro(err.message);
+      }
     } finally {
       setCarregando(false);
     }
@@ -198,22 +240,51 @@ export default function LoginPage() {
         <main className={styles.card}>
           <div className={styles.cardHeader}>
             <h2>
-              {isAluno
-                ? modo === 'cadastro' ? 'Cadastro de Aluno' : 'Login de Aluno'
-                : modo === 'cadastro' ? 'Cadastro de Cantina' : 'Login da Cantina'}
+              {modo === 'verificando' ? 'Verifique seu e-mail'
+                : isAluno
+                  ? modo === 'cadastro' ? 'Cadastro de Aluno' : 'Login de Aluno'
+                  : modo === 'cadastro' ? 'Cadastro de Cantina' : 'Login da Cantina'}
             </h2>
             <p>
-              {isAluno
-                ? modo === 'cadastro'
-                  ? 'Crie sua conta para fazer reservas'
-                  : 'Entre para ver o menu e fazer reservas'
-                : modo === 'cadastro'
-                  ? 'Cadastre sua cantina no sistema'
-                  : 'Acesse o painel para gerenciar o menu'}
+              {modo === 'verificando' ? 'Digite o código de 6 dígitos enviado para o seu e-mail'
+                : isAluno
+                  ? modo === 'cadastro'
+                    ? 'Crie sua conta para fazer reservas'
+                    : 'Entre para ver o menu e fazer reservas'
+                  : modo === 'cadastro'
+                    ? 'Cadastre sua cantina no sistema'
+                    : 'Acesse o painel para gerenciar o menu'}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          {modo === 'verificando' && (
+            <form onSubmit={handleVerificarEmail}>
+              {sucesso && <p className={styles.sucesso}>✓ {sucesso}</p>}
+              {erro && <p className={styles.erro}>⚠ {erro}</p>}
+              <CampoFormulario
+                id="codigo"
+                label="Código de verificação"
+                placeholder="000000"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onBlur={() => {}}
+                erro={null}
+              />
+              <button type="submit" className={styles.btnSubmit} disabled={loadingVerif}>
+                {loadingVerif ? 'Verificando...' : 'Verificar código'}
+              </button>
+              <div className={styles.alternar}>
+                <p>
+                  Não recebeu o código?{' '}
+                  <button type="button" className={styles.linkBtn} onClick={handleReenviarCodigo} disabled={loadingReenviar}>
+                    {loadingReenviar ? 'Enviando...' : 'Reenviar código'}
+                  </button>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {modo !== 'verificando' && <form onSubmit={handleSubmit}>
             {modo === 'cadastro' && (
               <CampoFormulario
                 id="nome" label="Nome completo" placeholder="Seu nome"
@@ -285,27 +356,29 @@ export default function LoginPage() {
                 ? modo === 'cadastro' ? 'Cadastrando...' : 'Entrando...'
                 : modo === 'cadastro' ? 'Criar conta' : 'Entrar'}
             </button>
-          </form>
+          </form>}
 
-          <div className={styles.alternar}>
-            {modo === 'login' ? (
-              <p>
-                {isAluno ? 'Não tem conta?' : 'Cantina não cadastrada?'}{' '}
-                <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
-                  Cadastre-se
-                </button>
-              </p>
-            ) : (
-              <p>
-                Já tem {isAluno ? 'conta' : 'cadastro'}?{' '}
-                <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
-                  Entrar
-                </button>
-              </p>
-            )}
-          </div>
+          {modo !== 'verificando' && (
+            <div className={styles.alternar}>
+              {modo === 'login' ? (
+                <p>
+                  {isAluno ? 'Não tem conta?' : 'Cantina não cadastrada?'}{' '}
+                  <button className={styles.linkBtn} onClick={() => { setModo('cadastro'); setErro(''); }}>
+                    Cadastre-se
+                  </button>
+                </p>
+              ) : (
+                <p>
+                  Já tem {isAluno ? 'conta' : 'cadastro'}?{' '}
+                  <button className={styles.linkBtn} onClick={() => { setModo('login'); setErro(''); }}>
+                    Entrar
+                  </button>
+                </p>
+              )}
+            </div>
+          )}
 
-          {isAluno && googleClientId && (
+          {isAluno && googleClientId && modo !== 'verificando' && (
             <div className={styles.googleSection}>
               <div className={styles.divisor}>
                 <span>ou</span>

@@ -15,6 +15,7 @@ router.post('/login/cantina',   loginLimiter,    validarLogin,    AuthController
 router.post('/google', loginLimiter, validar({ idToken: 'Token do Google é obrigatório' }), AuthController.googleLogin);
 router.delete('/conta', AuthMiddleware.verificar, AuthController.excluirConta);
 router.get('/verificar-email', AuthController.verificarEmail);
+router.post('/reenviar-verificacao', loginLimiter, validar({ email: 'Email é obrigatório' }), AuthController.reenviarVerificacao);
 router.post('/esqueci-senha', loginLimiter, validar({ email: 'Email é obrigatório' }), AuthController.solicitarResetSenha);
 router.post('/resetar-senha', validar({ token: 'Token é obrigatório', novaSenha: 'Nova senha é obrigatória' }), AuthController.resetarSenha);
 

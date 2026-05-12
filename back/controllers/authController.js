@@ -71,6 +71,16 @@ class AuthController {
     }
   }
 
+  static async reenviarVerificacao(req, res, next) {
+    try {
+      const { email } = req.body;
+      await AuthService.reenviarVerificacao(email);
+      Result.ok(null, 'Se o e-mail estiver cadastrado e não verificado, você receberá um novo código em breve').send(res);
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
   static async solicitarResetSenha(req, res, next) {
     try {
       const { email } = req.body;

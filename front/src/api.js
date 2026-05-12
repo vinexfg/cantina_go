@@ -69,6 +69,7 @@ export const api = {
   limparReservasAntigasUsuario: (usuario_id) => request('POST', `/reservas/usuario/${usuario_id}/antigas/limpar`),
   excluirConta: (senha) => request('DELETE', '/auth/conta', { senha }),
   verificarEmail: (token) => request('GET', `/auth/verificar-email?token=${encodeURIComponent(token)}`),
+  reenviarVerificacao: (email) => request('POST', '/auth/reenviar-verificacao', { email }),
   solicitarResetSenha: (email) => request('POST', '/auth/esqueci-senha', { email }),
   resetarSenha: (token, novaSenha) => request('POST', '/auth/resetar-senha', { token, novaSenha }),
 };

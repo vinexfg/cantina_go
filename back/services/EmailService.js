@@ -30,18 +30,19 @@ class EmailService {
     });
   }
 
-  async enviarVerificacao(email, token) {
-    const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verificar-email?token=${token}`;
+  async enviarVerificacao(email, codigo) {
     await this.enviar({
       para: email,
-      assunto: 'Confirme seu email — CantinaGO',
+      assunto: 'Código de verificação — CantinaGO',
       html: `
-        <h2>Bem-vindo ao CantinaGO!</h2>
-        <p>Clique no botão abaixo para confirmar seu endereço de email:</p>
-        <a href="${url}" style="display:inline-block;padding:12px 24px;background:#f97316;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">
-          Confirmar email
-        </a>
-        <p style="color:#64748b;font-size:0.9rem;margin-top:16px;">O link expira em 24 horas. Se você não criou uma conta, ignore este email.</p>
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#f97316">Bem-vindo ao CantinaGO!</h2>
+          <p>Use o código abaixo para verificar seu e-mail e ativar sua conta:</p>
+          <div style="font-size:2.5rem;font-weight:bold;letter-spacing:12px;text-align:center;
+                      background:#f1f5f9;border-radius:12px;padding:24px 0;margin:24px 0;
+                      color:#0f172a">${codigo}</div>
+          <p style="color:#64748b;font-size:0.9rem">O código expira em 24 horas.<br>Se você não criou uma conta, ignore este e-mail.</p>
+        </div>
       `,
     });
   }

@@ -15,6 +15,10 @@ import Id from '../valueObjects/Id.js';
 const TOKEN_RESET_EXPIRA_MS = 60 * 60 * 1000;
 const TOKEN_VERIFICACAO_EXPIRA_MS = 24 * 60 * 60 * 1000;
 
+function gerarCodigoVerificacao() {
+  return String(crypto.randomInt(100000, 1000000));
+}
+
 // LIMITAÇÃO: loginAttempts é armazenado em memória e é perdido ao reiniciar o processo.
 // Em produção com múltiplas instâncias ou reinicializações frequentes, substituir por Redis ou tabela no banco.
 const loginAttempts = new Map(); // email -> { count, lockedUntil }
@@ -26,7 +30,7 @@ class AuthService {
     const usuario = await UsuarioService.criar(dados);
     const token = AuthService.gerarToken({ id: usuario.id, email: usuario.email, tipo: 'usuario', token_version: 0 });
 
-    const verToken = crypto.randomBytes(32).toString('hex');
+    const verToken = gerarCodigoVerificacao();
     const verExpira = new Date(Date.now() + TOKEN_VERIFICACAO_EXPIRA_MS);
     UsuarioRepository.setTokenVerificacao(usuario.id, verToken, verExpira)
       .then(() => EmailService.enviarVerificacao(usuario.email, verToken))
@@ -69,6 +73,10 @@ class AuthService {
       throw new NotFoundException('Email ou senha inválidos');
     }
 
+    if (tipo === 'usuario' && !row.email_verificado) {
+      throw new ValidationException('E-mail não verificado. Verifique sua caixa de entrada e insira o código recebido.');
+    }
+
     AuthService._clearAttempts(email);
     return row;
   }
@@ -94,6 +102,11 @@ class AuthService {
         email,
         senha: senhaHash,
       });
+    }
+
+    // Google já verificou o e-mail — garante email_verificado = true
+    if (!row.email_verificado) {
+      await UsuarioRepository.verificarEmail(row.id);
     }
 
     const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'usuario', token_version: row.token_version ?? 0 });
@@ -127,6 +140,15 @@ class AuthService {
     await UsuarioRepository.incrementTokenVersion(row.id);
     await UsuarioRepository.limparTokenReset(row.id);
     return { message: 'Senha redefinida com sucesso' };
+  }
+
+  async reenviarVerificacao(email) {
+    const row = await UsuarioRepository.findByEmail(email);
+    if (!row || row.email_verificado) return;
+    const verToken = gerarCodigoVerificacao();
+    const verExpira = new Date(Date.now() + TOKEN_VERIFICACAO_EXPIRA_MS);
+    await UsuarioRepository.setTokenVerificacao(row.id, verToken, verExpira);
+    await EmailService.enviarVerificacao(row.email, verToken);
   }
 
   async excluirConta(id, senha) {
