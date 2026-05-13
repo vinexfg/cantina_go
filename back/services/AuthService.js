@@ -34,7 +34,7 @@ class AuthService {
     const verExpira = new Date(Date.now() + TOKEN_VERIFICACAO_EXPIRA_MS);
     UsuarioRepository.setTokenVerificacao(usuario.id, verToken, verExpira)
       .then(() => EmailService.enviarVerificacao(usuario.email, verToken))
-      .catch(() => {});
+      .catch((err) => console.error('[Auth] Falha ao enviar email de verificacao:', err.message));
 
     return { token, usuario };
   }
