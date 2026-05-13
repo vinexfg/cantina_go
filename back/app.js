@@ -41,8 +41,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(LoggerMiddleware.createLogger());
 app.use('/api', apiLimiter);
 
-// Documentação Swagger
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Documentação Swagger (protegida por senha)
+app.use('/api/docs', (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith('Basic ')) {
+    const [user, pass] = Buffer.from(auth.slice(6), 'base64').toString().split(':');
+    if (user === 'admin' && pass === process.env.CANTINA_REGISTER_KEY) return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="CantinaGO Docs"');
+  res.status(401).send('Acesso restrito');
+}, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Notificações em tempo real (SSE)
 app.use('/api/sse', sseRoutes);
