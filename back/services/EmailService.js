@@ -1,23 +1,29 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 class EmailService {
-  #resend = null;
+  #transporter = null;
 
-  #getClient() {
-    if (this.#resend) return this.#resend;
-    if (!process.env.RESEND_API_KEY) return null;
-    this.#resend = new Resend(process.env.RESEND_API_KEY);
-    return this.#resend;
+  #getTransporter() {
+    if (this.#transporter) return this.#transporter;
+    if (!process.env.BREVO_USER) return null;
+
+    this.#transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      secure: false,
+      auth: { user: process.env.BREVO_USER, pass: process.env.BREVO_PASS },
+    });
+    return this.#transporter;
   }
 
   async enviar({ para, assunto, html }) {
-    const client = this.#getClient();
-    if (!client) {
-      console.log(`[EmailService] RESEND_API_KEY não configurado. Email que seria enviado:\nPara: ${para}\nAssunto: ${assunto}`);
+    const transporter = this.#getTransporter();
+    if (!transporter) {
+      console.log(`[EmailService] BREVO_USER não configurado. Email que seria enviado:\nPara: ${para}\nAssunto: ${assunto}`);
       return;
     }
-    await client.emails.send({
-      from: process.env.RESEND_FROM || 'CantinaGO <onboarding@resend.dev>',
+    await transporter.sendMail({
+      from: process.env.BREVO_FROM || 'CantinaGO <noreply@cantinago.com>',
       to: para,
       subject: assunto,
       html,
