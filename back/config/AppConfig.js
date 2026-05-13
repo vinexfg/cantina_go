@@ -10,8 +10,12 @@ class AppConfig {
   }
 
   getCorsConfig() {
+    const allowed = this.corsOrigin.split(',').map(o => o.trim());
     return {
-      origin: this.corsOrigin,
+      origin: (origin, cb) => {
+        if (!origin || allowed.includes(origin)) return cb(null, true);
+        cb(new Error('Not allowed by CORS'));
+      },
       credentials: true
     };
   }
