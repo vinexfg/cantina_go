@@ -1,33 +1,26 @@
-import nodemailer from 'nodemailer';
-
 class EmailService {
-  #transporter = null;
-
-  #getTransporter() {
-    if (this.#transporter) return this.#transporter;
-    if (!process.env.BREVO_USER) return null;
-
-    this.#transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false,
-      auth: { user: process.env.BREVO_USER, pass: process.env.BREVO_PASS },
-    });
-    return this.#transporter;
-  }
-
   async enviar({ para, assunto, html }) {
-    const transporter = this.#getTransporter();
-    if (!transporter) {
-      console.log(`[EmailService] BREVO_USER não configurado. Email que seria enviado:\nPara: ${para}\nAssunto: ${assunto}`);
+    if (!process.env.BREVO_API_KEY) {
+      console.log(`[EmailService] BREVO_API_KEY não configurado. Email que seria enviado:\nPara: ${para}\nAssunto: ${assunto}`);
       return;
     }
-    await transporter.sendMail({
-      from: process.env.BREVO_FROM || 'CantinaGO <noreply@cantinago.com>',
-      to: para,
-      subject: assunto,
-      html,
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: 'CantinaGO', email: process.env.BREVO_FROM || 'vinysilvaa22v@gmail.com' },
+        to: [{ email: para }],
+        subject: assunto,
+        htmlContent: html,
+      }),
     });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || `Brevo erro ${res.status}`);
+    }
   }
 
   async enviarVerificacao(email, codigo) {
