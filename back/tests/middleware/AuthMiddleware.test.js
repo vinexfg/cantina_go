@@ -28,55 +28,55 @@ const next = vi.fn();
 beforeEach(() => { vi.clearAllMocks(); });
 
 describe('AuthMiddleware.verificar — token ausente', () => {
-  it('retorna 403 sem header Authorization', async () => {
+  it('retorna 401 sem header Authorization', async () => {
     const res = makeRes();
     await AuthMiddleware.verificar({ headers: {} }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('retorna 403 com header malformado (sem Bearer)', async () => {
+  it('retorna 401 com header malformado (sem Bearer)', async () => {
     const res = makeRes();
     await AuthMiddleware.verificar({ headers: { authorization: 'Token abc' } }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 });
 
 describe('AuthMiddleware.verificar — token inválido', () => {
-  it('retorna 403 para token com assinatura inválida', async () => {
+  it('retorna 401 para token com assinatura inválida', async () => {
     const res = makeRes();
     const err = new Error('invalid signature');
     err.name = 'JsonWebTokenError';
     jwt.verify.mockImplementation(() => { throw err; });
     await AuthMiddleware.verificar({ headers: { authorization: 'Bearer bad-token' } }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('retorna 403 para token expirado', async () => {
+  it('retorna 401 para token expirado', async () => {
     const res = makeRes();
     const err = new Error('jwt expired');
     err.name = 'TokenExpiredError';
     jwt.verify.mockImplementation(() => { throw err; });
     await AuthMiddleware.verificar({ headers: { authorization: 'Bearer expired-token' } }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 });
 
 describe('AuthMiddleware.verificar — usuário não encontrado no banco', () => {
-  it('retorna 403 quando usuário foi deletado', async () => {
+  it('retorna 401 quando usuário foi deletado', async () => {
     jwt.verify.mockReturnValue({ id: 'u1', tipo: 'usuario', token_version: 0 });
     UsuarioRepository.findById.mockResolvedValue(null);
     const res = makeRes();
     await AuthMiddleware.verificar({ headers: { authorization: 'Bearer valid' } }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('retorna 403 quando token_version não confere (token invalidado)', async () => {
+  it('retorna 401 quando token_version não confere (token invalidado)', async () => {
     jwt.verify.mockReturnValue({ id: 'u1', tipo: 'usuario', token_version: 0 });
     UsuarioRepository.findById.mockResolvedValue({ id: 'u1', token_version: 1 });
     const res = makeRes();
     await AuthMiddleware.verificar({ headers: { authorization: 'Bearer valid' } }, res, next);
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 });
 

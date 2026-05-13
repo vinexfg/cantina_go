@@ -40,16 +40,6 @@ class AuthController {
     }
   }
 
-  static async googleLogin(req, res, next) {
-    try {
-      const { idToken } = req.body;
-      const resultado = await AuthService.googleLogin(idToken);
-      Result.ok(resultado, 'Login com Google realizado com sucesso').send(res);
-    } catch (erro) {
-      next(erro);
-    }
-  }
-
   static async excluirConta(req, res, next) {
     try {
       const { senha } = req.body;

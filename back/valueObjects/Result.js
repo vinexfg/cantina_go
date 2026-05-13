@@ -38,6 +38,10 @@ class Result {
     return new Result(false, 409, null, message);
   }
 
+  static unauthorized(message = 'Não autenticado') {
+    return new Result(false, 401, null, message);
+  }
+
   static forbidden(message = 'Acesso negado') {
     return new Result(false, 403, null, message);
   }

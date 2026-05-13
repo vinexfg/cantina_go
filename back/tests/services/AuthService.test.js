@@ -74,6 +74,7 @@ import bcrypt from 'bcrypt';
 import AuthService from '../../services/AuthService.js';
 import ValidationException from '../../exceptions/ValidationException.js';
 import NotFoundException from '../../exceptions/NotFoundException.js';
+import UnauthorizedException from '../../exceptions/UnauthorizedException.js';
 
 const rowUsuario = { id: 'u1', nome: 'João', email: 'joao@escola.br', senha: '$hashed', token_version: 0, email_verificado: true };
 const rowCantina = { id: 'c1', nome: 'Cantina A', email: 'cantina@escola.br', senha: '$hashed', token_version: 0 };
@@ -89,15 +90,15 @@ describe('AuthService.loginUsuario', () => {
     expect(result.usuario.id).toBe('u1');
   });
 
-  it('lança NotFoundException para email inexistente', async () => {
+  it('lança UnauthorizedException para email inexistente', async () => {
     UsuarioRepository.findByEmail.mockResolvedValue(null);
-    await expect(AuthService.loginUsuario('x@x.com', '12345678')).rejects.toThrow(NotFoundException);
+    await expect(AuthService.loginUsuario('x@x.com', '12345678')).rejects.toThrow(UnauthorizedException);
   });
 
-  it('lança NotFoundException para senha errada', async () => {
+  it('lança UnauthorizedException para senha errada', async () => {
     UsuarioRepository.findByEmail.mockResolvedValue(rowUsuario);
     bcrypt.compare.mockResolvedValue(false);
-    await expect(AuthService.loginUsuario('joao@escola.br', 'errada')).rejects.toThrow(NotFoundException);
+    await expect(AuthService.loginUsuario('joao@escola.br', 'errada')).rejects.toThrow(UnauthorizedException);
   });
 
   it('lança ValidationException quando email está vazio', async () => {
@@ -118,9 +119,9 @@ describe('AuthService.loginCantina', () => {
     expect(result.cantina.id).toBe('c1');
   });
 
-  it('lança NotFoundException para email inexistente', async () => {
+  it('lança UnauthorizedException para email inexistente', async () => {
     CantinaRepository.findByEmail.mockResolvedValue(null);
-    await expect(AuthService.loginCantina('x@x.com', '12345678')).rejects.toThrow(NotFoundException);
+    await expect(AuthService.loginCantina('x@x.com', '12345678')).rejects.toThrow(UnauthorizedException);
   });
 });
 

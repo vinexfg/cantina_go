@@ -10,6 +10,7 @@ import CantinaService from './CantinaService.js';
 import EmailService from './EmailService.js';
 import ValidationException from '../exceptions/ValidationException.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
+import UnauthorizedException from '../exceptions/UnauthorizedException.js';
 import Id from '../valueObjects/Id.js';
 
 const TOKEN_RESET_EXPIRA_MS = 60 * 60 * 1000;
@@ -54,20 +55,21 @@ class AuthService {
     return { token, cantina: { id: row.id, nome: row.nome, email: row.email } };
   }
 
-  static async _autenticar(email, senha, repository, tipo) {
+  static async _autenticar(emailRaw, senha, repository, tipo) {
+    const email = emailRaw?.toLowerCase().trim();
     AuthService.validarCredenciais(email, senha);
     await AuthService._checkLockout(email);
 
     const row = await repository.findByEmail(email);
     if (!row) {
       await AuthService._recordFailedAttempt(email);
-      throw new NotFoundException('Email ou senha inválidos');
+      throw new UnauthorizedException('Email ou senha inválidos');
     }
 
     const senhaCorreta = await bcrypt.compare(senha, row.senha);
     if (!senhaCorreta) {
       await AuthService._recordFailedAttempt(email);
-      throw new NotFoundException('Email ou senha inválidos');
+      throw new UnauthorizedException('Email ou senha inválidos');
     }
 
     if (tipo === 'usuario' && !row.email_verificado) {
@@ -86,7 +88,7 @@ class AuthService {
   }
 
   async solicitarResetSenha(email) {
-    const row = await UsuarioRepository.findByEmail(email);
+    const row = await UsuarioRepository.findByEmail(email?.toLowerCase().trim());
     if (!row) return; // não revelar se o email existe
     const token = crypto.randomBytes(32).toString('hex');
     const expira = new Date(Date.now() + TOKEN_RESET_EXPIRA_MS);
@@ -108,7 +110,7 @@ class AuthService {
   }
 
   async reenviarVerificacao(email) {
-    const row = await UsuarioRepository.findByEmail(email);
+    const row = await UsuarioRepository.findByEmail(email?.toLowerCase().trim());
     if (!row || row.email_verificado) return;
     const verToken = gerarCodigoVerificacao();
     const verExpira = new Date(Date.now() + TOKEN_VERIFICACAO_EXPIRA_MS);

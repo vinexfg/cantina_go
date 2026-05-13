@@ -3,7 +3,7 @@ const router = express.Router();
 import AuthMiddleware from '../middleware/AuthMiddleware.js';
 import SseManager from '../sse/SseManager.js';
 
-router.get('/', AuthMiddleware.verificar, (req, res) => {
+router.get('/', AuthMiddleware.verificarSSE, (req, res) => {
   const { id, tipo } = req.usuario;
 
   res.setHeader('Content-Type', 'text/event-stream');

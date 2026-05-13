@@ -12,12 +12,22 @@ class AuthMiddleware {
     next();
   }
 
-  static async verificar(req, res, next) {
+  static async verificarSSE(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = (authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null) || req.query?.token;
+    return AuthMiddleware._verificarToken(token, req, res, next);
+  }
 
+  static async verificar(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    return AuthMiddleware._verificarToken(token, req, res, next);
+  }
+
+  static async _verificarToken(token, req, res, next) {
     if (!token) {
-      return Result.forbidden('Token não fornecido').send(res);
+      return Result.unauthorized('Token não fornecido').send(res);
     }
 
     try {
@@ -25,14 +35,14 @@ class AuthMiddleware {
       const repo = payload.tipo === 'cantina' ? CantinaRepository : UsuarioRepository;
       const row = await repo.findById(payload.id);
       if (!row || (row.token_version ?? 0) !== (payload.token_version ?? 0)) {
-        return Result.forbidden('Token inválido ou expirado').send(res);
+        return Result.unauthorized('Token inválido ou expirado').send(res);
       }
       req.usuario = payload;
       req.usuario.id = String(req.usuario.id);
       return next();
     } catch (err) {
       if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-        return Result.forbidden('Token inválido ou expirado').send(res);
+        return Result.unauthorized('Token inválido ou expirado').send(res);
       }
       return next(err);
     }

@@ -11,7 +11,7 @@ class EmailService {
         'api-key': process.env.BREVO_API_KEY,
       },
       body: JSON.stringify({
-        sender: { name: 'CantinaGO', email: process.env.BREVO_FROM || 'vinysilvaa22v@gmail.com' },
+        sender: { name: 'CantinaGO', email: process.env.BREVO_FROM },
         to: [{ email: para }],
         subject: assunto,
         htmlContent: html,
