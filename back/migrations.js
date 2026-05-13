@@ -67,6 +67,14 @@ export async function migrate() {
   await pool.query(`ALTER TABLE IF EXISTS reserva_itens ADD COLUMN IF NOT EXISTS preco_unitario NUMERIC(10,2)`);
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      email       VARCHAR(150) PRIMARY KEY,
+      count       INT NOT NULL DEFAULT 0,
+      locked_until TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
     UPDATE reserva_itens ri
     SET nome_produto = p.nome,
         preco_unitario = p.preco

@@ -16,6 +16,7 @@ import VendedorPage from './pages/VendedorPage';
 import ReservasPage from './pages/ReservasPage';
 import HistoricoPage from './pages/HistoricoPage';
 import NotFoundPage from './pages/NotFoundPage';
+import CardapioPage from './pages/CardapioPage';
 
 function RotaProtegida({ children, tipoRequerido, fallback }) {
   const tipo = localStorage.getItem(STORAGE_KEYS.TIPO);
@@ -42,6 +43,7 @@ function App() {
               <NotificacoesProvider>
                 <Routes>
                   <Route path="/" element={<LoginPage />} />
+                  <Route path="/cardapio" element={<CardapioPage />} />
                   <Route path="/esqueci-senha" element={<EsqueciSenhaPage />} />
                   <Route path="/resetar-senha" element={<ResetarSenhaPage />} />
                   <Route path="/verificar-email" element={<VerificarEmailPage />} />

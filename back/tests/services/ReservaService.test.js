@@ -6,7 +6,7 @@ vi.mock('../../repositories/ReservaRepository.js', () => ({
     findById: vi.fn(),
     findByCantina: vi.fn(),
     findByUsuario: vi.fn(),
-    findItensByReserva: vi.fn(),
+    findItensByReserva: vi.fn().mockResolvedValue([]),
     findItensByReservas: vi.fn(),
     findHistoricoByCantina: vi.fn(),
     createComItens: vi.fn(),
@@ -29,6 +29,15 @@ vi.mock('../../repositories/CantinaRepository.js', () => ({
 
 vi.mock('../../sse/SseManager.js', () => ({
   default: { emit: vi.fn() }
+}));
+
+vi.mock('../../repositories/UsuarioRepository.js', () => ({
+  default: { findById: vi.fn().mockResolvedValue({ id: 'a47ac10b-58cc-4372-a567-0e02b2c3d480', email: 'aluno@escola.br' }) }
+}));
+
+
+vi.mock('../../services/EmailService.js', () => ({
+  default: { enviarStatusReserva: vi.fn().mockResolvedValue(undefined) }
 }));
 
 import ReservaRepository from '../../repositories/ReservaRepository.js';

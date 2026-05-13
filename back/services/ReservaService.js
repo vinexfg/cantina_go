@@ -1,12 +1,14 @@
 import ReservaRepository from '../repositories/ReservaRepository.js';
 import ProdutoRepository from '../repositories/ProdutoRepository.js';
 import CantinaRepository from '../repositories/CantinaRepository.js';
+import UsuarioRepository from '../repositories/UsuarioRepository.js';
 import Reserva, { STATUS_VALIDOS } from '../valueObjects/Reserva.js';
 import ReservaItem from '../valueObjects/ReservaItem.js';
 import NotFoundException from '../exceptions/NotFoundException.js';
 import ValidationException from '../exceptions/ValidationException.js';
 import ForbiddenException from '../exceptions/ForbiddenException.js';
 import SseManager from '../sse/SseManager.js';
+import EmailService from './EmailService.js';
 
 class ReservaService {
   validarCantinaAutenticada(usuario, cantina_id) {
@@ -202,6 +204,15 @@ class ReservaService {
     await ReservaRepository.updateStatus(id, status);
 
     SseManager.emit('usuario', reserva.usuario_id, 'status_atualizado', { id, status });
+
+    if (['confirmada', 'cancelada', 'concluida'].includes(status)) {
+      const itensRows = await ReservaRepository.findItensByReserva(id);
+      const itens = itensRows.map(r => ({ produto_nome: r.produto_nome || r.nome_produto, quantidade: r.quantidade, preco: parseFloat(r.preco_unitario || 0) }));
+      const total = itens.reduce((acc, i) => acc + i.preco * i.quantidade, 0);
+      UsuarioRepository.findById(reserva.usuario_id)
+        .then(u => u && EmailService.enviarStatusReserva(u.email, { status, itens, total }))
+        .catch(err => console.error('[Reserva] Falha ao enviar email de status:', err.message));
+    }
 
     return { success: true };
   }

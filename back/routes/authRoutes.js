@@ -12,7 +12,6 @@ router.post('/registro/usuario', registroLimiter, validarRegistro, AuthControlle
 router.post('/registro/cantina', registroLimiter, AuthMiddleware.verificarChaveAdmin, validarRegistro, AuthController.registrarCantina);
 router.post('/login/usuario',   loginLimiter,    validarLogin,    AuthController.loginUsuario);
 router.post('/login/cantina',   loginLimiter,    validarLogin,    AuthController.loginCantina);
-router.post('/google', loginLimiter, validar({ idToken: 'Token do Google é obrigatório' }), AuthController.googleLogin);
 router.delete('/conta', AuthMiddleware.verificar, AuthController.excluirConta);
 router.get('/verificar-email', AuthController.verificarEmail);
 router.post('/reenviar-verificacao', loginLimiter, validar({ email: 'Email é obrigatório' }), AuthController.reenviarVerificacao);

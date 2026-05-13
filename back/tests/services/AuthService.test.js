@@ -37,6 +37,14 @@ vi.mock('../../services/EmailService.js', () => ({
   default: { enviarVerificacao: vi.fn(), enviarResetSenha: vi.fn() }
 }));
 
+vi.mock('../../repositories/LoginAttemptsRepository.js', () => ({
+  default: {
+    checkLockout: vi.fn().mockResolvedValue(null),
+    recordFailure: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+  }
+}));
+
 vi.mock('bcrypt', () => ({
   default: {
     compare: vi.fn(),
@@ -61,6 +69,7 @@ import ReservaRepository from '../../repositories/ReservaRepository.js';
 import UsuarioService from '../../services/UsuarioService.js';
 import CantinaService from '../../services/CantinaService.js';
 import EmailService from '../../services/EmailService.js';
+import LoginAttemptsRepository from '../../repositories/LoginAttemptsRepository.js';
 import bcrypt from 'bcrypt';
 import AuthService from '../../services/AuthService.js';
 import ValidationException from '../../exceptions/ValidationException.js';
@@ -205,12 +214,15 @@ describe('AuthService.excluirConta', () => {
 });
 
 describe('AuthService._checkLockout / _recordFailedAttempt', () => {
-  it('bloqueia após MAX_ATTEMPTS falhas consecutivas', async () => {
+  it('bloqueia quando LoginAttemptsRepository retorna lockedUntil no futuro', async () => {
+    LoginAttemptsRepository.checkLockout.mockResolvedValue(new Date(Date.now() + 60000));
+    await expect(AuthService.loginUsuario('x@x.com', 'errado')).rejects.toThrow(/bloqueada/);
+  });
+
+  it('registra falha ao logar com email inexistente', async () => {
+    LoginAttemptsRepository.checkLockout.mockResolvedValue(null);
     UsuarioRepository.findByEmail.mockResolvedValue(null);
-    const email = `lockout_test_${Date.now()}@x.com`;
-    for (let i = 0; i < 5; i++) {
-      await AuthService.loginUsuario(email, 'errado').catch(() => {});
-    }
-    await expect(AuthService.loginUsuario(email, 'errado')).rejects.toThrow(/bloqueada/);
+    await AuthService.loginUsuario('x@x.com', 'errado').catch(() => {});
+    expect(LoginAttemptsRepository.recordFailure).toHaveBeenCalledWith('x@x.com', 5, expect.any(Number));
   });
 });

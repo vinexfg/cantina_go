@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { OAuth2Client } from 'google-auth-library';
 import UsuarioRepository from '../repositories/UsuarioRepository.js';
 import CantinaRepository from '../repositories/CantinaRepository.js';
+import LoginAttemptsRepository from '../repositories/LoginAttemptsRepository.js';
 import ReservaRepository from '../repositories/ReservaRepository.js';
 import UsuarioService from './UsuarioService.js';
 import CantinaService from './CantinaService.js';
@@ -19,9 +19,6 @@ function gerarCodigoVerificacao() {
   return String(crypto.randomInt(100000, 1000000));
 }
 
-// LIMITAÇÃO: loginAttempts é armazenado em memória e é perdido ao reiniciar o processo.
-// Em produção com múltiplas instâncias ou reinicializações frequentes, substituir por Redis ou tabela no banco.
-const loginAttempts = new Map(); // email -> { count, lockedUntil }
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
 
@@ -59,17 +56,17 @@ class AuthService {
 
   static async _autenticar(email, senha, repository, tipo) {
     AuthService.validarCredenciais(email, senha);
-    AuthService._checkLockout(email);
+    await AuthService._checkLockout(email);
 
     const row = await repository.findByEmail(email);
     if (!row) {
-      AuthService._recordFailedAttempt(email);
+      await AuthService._recordFailedAttempt(email);
       throw new NotFoundException('Email ou senha inválidos');
     }
 
     const senhaCorreta = await bcrypt.compare(senha, row.senha);
     if (!senhaCorreta) {
-      AuthService._recordFailedAttempt(email);
+      await AuthService._recordFailedAttempt(email);
       throw new NotFoundException('Email ou senha inválidos');
     }
 
@@ -77,40 +74,8 @@ class AuthService {
       throw new ValidationException('E-mail não verificado. Verifique sua caixa de entrada e insira o código recebido.');
     }
 
-    AuthService._clearAttempts(email);
+    await AuthService._clearAttempts(email);
     return row;
-  }
-
-  async googleLogin(idToken) {
-    if (!process.env.GOOGLE_CLIENT_ID) {
-      throw new ValidationException('Login com Google não configurado no servidor');
-    }
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const { email, name } = payload;
-
-    let row = await UsuarioRepository.findByEmail(email);
-    if (!row) {
-      const senhaHash = await bcrypt.hash(new Id().toString(), 10);
-      row = await UsuarioRepository.create({
-        id: new Id().toString(),
-        nome: name,
-        email,
-        senha: senhaHash,
-      });
-    }
-
-    // Google já verificou o e-mail — garante email_verificado = true
-    if (!row.email_verificado) {
-      await UsuarioRepository.verificarEmail(row.id);
-    }
-
-    const token = AuthService.gerarToken({ id: row.id, email: row.email, tipo: 'usuario', token_version: row.token_version ?? 0 });
-    return { token, usuario: { id: row.id, nome: row.nome, email: row.email } };
   }
 
   async verificarEmail(token) {
@@ -179,28 +144,19 @@ class AuthService {
     });
   }
 
-  static _checkLockout(email) {
-    const entry = loginAttempts.get(email);
-    if (!entry?.lockedUntil) return;
-    if (Date.now() < entry.lockedUntil) {
-      const remainingMin = Math.ceil((entry.lockedUntil - Date.now()) / 60000);
-      throw new ValidationException(`Conta temporariamente bloqueada. Tente novamente em ${remainingMin} minuto(s)`);
-    }
-    loginAttempts.delete(email);
+  static async _checkLockout(email) {
+    const lockedUntil = await LoginAttemptsRepository.checkLockout(email);
+    if (!lockedUntil) return;
+    const remainingMin = Math.ceil((lockedUntil - Date.now()) / 60000);
+    throw new ValidationException(`Conta temporariamente bloqueada. Tente novamente em ${remainingMin} minuto(s)`);
   }
 
-  static _recordFailedAttempt(email) {
-    const entry = loginAttempts.get(email) || { count: 0, lockedUntil: null };
-    entry.count += 1;
-    if (entry.count >= MAX_ATTEMPTS) {
-      entry.lockedUntil = Date.now() + LOCKOUT_MS;
-      entry.count = 0;
-    }
-    loginAttempts.set(email, entry);
+  static async _recordFailedAttempt(email) {
+    await LoginAttemptsRepository.recordFailure(email, MAX_ATTEMPTS, LOCKOUT_MS);
   }
 
-  static _clearAttempts(email) {
-    loginAttempts.delete(email);
+  static async _clearAttempts(email) {
+    await LoginAttemptsRepository.clear(email);
   }
 }
 

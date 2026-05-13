@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../api';
 import { useTheme } from '../context/ThemeContext';
 import { STORAGE_KEYS } from '../constants/storage';
 import { validarCampo as _validarCampo } from '../utils/validators';
 import { IconSun, IconMoon } from '../components/ThemeIcons';
 import styles from './LoginPage.module.css';
-
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function CampoFormulario({ id, label, type = 'text', placeholder, value, onChange, onBlur, erro }) {
   return (
@@ -182,28 +179,6 @@ export default function LoginPage() {
       } else {
         setErro(err.message);
       }
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  async function handleGoogleSuccess(credentialResponse) {
-    if (!cantinaId) {
-      setErro('Selecione uma cantina antes de entrar com Google.');
-      return;
-    }
-    setErro('');
-    setCarregando(true);
-    try {
-      const data = await api.googleLogin(credentialResponse.credential);
-      localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
-      localStorage.setItem(STORAGE_KEYS.TIPO, 'usuario');
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.usuario));
-      localStorage.setItem(STORAGE_KEYS.CANTINA_ID, cantinaId);
-      localStorage.setItem(STORAGE_KEYS.CANTINA_NOME, cantinas.find(c => String(c.id) === String(cantinaId))?.nome || '');
-      navigate('/menu');
-    } catch (err) {
-      setErro(err.message);
     } finally {
       setCarregando(false);
     }
@@ -386,23 +361,6 @@ export default function LoginPage() {
                   </button>
                 </p>
               )}
-            </div>
-          )}
-
-          {isAluno && googleClientId && modo !== 'verificando' && (
-            <div className={styles.googleSection}>
-              <div className={styles.divisor}>
-                <span>ou</span>
-              </div>
-              <div className={styles.googleWrapper}>
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setErro('Falha ao autenticar com Google.')}
-                  text={modo === 'cadastro' ? 'signup_with' : 'signin_with'}
-                  shape="rectangular"
-                  width="100%"
-                />
-              </div>
             </div>
           )}
 

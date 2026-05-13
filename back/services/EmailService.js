@@ -40,6 +40,33 @@ class EmailService {
     });
   }
 
+  async enviarStatusReserva(email, { status, itens, total }) {
+    const statusTexto = {
+      confirmada: 'Pedido confirmado!',
+      cancelada: 'Pedido cancelado',
+      concluida: 'Pedido concluído',
+      pendente: 'Pedido recebido',
+    };
+    const cor = status === 'confirmada' || status === 'concluida' ? '#16a34a' : status === 'cancelada' ? '#dc2626' : '#f97316';
+    const itensHtml = itens.map(i => `<tr><td>${i.produto_nome}</td><td style="text-align:center">${i.quantidade}</td><td style="text-align:right">R$ ${(i.preco * i.quantidade).toFixed(2)}</td></tr>`).join('');
+
+    await this.enviar({
+      para: email,
+      assunto: `${statusTexto[status] || 'Atualização do pedido'} — CantinaGO`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:${cor}">${statusTexto[status] || 'Pedido atualizado'}</h2>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0">
+            <thead><tr style="background:#f1f5f9"><th style="text-align:left;padding:8px">Item</th><th style="padding:8px">Qtd</th><th style="padding:8px">Valor</th></tr></thead>
+            <tbody>${itensHtml}</tbody>
+            <tfoot><tr><td colspan="2" style="padding:8px;font-weight:bold">Total</td><td style="text-align:right;padding:8px;font-weight:bold">R$ ${Number(total).toFixed(2)}</td></tr></tfoot>
+          </table>
+          <p style="color:#64748b;font-size:0.9rem">Acesse o app para mais detalhes.</p>
+        </div>
+      `,
+    });
+  }
+
   async enviarResetSenha(email, token) {
     const url = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/resetar-senha?token=${token}`;
     await this.enviar({
