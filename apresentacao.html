@@ -548,6 +548,66 @@
   </div>
 </section>
 
+<!-- ═══ FRONTEND ════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Interface</div>
+    <div class="section-title">Arquitetura do Frontend</div>
+    <p class="section-desc">O frontend é uma SPA (Single Page Application) com arquitetura orientada a contextos e proteção de rotas por perfil de usuário.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:40px">
+
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <h3>Rotas por Perfil</h3>
+        <p>Componentes <code>RotaAluno</code> e <code>RotaVendedor</code> protegem as páginas. Aluno que tenta acessar o painel da cantina é redirecionado automaticamente, e vice-versa.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🔔</div>
+        <h3>Notificações em Tempo Real</h3>
+        <p><code>NotificacoesContext</code> conecta ao SSE, reproduz um som e persiste até 30 notificações no <code>localStorage</code>. O aluno é avisado instantaneamente quando o pedido é confirmado ou cancelado.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🌗</div>
+        <h3>Modo Claro / Escuro</h3>
+        <p><code>ThemeContext</code> alterna o tema com um clique e persiste a preferência no <code>localStorage</code>. Usa <code>data-theme</code> no elemento raiz para aplicar os estilos via CSS.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🍞</div>
+        <h3>Toast Notifications</h3>
+        <p><code>ToastContext</code> exibe mensagens de feedback não-bloqueantes para o usuário — erros, sucessos e avisos — sem interromper o fluxo da tela.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🛡️</div>
+        <h3>Error Boundary</h3>
+        <p>Componente de classe <code>ErrorBoundary</code> captura erros de renderização do React que escapariam para tela branca. Exibe uma mensagem amigável com opção de recarregar.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <h3>12 Páginas</h3>
+        <p>Login, CardápioPublico, EsqueciSenha, ResetarSenha, VerificarEmail — para todos. Menu, Perfil, MeusPedidos — para alunos. Vendedor, Reservas, Histórico — para cantinas.</p>
+      </div>
+
+    </div>
+
+    <div>
+      <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px">5 Contextos React (Context API)</p>
+      <div class="tech-grid">
+        <div class="tech-item"><div class="ti">🔔</div><div><div class="tn">NotificacoesContext</div><div class="tv">SSE + som + persistência</div></div></div>
+        <div class="tech-item"><div class="ti">🌗</div><div><div class="tn">ThemeContext</div><div class="tv">Modo claro/escuro</div></div></div>
+        <div class="tech-item"><div class="ti">🍞</div><div><div class="tn">ToastContext</div><div class="tv">Feedback não-bloqueante</div></div></div>
+        <div class="tech-item"><div class="ti">❓</div><div><div class="tn">ConfirmContext</div><div class="tv">Diálogos de confirmação</div></div></div>
+        <div class="tech-item"><div class="ti">🛒</div><div><div class="tn">ReservasContext</div><div class="tv">Estado global dos pedidos</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ REST + OC ════════════════════════════════════════════════════ -->
 <section>
   <div class="container">

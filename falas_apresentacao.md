@@ -70,6 +70,28 @@
 
 ---
 
+## FRONTEND
+
+> "Agora o frontend, que também tem algumas decisões de arquitetura interessantes.
+>
+> É uma **SPA — Single Page Application** construída com React 19 e Vite. O usuário baixa o app uma vez e toda a navegação acontece sem recarregar a página.
+>
+> O primeiro ponto é a **proteção de rotas por perfil**. Temos dois tipos de usuário: aluno e cantina. Se um aluno tentar acessar o painel da cantina, é redirecionado automaticamente para o menu dele — e o contrário também. Isso é feito com componentes `RotaAluno` e `RotaVendedor` que envolvem as páginas protegidas.
+>
+> Usamos a **Context API do React** para gerenciar estado global, sem precisar de bibliotecas externas como Redux. Temos 5 contextos:
+>
+> O `NotificacoesContext` é o mais interessante — ele conecta ao **Server-Sent Events** do backend, recebe eventos em tempo real, toca um som de notificação e salva até 30 notificações no `localStorage`. Então mesmo que o usuário feche e reabra o app, as notificações ainda estão lá.
+>
+> O `ThemeContext` controla o modo claro e escuro, salvando a preferência do usuário entre sessões.
+>
+> O `ToastContext` exibe mensagens de feedback na tela sem bloquear a navegação — sabe aquele aviso que aparece no canto da tela e some sozinho? É isso.
+>
+> Temos também um `ErrorBoundary` — um componente que captura erros de renderização do React que normalmente causariam tela branca. Em vez disso, o usuário vê uma mensagem amigável com um botão para recarregar.
+>
+> No total são **12 páginas**, organizadas por quem pode acessar: páginas públicas, páginas de aluno e páginas de cantina."
+
+---
+
 ## REST & OBJECT CALISTHENICS
 
 > "O projeto segue dois paradigmas de design que valem mencionar.
@@ -126,6 +148,9 @@
 
 **"Como garantem que os testes cobrem o que importa?"**
 > "Os testes mockam as dependências externas — banco, e-mail, JWT — e testam a lógica de negócio isolada. Isso garante que as regras de autorização, validação e fluxo de autenticação estão corretas independente de infraestrutura."
+
+**"Por que Context API e não Redux ou Zustand?"**
+> "Para o tamanho do projeto, Context API é suficiente e não adiciona dependência externa. Redux faria sentido em apps muito maiores com estado complexo compartilhado entre muitas partes. Aqui cada contexto tem uma responsabilidade clara e o estado não tem profundidade suficiente para justificar um gerenciador externo."
 
 **"O que é Object Calisthenics na prática?"**
 > "É uma disciplina de escrita de código com 9 regras. As mais visíveis aqui são: encapsular primitivos em Value Objects, evitar o `else` usando early return, e manter métodos e classes pequenos. O objetivo é forçar o código a ser mais legível e com responsabilidades bem definidas."

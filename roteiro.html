@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roteiro — Apresentação CantinaGO</title>
+  <style>
+    :root {
+      --laranja: #f97316;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #334155;
+      --texto: #f1f5f9;
+      --texto2: #94a3b8;
+      --verde: #22c55e;
+      --azul: #38bdf8;
+      --roxo: #a78bfa;
+      --amarelo: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--texto);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    /* CABEÇALHO FIXO */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,23,42,.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #334155;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .topbar-title { font-weight: 800; font-size: 1rem; color: var(--laranja); }
+    .topbar-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+    .topbar-nav a {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      color: var(--texto2);
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .topbar-nav a:hover { border-color: var(--laranja); color: var(--laranja); }
+
+    /* LAYOUT */
+    .container { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* BLOCO DE SEÇÃO */
+    .bloco {
+      margin-top: 56px;
+      scroll-margin-top: 64px;
+    }
+
+    .bloco-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #1e293b;
+    }
+    .bloco-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--laranja);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .bloco-title { font-size: 1.3rem; font-weight: 700; }
+    .bloco-tempo {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--texto2);
+      background: var(--bg2);
+      border: 1px solid #334155;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* DICA DE TELA */
+    .dica-tela {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(56,189,248,.07);
+      border: 1px solid rgba(56,189,248,.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      color: var(--azul);
+      margin-bottom: 18px;
+    }
+    .dica-tela::before { content: '🖥️'; flex-shrink: 0; }
+
+    /* FALA */
+    .fala {
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-left: 4px solid var(--laranja);
+      border-radius: 0 12px 12px 0;
+      padding: 22px 24px;
+      font-size: 1.05rem;
+      line-height: 1.85;
+    }
+    .fala p { margin-bottom: 14px; }
+    .fala p:last-child { margin-bottom: 0; }
+
+    /* DESTAQUE nas falas */
+    strong { color: var(--laranja); font-weight: 700; }
+    code {
+      background: rgba(249,115,22,.12);
+      border: 1px solid rgba(249,115,22,.2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.88em;
+      color: #fcd34d;
+    }
+
+    /* PAUSA */
+    .pausa {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--amarelo);
+      margin: 10px 0 0 4px;
+    }
+    .pausa::before { content: '⏸'; }
+
+    /* Q&A */
+    .qa-grid { display: flex; flex-direction: column; gap: 16px; }
+    .qa-card {
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .qa-pergunta {
+      background: #1a2744;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--azul);
+      border-bottom: 1px solid #334155;
+    }
+    .qa-resposta {
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      color: var(--texto);
+      line-height: 1.7;
+    }
+
+    /* TOTAL */
+    .total-bar {
+      margin-top: 56px;
+      background: linear-gradient(90deg, rgba(249,115,22,.15), transparent);
+      border: 1px solid rgba(249,115,22,.3);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .total-bar .label { font-size: 0.85rem; color: var(--texto2); }
+    .total-bar .valor { font-size: 1.4rem; font-weight: 800; color: var(--laranja); }
+
+    hr { border: none; border-top: 1px solid #1e293b; margin: 48px 0 0; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">CantinaGO — Roteiro de Apresentação</span>
+  <nav class="topbar-nav">
+    <a href="#abertura">Abertura</a>
+    <a href="#arquitetura">Arquitetura</a>
+    <a href="#tecnologias">Tecnologias</a>
+    <a href="#seguranca">Segurança</a>
+    <a href="#frontend">Frontend</a>
+    <a href="#paradigmas">REST & OC</a>
+    <a href="#endpoints">Endpoints</a>
+    <a href="#encerramento">Encerramento</a>
+    <a href="#qa">Perguntas</a>
+  </nav>
+</div>
+
+<div class="container">
+
+  <!-- ══ 1. ABERTURA ══════════════════════════════════════════════ -->
+  <div class="bloco" id="abertura">
+    <div class="bloco-header">
+      <div class="bloco-num">1</div>
+      <span class="bloco-title">Abertura</span>
+      <span class="bloco-tempo">⏱ ~1 min</span>
+    </div>
+    <div class="dica-tela">Mostrar o topo da apresentação — Hero com os 4 números em destaque.</div>
+    <div class="fala">
+      <p>Bom dia / Boa tarde a todos.</p>
+      <p>Vou apresentar o <strong>CantinaGO</strong> — um sistema de gestão de cantina escolar desenvolvido como projeto acadêmico aqui no SENAC.</p>
+      <p>A proposta é simples: alunos fazem pedidos pela plataforma, e a cantina gerencia tudo em tempo real — produtos, pedidos, status, horário de funcionamento.</p>
+      <p>Mas o que quero destacar hoje não é só o que o sistema faz, e sim <strong>como ele foi construído</strong> — as decisões técnicas, os padrões que seguimos e as boas práticas que aplicamos.</p>
+      <p>Em números: <strong>175 testes unitários</strong>, <strong>zero vulnerabilidades</strong> nas dependências e uma <strong>nota de segurança 8,5 de 10</strong> — que vou detalhar ao longo da apresentação.</p>
+    </div>
+  </div>
+
+  <!-- ══ 2. ARQUITETURA ══════════════════════════════════════════ -->
+  <div class="bloco" id="arquitetura">
+    <div class="bloco-header">
+      <div class="bloco-num">2</div>
+      <span class="bloco-title">Arquitetura em Camadas</span>
+      <span class="bloco-tempo">⏱ ~2 min</span>
+    </div>
+    <div class="dica-tela">Rolar até o diagrama de fluxo: Routes → Controllers → Services → Repositories → PostgreSQL.</div>
+    <div class="fala">
+      <p>A primeira decisão importante foi a <strong>arquitetura em camadas</strong>, inspirada no padrão Clean Architecture.</p>
+      <p>O fluxo de uma requisição começa nas <strong>Routes</strong> — que só definem URLs e aplicam middlewares. Vai para os <strong>Controllers</strong>, que recebem a requisição e delegam para o <strong>Service</strong>. O Service é onde mora toda a regra de negócio. E o <strong>Repository</strong> é a única camada que fala com o banco.</p>
+      <p>O benefício prático disso: se um dia precisarmos trocar o PostgreSQL por outro banco, mudamos só os Repositories — o resto do código nem sabe que o banco existe.</p>
+      <p>Além disso, usamos <strong>Value Objects</strong> — classes como <code>Email</code>, <code>Id</code> e <code>Produto</code> que encapsulam validação. Um e-mail inválido é rejeitado no momento em que o objeto é criado, muito antes de chegar ao banco.</p>
+      <p>E temos o <strong>Result Pattern</strong>: todo endpoint retorna a mesma estrutura JSON — sucesso, status HTTP, dados e mensagem. O frontend nunca tem surpresa sobre o formato da resposta.</p>
+    </div>
+    <div class="pausa">Pausa natural — rolar para a próxima seção.</div>
+  </div>
+
+  <!-- ══ 3. TECNOLOGIAS ══════════════════════════════════════════ -->
+  <div class="bloco" id="tecnologias">
+    <div class="bloco-header">
+      <div class="bloco-num">3</div>
+      <span class="bloco-title">Tecnologias</span>
+      <span class="bloco-tempo">⏱ ~2 min</span>
+    </div>
+    <div class="dica-tela">Mostrar o grid de tecnologias — backend primeiro, depois frontend.</div>
+    <div class="fala">
+      <p>No <strong>backend</strong>: <strong>Node.js com Express 5</strong> — versão mais recente, com suporte nativo a async/await nos middlewares.</p>
+      <p>Banco de dados <strong>PostgreSQL</strong>, acessado com queries parametrizadas — falo mais sobre isso na segurança.</p>
+      <p>Autenticação com <strong>JWT</strong> — JSON Web Tokens — com uma camada extra chamada token versioning que implementamos.</p>
+      <p>Senhas com <strong>bcrypt</strong>, padrão de mercado para hash com salt automático.</p>
+      <p>Segurança HTTP com <strong>Helmet</strong> e proteção contra abuso com <strong>express-rate-limit</strong>.</p>
+      <p>E-mails transacionais via <strong>API HTTP do Brevo</strong> — escolhemos HTTP em vez de SMTP porque provedores de cloud bloqueiam portas SMTP por padrão.</p>
+      <p>Documentação automática com <strong>Swagger / OpenAPI</strong>, testes com <strong>Vitest</strong>.</p>
+      <p>No <strong>frontend</strong>: <strong>React 19</strong>, <strong>Vite 8</strong> e <strong>React Router v7</strong> — tudo na versão mais atual disponível.</p>
+      <p>Deploy automático pelo GitHub: backend no <strong>Render</strong>, frontend no <strong>Vercel</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ══ 4. SEGURANÇA ══════════════════════════════════════════ -->
+  <div class="bloco" id="seguranca">
+    <div class="bloco-header">
+      <div class="bloco-num">4</div>
+      <span class="bloco-title">Segurança</span>
+      <span class="bloco-tempo">⏱ ~3 min</span>
+    </div>
+    <div class="dica-tela">Mostrar a tabela de segurança — percorrer linha a linha conforme vai falando.</div>
+    <div class="fala">
+      <p>Essa é a parte que mais nos dedicamos. Vou passar pelas proteções principais.</p>
+      <p>Primeiro, <strong>JWT com Token Versioning</strong>. Normalmente, quando você troca sua senha, o token antigo ainda funciona até expirar. Aqui não — cada usuário tem um número de versão salvo no banco. Quando a senha muda, esse número incrementa e qualquer token antigo é rejeitado na hora.</p>
+      <p>As <strong>senhas</strong> são armazenadas com bcrypt. Nunca em texto puro, nunca MD5 ou SHA simples — bcrypt com salt automático, resistente a ataques de rainbow table.</p>
+      <p>Para <strong>força bruta</strong>, temos duas camadas: rate limiting por rota — login aceita no máximo 10 tentativas em 15 minutos — e um lockout no banco de dados depois de 5 falhas consecutivas. Como fica no banco, se o servidor reiniciar o bloqueio continua.</p>
+      <p>Para <strong>SQL injection</strong>: todos os repositórios usam queries com parâmetros — nunca concatenamos strings para montar SQL. É uma das vulnerabilidades mais comuns e uma das mais fáceis de evitar.</p>
+      <p>Temos <strong>validação de propriedade</strong>: uma cantina não consegue editar produtos de outra. Verificamos se o ID do usuário autenticado bate com o dono do recurso em toda operação de escrita.</p>
+      <p>E os <strong>segredos</strong> — chave JWT, chave de API, senha do banco — nunca estão no código. São variáveis de ambiente. Se a <code>JWT_SECRET</code> não estiver definida, o servidor nem sobe.</p>
+    </div>
+    <div class="pausa">Pausa — deixar a tabela visível por alguns segundos antes de rolar.</div>
+  </div>
+
+  <!-- ══ 5. FRONTEND ══════════════════════════════════════════ -->
+  <div class="bloco" id="frontend">
+    <div class="bloco-header">
+      <div class="bloco-num">5</div>
+      <span class="bloco-title">Arquitetura do Frontend</span>
+      <span class="bloco-tempo">⏱ ~2 min</span>
+    </div>
+    <div class="dica-tela">Mostrar os 6 cards do frontend e depois o grid dos 5 contextos.</div>
+    <div class="fala">
+      <p>O frontend é uma <strong>SPA — Single Page Application</strong>. O usuário baixa o app uma vez e toda navegação acontece sem recarregar a página.</p>
+      <p>Temos <strong>proteção de rotas por perfil</strong>: aluno e cantina têm interfaces completamente separadas. Se um aluno tentar acessar o painel da cantina, é redirecionado automaticamente — e vice-versa.</p>
+      <p>Usamos a <strong>Context API do React</strong> para estado global, sem precisar de Redux. São 5 contextos, cada um com responsabilidade única.</p>
+      <p>O mais interessante é o <strong>NotificacoesContext</strong>: ele conecta ao Server-Sent Events do backend, recebe eventos em tempo real, toca um som e salva até 30 notificações no localStorage. Se o usuário fechar e reabrir o app, as notificações ainda estão lá.</p>
+      <p>Temos <strong>modo claro e escuro</strong> com preferência salva entre sessões, um sistema de <strong>toast notifications</strong> para feedback não-bloqueante, e um <strong>ErrorBoundary</strong> que captura erros de renderização do React — em vez de tela branca, o usuário vê uma mensagem amigável com opção de recarregar.</p>
+      <p>No total são <strong>12 páginas</strong> organizadas por perfil: públicas, de aluno e de cantina.</p>
+    </div>
+  </div>
+
+  <!-- ══ 6. REST & OC ══════════════════════════════════════════ -->
+  <div class="bloco" id="paradigmas">
+    <div class="bloco-header">
+      <div class="bloco-num">6</div>
+      <span class="bloco-title">REST & Object Calisthenics</span>
+      <span class="bloco-tempo">⏱ ~2 min</span>
+    </div>
+    <div class="dica-tela">Mostrar as duas colunas lado a lado — REST (azul) e Object Calisthenics (roxo).</div>
+    <div class="fala">
+      <p>O projeto segue dois paradigmas que guiaram o design da API e a escrita do código.</p>
+      <p>O primeiro é <strong>REST</strong>. Não é só usar HTTP — é usar corretamente. As URLs identificam <em>recursos</em>, não ações. Os métodos HTTP têm semântica própria: GET lê, POST cria, PUT atualiza, DELETE remove. E os status HTTP são precisos: 201 para criação, 401 para não autenticado, 403 para sem permissão, 404 para não encontrado, 409 para conflito. Nunca retornamos 200 para um erro.</p>
+      <p>O segundo é <strong>Object Calisthenics</strong> — um conjunto de disciplinas de escrita de código. As três que mais aplicamos aqui:</p>
+      <p><strong>Early return</strong>: se há uma validação que falha, lançamos uma exceção e saímos — sem blocos <code>else</code> aninhados que dificultam leitura.</p>
+      <p><strong>Primitivos encapsulados</strong>: em vez de passar uma string de e-mail por todo o sistema, temos uma classe <code>Email</code> com validação embutida. Se chegou até o banco, é um e-mail válido.</p>
+      <p><strong>Nomes sem abreviações</strong>: o código é lido muito mais do que escrito. <code>validarCantinaAutenticada</code> é mais claro do que <code>valCantAuth</code> — qualquer um entende sem precisar de comentário.</p>
+    </div>
+  </div>
+
+  <!-- ══ 7. ENDPOINTS ══════════════════════════════════════════ -->
+  <div class="bloco" id="endpoints">
+    <div class="bloco-header">
+      <div class="bloco-num">7</div>
+      <span class="bloco-title">Endpoints</span>
+      <span class="bloco-tempo">⏱ ~1 min</span>
+    </div>
+    <div class="dica-tela">Mostrar o mapa de endpoints — apontar os cadeados enquanto fala.</div>
+    <div class="fala">
+      <p>Aqui o mapa das rotas. Rotas de <strong>autenticação</strong> e <strong>leitura de cardápio</strong> são públicas — qualquer pessoa acessa sem login.</p>
+      <p>Operações de <strong>escrita</strong> exigem JWT. Mas mais que isso: criar, editar ou deletar um produto exige que o usuário seja a cantina <strong>dona</strong> daquele produto. O cadeado com "dona" representa essa validação de propriedade.</p>
+      <p><strong>Reservas</strong> são protegidas para usuários autenticados, e atualização de status é restrita à cantina do pedido.</p>
+      <p>O endpoint <strong>SSE</strong> é o canal de tempo real — quando a cantina atualiza um pedido, a notificação chega no app do aluno instantaneamente, sem polling.</p>
+    </div>
+  </div>
+
+  <!-- ══ 8. ENCERRAMENTO ══════════════════════════════════════ -->
+  <div class="bloco" id="encerramento">
+    <div class="bloco-header">
+      <div class="bloco-num">8</div>
+      <span class="bloco-title">Encerramento</span>
+      <span class="bloco-tempo">⏱ ~1 min</span>
+    </div>
+    <div class="dica-tela">Mostrar o card da nota 8,5 — deixar visível enquanto fala.</div>
+    <div class="fala">
+      <p>Para fechar: nossa nota de segurança é <strong>8,5 de 10</strong>.</p>
+      <p>Zero vulnerabilidades nas dependências. Autenticação robusta com invalidação de token. Proteção contra força bruta em múltiplas camadas. Sem SQL injection. Headers de segurança. Segredos isolados.</p>
+      <p>O que faltaria para chegar a 10? Um pentest externo com ferramentas como OWASP ZAP ou Burp Suite — que testam a API de fora, como um atacante real faria. Está fora do escopo de um projeto acadêmico, mas é o próximo passo natural.</p>
+      <p>Para um projeto acadêmico, acreditamos que esse nível está <strong>acima da média</strong> — e foi exatamente o que buscamos desde o início.</p>
+      <p>Obrigado. Fico à disposição para perguntas.</p>
+    </div>
+  </div>
+
+  <!-- ══ TOTAL ═══════════════════════════════════════════════ -->
+  <div class="total-bar">
+    <div><div class="label">Tempo total estimado</div><div class="valor">~14 minutos</div></div>
+    <div><div class="label">+ Q&A</div><div class="valor">~5–10 min</div></div>
+    <div><div class="label">Total com perguntas</div><div class="valor">~20 minutos</div></div>
+  </div>
+
+  <hr />
+
+  <!-- ══ Q&A ═════════════════════════════════════════════════ -->
+  <div class="bloco" id="qa">
+    <div class="bloco-header">
+      <div class="bloco-num" style="background:var(--azul)">?</div>
+      <span class="bloco-title">Perguntas Prováveis</span>
+    </div>
+    <div class="qa-grid">
+
+      <div class="qa-card">
+        <div class="qa-pergunta">Por que usaram REST e não GraphQL?</div>
+        <div class="qa-resposta">REST é mais simples de implementar e de documentar com Swagger, e mais familiar para quem vai consumir a API. GraphQL faria sentido se tivéssemos consultas com muitos campos variáveis — o que não é o caso de uma cantina escolar.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="qa-pergunta">Por que JWT e não sessões no servidor?</div>
+        <div class="qa-resposta">JWT é stateless — o servidor não precisa guardar sessões em memória ou banco. Isso facilita escalar e é o padrão para APIs consumidas por SPAs. A desvantagem de não poder invalidar o token foi resolvida com o token versioning que implementamos.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="qa-pergunta">Como garantem que os testes cobrem o que importa?</div>
+        <div class="qa-resposta">Os testes mockam dependências externas — banco, e-mail, JWT — e testam a lógica de negócio isolada. Isso garante que as regras de autorização, validação e fluxo de autenticação estão corretas independentemente da infraestrutura.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="qa-pergunta">Por que Context API e não Redux ou Zustand?</div>
+        <div class="qa-resposta">Para o tamanho do projeto, Context API é suficiente e não adiciona dependência externa. Redux faz sentido em apps muito maiores com estado complexo e profundo. Aqui cada contexto tem responsabilidade única e o estado é raso o suficiente.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="qa-pergunta">O que é Object Calisthenics na prática?</div>
+        <div class="qa-resposta">É um conjunto de 9 regras de disciplina de código criadas por Jeff Bay. As que mais aplicamos aqui: um nível de indentação por método, sem <code>else</code> (early return), primitivos encapsulados em Value Objects, e nomes sem abreviações. O objetivo é forçar código mais legível e com responsabilidades bem definidas.</div>
+      </div>
+
+      <div class="qa-card">
+        <div class="qa-pergunta">Por que Brevo para e-mail e não Gmail/SMTP?</div>
+        <div class="qa-resposta">Provedores de cloud como Render bloqueiam portas SMTP por padrão para evitar spam. O Brevo oferece uma API HTTP na porta 443 que funciona em qualquer ambiente. Além disso, e-mails transacionais têm melhor entregabilidade quando saem de um serviço dedicado.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
