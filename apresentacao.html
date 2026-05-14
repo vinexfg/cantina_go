@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CantinaGO — Documentação Técnica</title>
+  <style>
+    :root {
+      --laranja: #f97316;
+      --laranja-escuro: #c2570a;
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #334155;
+      --texto: #f1f5f9;
+      --texto2: #94a3b8;
+      --verde: #22c55e;
+      --azul: #38bdf8;
+      --roxo: #a78bfa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--texto);
+      line-height: 1.6;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      border-bottom: 1px solid #334155;
+      padding: 72px 24px 56px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(249,115,22,.15), transparent);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(249,115,22,.15);
+      border: 1px solid rgba(249,115,22,.4);
+      color: var(--laranja);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      position: relative;
+    }
+    .hero h1 span { color: var(--laranja); }
+    .hero p {
+      margin-top: 16px;
+      font-size: 1.15rem;
+      color: var(--texto2);
+      max-width: 560px;
+      margin-inline: auto;
+      position: relative;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--laranja);
+      display: block;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--texto2); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* LAYOUT */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    section { padding: 64px 0; }
+    section + section { border-top: 1px solid #1e293b; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--laranja);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section-desc { color: var(--texto2); max-width: 600px; margin-bottom: 40px; }
+
+    /* ARQUITETURA */
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 32px 0;
+    }
+    .arch-box {
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px 28px;
+      text-align: center;
+      min-width: 130px;
+    }
+    .arch-box .icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .arch-box .name { font-weight: 700; font-size: 0.95rem; }
+    .arch-box .sub { font-size: 0.75rem; color: var(--texto2); }
+    .arch-arrow {
+      font-size: 1.4rem;
+      color: var(--laranja);
+      padding: 0 8px;
+      font-weight: 700;
+    }
+
+    /* CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: var(--laranja); transform: translateY(-2px); }
+    .card-icon { font-size: 2rem; margin-bottom: 14px; }
+    .card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .card p { font-size: 0.88rem; color: var(--texto2); line-height: 1.65; }
+
+    /* TECH PILLS */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .tech-item {
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .tech-item .ti { font-size: 1.6rem; flex-shrink: 0; }
+    .tech-item .tn { font-weight: 700; font-size: 0.9rem; }
+    .tech-item .tv { font-size: 0.75rem; color: var(--texto2); }
+
+    /* SEGURANÇA */
+    .sec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .sec-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg2);
+      color: var(--texto2);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      border-bottom: 1px solid #334155;
+    }
+    .sec-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #1e293b;
+      vertical-align: top;
+    }
+    .sec-table tr:hover td { background: rgba(255,255,255,.02); }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-alto { background: rgba(34,197,94,.15); color: var(--verde); border: 1px solid rgba(34,197,94,.3); }
+    .badge-med  { background: rgba(249,115,22,.15); color: var(--laranja); border: 1px solid rgba(249,115,22,.3); }
+
+    /* CHECKLIST */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+    }
+    .checklist li .check { color: var(--verde); font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .checklist li strong { display: block; margin-bottom: 2px; }
+    .checklist li span { color: var(--texto2); font-size: 0.83rem; }
+
+    /* ENDPOINTS */
+    .endpoints { display: flex; flex-direction: column; gap: 8px; }
+    .ep {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg2);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-family: monospace;
+    }
+    .method {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      min-width: 52px;
+      text-align: center;
+    }
+    .get  { background: rgba(56,189,248,.15); color: var(--azul); border: 1px solid rgba(56,189,248,.3); }
+    .post { background: rgba(34,197,94,.15); color: var(--verde); border: 1px solid rgba(34,197,94,.3); }
+    .put  { background: rgba(167,139,250,.15); color: var(--roxo); border: 1px solid rgba(167,139,250,.3); }
+    .del  { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+    .ep .lock { font-size: 0.75rem; color: var(--laranja); margin-left: auto; }
+
+    /* SCORE */
+    .score-card {
+      background: linear-gradient(135deg, var(--bg2), #1a2744);
+      border: 1px solid var(--laranja);
+      border-radius: 20px;
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .score-num {
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--laranja);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .score-sub { font-size: 1.2rem; color: var(--texto2); margin-top: 4px; }
+    .score-items { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 240px; }
+    .score-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+    .score-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--verde); flex-shrink: 0; }
+    .score-item .dot.warn { background: var(--laranja); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--texto2);
+      font-size: 0.85rem;
+      border-top: 1px solid #1e293b;
+    }
+    footer strong { color: var(--laranja); }
+
+    @media (max-width: 600px) {
+      .arch-flow { flex-direction: column; }
+      .arch-arrow { transform: rotate(90deg); }
+      .score-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-badge">Projeto Acadêmico — SENAC</div>
+  <h1>Cantina<span>GO</span></h1>
+  <p>Sistema de gestão de cantina escolar com API REST, autenticação segura e notificações em tempo real.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">175</span><span class="stat-label">Testes Unitários</span></div>
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label">Vulnerabilidades</span></div>
+    <div class="stat"><span class="stat-num">8,5</span><span class="stat-label">Nota de Segurança</span></div>
+    <div class="stat"><span class="stat-num">2</span><span class="stat-label">Ambientes de Produção</span></div>
+  </div>
+</div>
+
+<!-- ═══ ARQUITETURA ══════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Design de Software</div>
+    <div class="section-title">Arquitetura em Camadas</div>
+    <p class="section-desc">O backend segue o padrão Clean Architecture, separando responsabilidades em camadas independentes e testáveis.</p>
+
+    <div class="arch-flow">
+      <div class="arch-box">
+        <div class="icon">🌐</div>
+        <div class="name">Routes</div>
+        <div class="sub">Entrada HTTP</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="icon">🎮</div>
+        <div class="name">Controllers</div>
+        <div class="sub">Orquestração</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="icon">⚙️</div>
+        <div class="name">Services</div>
+        <div class="sub">Regras de negócio</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="icon">🗄️</div>
+        <div class="name">Repositories</div>
+        <div class="sub">Acesso ao banco</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="icon">🐘</div>
+        <div class="name">PostgreSQL</div>
+        <div class="sub">Persistência</div>
+      </div>
+    </div>
+
+    <div class="cards" style="margin-top:24px">
+      <div class="card">
+        <div class="card-icon">🧩</div>
+        <h3>Value Objects</h3>
+        <p>Entidades de domínio imutáveis (<code>Usuario</code>, <code>Produto</code>, <code>Reserva</code>, <code>Email</code>, <code>Id</code>) que encapsulam validação e garantem consistência dos dados.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚠️</div>
+        <h3>Exception Hierarchy</h3>
+        <p>Hierarquia de exceções tipadas (<code>ValidationException</code>, <code>NotFoundException</code>, <code>ForbiddenException</code>, <code>UnauthorizedException</code>, <code>ConflictException</code>) com tratamento centralizado.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h3>Result Pattern</h3>
+        <p>Objeto <code>Result</code> padroniza todas as respostas da API com status HTTP semântico correto, mensagem e dados — eliminando inconsistências entre endpoints.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECNOLOGIAS ══════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Stack Tecnológica</div>
+    <div class="section-title">Tecnologias Utilizadas</div>
+    <p class="section-desc">Ferramentas modernas e amplamente adotadas no mercado, tanto no backend quanto no frontend.</p>
+
+    <div style="margin-bottom:28px">
+      <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px">Backend</p>
+      <div class="tech-grid">
+        <div class="tech-item"><div class="ti">🟢</div><div><div class="tn">Node.js</div><div class="tv">Runtime JavaScript</div></div></div>
+        <div class="tech-item"><div class="ti">🚂</div><div><div class="tn">Express 5</div><div class="tv">Framework HTTP</div></div></div>
+        <div class="tech-item"><div class="ti">🐘</div><div><div class="tn">PostgreSQL</div><div class="tv">Banco de dados relacional</div></div></div>
+        <div class="tech-item"><div class="ti">🔐</div><div><div class="tn">JWT (jsonwebtoken)</div><div class="tv">Autenticação stateless</div></div></div>
+        <div class="tech-item"><div class="ti">🔒</div><div><div class="tn">bcrypt</div><div class="tv">Hash de senhas</div></div></div>
+        <div class="tech-item"><div class="ti">🛡️</div><div><div class="tn">Helmet.js</div><div class="tv">Headers de segurança HTTP</div></div></div>
+        <div class="tech-item"><div class="ti">🚦</div><div><div class="tn">express-rate-limit</div><div class="tv">Proteção contra força bruta</div></div></div>
+        <div class="tech-item"><div class="ti">📡</div><div><div class="tn">SSE (nativo)</div><div class="tv">Notificações em tempo real</div></div></div>
+        <div class="tech-item"><div class="ti">📧</div><div><div class="tn">Brevo API</div><div class="tv">E-mails transacionais</div></div></div>
+        <div class="tech-item"><div class="ti">📖</div><div><div class="tn">Swagger / OpenAPI</div><div class="tv">Documentação da API</div></div></div>
+        <div class="tech-item"><div class="ti">🧪</div><div><div class="tn">Vitest</div><div class="tv">Testes unitários (175)</div></div></div>
+        <div class="tech-item"><div class="ti">☁️</div><div><div class="tn">Render</div><div class="tv">Hospedagem do backend</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px">Frontend</p>
+      <div class="tech-grid">
+        <div class="tech-item"><div class="ti">⚛️</div><div><div class="tn">React 19</div><div class="tv">Biblioteca de UI</div></div></div>
+        <div class="tech-item"><div class="ti">⚡</div><div><div class="tn">Vite 8</div><div class="tv">Build tool e dev server</div></div></div>
+        <div class="tech-item"><div class="ti">🔀</div><div><div class="tn">React Router v7</div><div class="tv">Roteamento SPA</div></div></div>
+        <div class="tech-item"><div class="ti">▲</div><div><div class="tn">Vercel</div><div class="tv">Hospedagem do frontend</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SEGURANÇA ════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Hardening</div>
+    <div class="section-title">Boas Práticas de Segurança</div>
+    <p class="section-desc">Implementações que protegem a API contra as principais vulnerabilidades do OWASP API Security Top 10.</p>
+
+    <table class="sec-table">
+      <thead>
+        <tr>
+          <th>Proteção</th>
+          <th>Implementação</th>
+          <th>Nível</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>JWT com Token Versioning</strong></td>
+          <td>Cada usuário possui um <code>token_version</code> no banco. Ao trocar a senha o token antigo é invalidado imediatamente, mesmo antes de expirar.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>Hash de Senhas (bcrypt)</strong></td>
+          <td>Senhas nunca são armazenadas em texto puro. bcrypt com salt automático (custo 10) — resistente a ataques de rainbow table.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>Rate Limiting em Camadas</strong></td>
+          <td>Global: 120 req/min. Login: 10 req/15min. Registro: 5 req/15min — protege contra força bruta e abuso de endpoints.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>Lockout Persistente</strong></td>
+          <td>Após 5 tentativas de login falhas, conta bloqueada por 15 minutos. Estado salvo no PostgreSQL — sobrevive a reinicializações do servidor.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>SQL Injection — Prevenção</strong></td>
+          <td>Todos os repositórios usam queries parametrizadas (<code>$1, $2...</code>) via <code>pg</code>. Nenhuma concatenação de string em SQL.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>Validação de Propriedade</strong></td>
+          <td>Uma cantina não pode editar produtos ou dados de outra. Verificação de <code>usuario.id === recurso.cantina_id</code> em todas as operações de escrita.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>Headers de Segurança (Helmet)</strong></td>
+          <td>Content-Security-Policy, X-Frame-Options, HSTS, X-XSS-Protection e outros headers configurados automaticamente.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>CORS Restrito</strong></td>
+          <td>API aceita requisições apenas do domínio do frontend (Vercel). Configurado via variável de ambiente <code>CORS_ORIGIN</code>.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>HTTP Semântico Correto</strong></td>
+          <td>401 para não-autenticado, 403 para sem permissão, 404 para não encontrado, 409 para conflito — sem vazar informações indevidas.</td>
+          <td><span class="badge badge-med">Médio</span></td>
+        </tr>
+        <tr>
+          <td><strong>Verificação de E-mail</strong></td>
+          <td>Código de 6 dígitos enviado por e-mail. Login bloqueado até verificação — impede contas com e-mails falsos.</td>
+          <td><span class="badge badge-med">Médio</span></td>
+        </tr>
+        <tr>
+          <td><strong>Body Size Limit</strong></td>
+          <td>Corpo das requisições limitado a 50 KB — protege contra ataques de payload gigante que causam esgotamento de memória.</td>
+          <td><span class="badge badge-med">Médio</span></td>
+        </tr>
+        <tr>
+          <td><strong>Segredos via Variáveis de Ambiente</strong></td>
+          <td>JWT secret, chaves de API e credenciais do banco nunca commitados. Servidor falha na inicialização se <code>JWT_SECRET</code> estiver ausente.</td>
+          <td><span class="badge badge-alto">Alto</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ BOAS PRÁTICAS ════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Qualidade de Código</div>
+    <div class="section-title">Boas Práticas Implementadas</div>
+    <p class="section-desc">Além de segurança, o projeto adota padrões de desenvolvimento que facilitam manutenção e evolução.</p>
+
+    <ul class="checklist">
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Testes Unitários com Mocks</strong>
+          <span>175 testes cobrindo services, controllers, middleware e repositórios. Dependências externas (banco, e-mail, JWT) isoladas com mocks — testes rápidos e determinísticos.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Tratamento Centralizado de Erros</strong>
+          <span>Um único middleware <code>ErrorMiddleware</code> captura todas as exceções, mapeia para o status HTTP correto e formata a resposta. Controllers ficam limpos de try/catch repetitivo.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Migrações Automáticas de Banco</strong>
+          <span>Tabelas criadas automaticamente no primeiro boot via <code>migrations.js</code> com <code>CREATE TABLE IF NOT EXISTS</code>. Deploy não exige SQL manual.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Notificações em Tempo Real (SSE)</strong>
+          <span>Server-Sent Events nativos do Node.js para atualização instantânea de status de pedidos. Sem polling do cliente, sem dependência de serviço externo.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>E-mails Transacionais Assíncronos</strong>
+          <span>Envio de e-mail de verificação e status de pedido via Brevo HTTP API. Fire-and-forget — falha de e-mail não derruba a requisição principal.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Documentação Interativa (Swagger)</strong>
+          <span>Todos os endpoints documentados com OpenAPI 3.0. Interface acessível em <code>/api/docs</code>, protegida por autenticação administrativa.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Normalização de Dados na Entrada</strong>
+          <span>E-mails convertidos para minúsculas e sem espaços em todos os pontos de entrada. Evita duplicatas e inconsistências silenciosas no banco.</span>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <strong>Keep-Alive para Serviço em Produção</strong>
+          <span>Workflow GitHub Actions pinga o servidor a cada 14 minutos para evitar hibernação do plano gratuito do Render.</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ REST + OC ════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Paradigmas</div>
+    <div class="section-title">REST & Object Calisthenics</div>
+    <p class="section-desc">Dois conjuntos de princípios que guiaram o design da API e a escrita do código.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:32px">
+
+      <!-- REST -->
+      <div>
+        <p style="font-size:.8rem;color:var(--azul);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:16px">API RESTful</p>
+        <ul class="checklist">
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Recursos identificados por URI</strong>
+              <span>Cada entidade tem sua própria URI (<code>/api/produtos</code>, <code>/api/reservas</code>, <code>/api/cantinas</code>). Verbos nunca aparecem na URL.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Uso correto dos métodos HTTP</strong>
+              <span>GET para leitura, POST para criação, PUT para atualização completa, PATCH para atualização parcial, DELETE para remoção — cada um com sua semântica.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Status HTTP semânticos</strong>
+              <span>200 OK, 201 Created, 401 Unauthenticated, 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable Entity — nunca 200 para erros.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Comunicação stateless</strong>
+              <span>O servidor não guarda estado de sessão. Cada requisição carrega o JWT com todas as informações necessárias para ser processada de forma independente.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Respostas uniformes (Result Pattern)</strong>
+              <span>Todos os endpoints retornam a mesma estrutura JSON: <code>{ success, status, data, message }</code>. Previsível para o frontend consumir.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--azul)">✓</span>
+            <div>
+              <strong>Paginação em coleções grandes</strong>
+              <span>Endpoints de listagem suportam <code>?page=</code> e <code>?limit=</code>, retornando metadados de paginação (<code>total</code>, <code>totalPages</code>).</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- OBJECT CALISTHENICS -->
+      <div>
+        <p style="font-size:.8rem;color:var(--roxo);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:16px">Object Calisthenics</p>
+        <ul class="checklist">
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Apenas um nível de indentação por método</strong>
+              <span>Métodos dos services e repositories extraem lógica para métodos auxiliares, mantendo cada função pequena e com responsabilidade única.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Sem uso do <code>else</code> (early return)</strong>
+              <span>Validações lançam exceções ou retornam cedo — o fluxo principal do código fica no nível de indentação mais raso, sem blocos else aninhados.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Primitivos encapsulados em Value Objects</strong>
+              <span><code>Email</code>, <code>Id</code> e <code>Preco</code> são classes com validação embutida — um e-mail inválido nunca chega ao banco por ser rejeitado na criação do objeto.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Classes pequenas e coesas</strong>
+              <span>Cada classe tem uma única responsabilidade: <code>AuthService</code> autentica, <code>EmailService</code> envia e-mails, <code>UsuarioRepository</code> persiste usuários.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Sem abreviações</strong>
+              <span>Nomes completos e descritivos em todo o código: <code>validarCantinaAutenticada</code>, <code>incrementTokenVersion</code>, <code>findByTokenVerificacao</code> — sem siglas obscuras.</span>
+            </div>
+          </li>
+          <li>
+            <span class="check" style="color:var(--roxo)">✓</span>
+            <div>
+              <strong>Hierarquia de exceções tipadas</strong>
+              <span>Em vez de lançar <code>Error</code> genérico ou retornar códigos de erro, o projeto usa uma hierarquia de exceções (<code>AppException</code> → subtipos) — cada falha tem tipo e significado próprios.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ENDPOINTS ════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">API REST</div>
+    <div class="section-title">Principais Endpoints</div>
+    <p class="section-desc">Rotas organizadas por domínio, com autenticação JWT onde necessário.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:32px">
+
+      <div>
+        <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:12px">Autenticação</p>
+        <div class="endpoints">
+          <div class="ep"><span class="method post">POST</span>/api/auth/registro/usuario</div>
+          <div class="ep"><span class="method post">POST</span>/api/auth/login/usuario</div>
+          <div class="ep"><span class="method get">GET</span>/api/auth/verificar-email?token=…</div>
+          <div class="ep"><span class="method post">POST</span>/api/auth/esqueci-senha</div>
+          <div class="ep"><span class="method post">POST</span>/api/auth/resetar-senha</div>
+          <div class="ep"><span class="method del">DEL</span>/api/auth/conta <span class="lock">🔒 JWT</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:12px">Produtos</p>
+        <div class="endpoints">
+          <div class="ep"><span class="method get">GET</span>/api/produtos</div>
+          <div class="ep"><span class="method get">GET</span>/api/produtos/disponiveis</div>
+          <div class="ep"><span class="method get">GET</span>/api/produtos/cantina/:id</div>
+          <div class="ep"><span class="method post">POST</span>/api/produtos <span class="lock">🔒 cantina</span></div>
+          <div class="ep"><span class="method put">PUT</span>/api/produtos/:id <span class="lock">🔒 dona</span></div>
+          <div class="ep"><span class="method del">DEL</span>/api/produtos/:id <span class="lock">🔒 dona</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:12px">Reservas (Pedidos)</p>
+        <div class="endpoints">
+          <div class="ep"><span class="method get">GET</span>/api/reservas <span class="lock">🔒 JWT</span></div>
+          <div class="ep"><span class="method post">POST</span>/api/reservas <span class="lock">🔒 usuário</span></div>
+          <div class="ep"><span class="method put">PUT</span>/api/reservas/:id/status <span class="lock">🔒 cantina</span></div>
+          <div class="ep"><span class="method del">DEL</span>/api/reservas/:id <span class="lock">🔒 JWT</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p style="font-size:.8rem;color:var(--texto2);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:12px">Tempo Real & Docs</p>
+        <div class="endpoints">
+          <div class="ep"><span class="method get">GET</span>/api/sse <span class="lock">🔒 JWT</span></div>
+          <div class="ep"><span class="method get">GET</span>/api/docs <span class="lock">🔒 admin</span></div>
+          <div class="ep"><span class="method get">GET</span>/api/cantinas</div>
+          <div class="ep"><span class="method put">PUT</span>/api/cantinas/:id <span class="lock">🔒 dona</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCORE ══════════════════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-label">Avaliação</div>
+    <div class="section-title">Nota de Segurança</div>
+    <p class="section-desc">Avaliação baseada no OWASP API Security Top 10 e boas práticas de desenvolvimento.</p>
+
+    <div class="score-card">
+      <div>
+        <div class="score-num">8,5</div>
+        <div class="score-sub">/ 10 — Nível Profissional</div>
+      </div>
+      <div class="score-items">
+        <div class="score-item"><div class="dot"></div>0 vulnerabilidades reportadas pelo npm audit</div>
+        <div class="score-item"><div class="dot"></div>Autenticação robusta com invalidação de token</div>
+        <div class="score-item"><div class="dot"></div>Proteção contra força bruta em múltiplas camadas</div>
+        <div class="score-item"><div class="dot"></div>Sem SQL injection — queries 100% parametrizadas</div>
+        <div class="score-item"><div class="dot"></div>Headers de segurança HTTP via Helmet</div>
+        <div class="score-item"><div class="dot"></div>Segredos isolados em variáveis de ambiente</div>
+        <div class="score-item"><div class="dot warn"></div>Pentest externo (OWASP ZAP) não realizado — fora do escopo acadêmico</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════════ -->
+<footer>
+  <p><strong>CantinaGO</strong> — Projeto Acadêmico SENAC &nbsp;·&nbsp; Backend no <strong>Render</strong> &nbsp;·&nbsp; Frontend no <strong>Vercel</strong></p>
+  <p style="margin-top:6px;font-size:.78rem">Node.js · Express · PostgreSQL · React · JWT · Vitest</p>
+</footer>
+
+</body>
+</html>
