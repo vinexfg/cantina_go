@@ -4,7 +4,7 @@
 
 ## ABERTURA (Hero)
 
-> "Bom dia / Boa tarde a todos. Vou apresentar o **CantinaGO**, um sistema de gestão de cantina escolar que desenvolvemos como projeto acadêmico aqui no SENAC.
+
 >
 > A ideia é simples: alunos conseguem fazer pedidos pela plataforma, e a cantina gerencia tudo em tempo real — produtos, pedidos, status, horário de funcionamento.
 >
