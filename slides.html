@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CantinaGO — Apresentação</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #888899;
+    --white: #ffffff;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slides-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ─── SLIDE 1 — ABERTURA ─── */
+  .slide-abertura {
+    background: radial-gradient(ellipse at 30% 50%, #1a1040 0%, var(--bg) 60%),
+                radial-gradient(ellipse at 70% 20%, #0d2a24 0%, transparent 50%);
+    text-align: center;
+    gap: 24px;
+  }
+
+  .slide-abertura .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.4);
+    color: #a09af0;
+    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .slide-abertura h1 {
+    font-size: 80px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    background: linear-gradient(135deg, #fff 0%, #a09af0 50%, #00d4aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .slide-abertura .subtitle {
+    font-size: 20px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 40px;
+    margin-top: 16px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat .num {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .stat .label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    height: 60px;
+    align-self: center;
+  }
+
+  /* ─── SLIDE 2 — ARQUITETURA ─── */
+  .slide-arch {
+    background: radial-gradient(ellipse at 80% 20%, #0d1a2a 0%, var(--bg) 60%);
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .slide-title {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .slide-title .tag {
+    font-size: 12px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+
+  .slide-title h2 {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    color: var(--white);
+  }
+
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  .arch-layer {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .arch-layer:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .arch-layer .layer-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+
+  .arch-layer .layer-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .arch-layer .layer-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .arch-arrow {
+    font-size: 20px;
+    color: var(--accent);
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  .arch-info {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .info-card {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .info-card .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .info-card p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .info-card p strong {
+    color: var(--text);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ─── SLIDE 3 — TECNOLOGIAS ─── */
+  .slide-tech {
+    background: radial-gradient(ellipse at 20% 80%, #1a0d2a 0%, var(--bg) 60%);
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .tech-col {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tech-col-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tech-col-title.backend { color: var(--accent); }
+  .tech-col-title.frontend { color: var(--accent2); }
+  .tech-col-title.infra { color: #f59e0b; }
+  .tech-col-title.tests { color: var(--accent3); }
+
+  .tech-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tech-item .tech-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    flex: 1;
+  }
+
+  .tech-item .tech-detail {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .tech-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .tech-dot.backend { background: var(--accent); }
+  .tech-dot.frontend { background: var(--accent2); }
+  .tech-dot.infra { background: #f59e0b; }
+  .tech-dot.tests { background: var(--accent3); }
+
+  /* ─── SLIDE 4 — SEGURANÇA ─── */
+  .slide-security {
+    background: radial-gradient(ellipse at 50% 0%, #1a0d20 0%, var(--bg) 60%);
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .security-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .security-card:hover {
+    border-color: rgba(108,99,255,0.5);
+    transform: translateY(-3px);
+  }
+
+  .security-card .sec-icon {
+    font-size: 28px;
+  }
+
+  .security-card .sec-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .security-card .sec-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .security-card .sec-tag {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    color: #a09af0;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  /* ─── SLIDE 5 — FRONTEND ─── */
+  .slide-frontend {
+    background: radial-gradient(ellipse at 80% 80%, #0d2018 0%, var(--bg) 60%);
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .frontend-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .frontend-main {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .frontend-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .frontend-card:hover { border-color: var(--accent2); }
+
+  .frontend-card .fc-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .frontend-card .fc-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .frontend-card .fc-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .contexts-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .contexts-panel .panel-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    font-weight: 700;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ctx-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ctx-item .ctx-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+  }
+
+  .ctx-item .ctx-desc {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ─── SLIDE 6 — ENCERRAMENTO ─── */
+  .slide-end {
+    background: radial-gradient(ellipse at 50% 50%, #1a1040 0%, var(--bg) 70%);
+    text-align: center;
+    gap: 32px;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-ring .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-ring .score-num {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .score-ring .score-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .end-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    max-width: 500px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .check-item .check-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(0,212,170,0.15);
+    border: 1px solid rgba(0,212,170,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    color: var(--accent2);
+  }
+
+  .end-thanks {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    color: var(--white);
+  }
+
+  .end-sub {
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  /* ─── NAVEGAÇÃO ─── */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(18,18,26,0.9);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 10px 20px;
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    line-height: 1;
+  }
+
+  .nav-btn:hover { color: var(--white); background: var(--border); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .nav-dot.active {
+    background: var(--accent);
+    transform: scale(1.4);
+  }
+
+  .nav-counter {
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 36px;
+    text-align: center;
+  }
+
+  /* ─── SLIDE NÚMERO ─── */
+  .slide-num {
+    position: fixed;
+    top: 28px;
+    right: 40px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    z-index: 100;
+  }
+
+  /* ─── LOGO ─── */
+  .slide-logo {
+    position: fixed;
+    top: 28px;
+    left: 40px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    opacity: 0.5;
+    z-index: 100;
+  }
+
+  .slide-logo span { color: var(--accent2); }
+
+  /* ─── HINT TECLADO ─── */
+  .key-hint {
+    position: fixed;
+    bottom: 80px;
+    right: 40px;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.5;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .key {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<div class="slide-logo">Cantina<span>GO</span></div>
+<div class="slide-num" id="slideNum">1 / 6</div>
+<div class="key-hint"><span class="key">←</span><span class="key">→</span> para navegar</div>
+
+<div class="slides-container" id="slidesContainer">
+
+  <!-- SLIDE 1: ABERTURA -->
+  <div class="slide slide-abertura active" id="slide-0">
+    <div class="badge">Projeto Acadêmico · SENAC</div>
+    <h1>CantinaGO</h1>
+    <p class="subtitle">Plataforma de pedidos para cantina escolar — do backend ao deploy, com foco em arquitetura e segurança.</p>
+    <div class="stats-row">
+      <div class="stat">
+        <span class="num">175</span>
+        <span class="label">Testes Unitários</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="num">0</span>
+        <span class="label">Vulnerabilidades</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="num">8,5</span>
+        <span class="label">Nota de Segurança</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: ARQUITETURA -->
+  <div class="slide slide-arch" id="slide-1">
+    <div class="slide-title">
+      <span class="tag">02 — Arquitetura</span>
+      <h2>Clean Architecture em Camadas</h2>
+    </div>
+    <div class="arch-flow">
+      <div class="arch-layer">
+        <div class="layer-icon">🌐</div>
+        <div class="layer-name">Routes</div>
+        <div class="layer-desc">Define URLs e aplica middlewares</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-layer">
+        <div class="layer-icon">🎮</div>
+        <div class="layer-name">Controllers</div>
+        <div class="layer-desc">Recebe a requisição e delega</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-layer">
+        <div class="layer-icon">⚙️</div>
+        <div class="layer-name">Services</div>
+        <div class="layer-desc">Toda a regra de negócio</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-layer">
+        <div class="layer-icon">🗄️</div>
+        <div class="layer-name">Repository</div>
+        <div class="layer-desc">Única camada que toca o banco</div>
+      </div>
+    </div>
+    <div class="arch-info">
+      <div class="info-card">
+        <div class="dot"></div>
+        <p><strong>Value Objects</strong>Classes como Email e Id que validam na criação — se chegou ao banco, é dado válido.</p>
+      </div>
+      <div class="info-card">
+        <div class="dot"></div>
+        <p><strong>Padrão Result</strong>Todo endpoint retorna a mesma estrutura JSON — o frontend sabe exatamente o que esperar.</p>
+      </div>
+      <div class="info-card">
+        <div class="dot"></div>
+        <p><strong>Troca de banco fácil</strong>Se trocarmos PostgreSQL, só mudamos os Repositories. O resto do código nem sabe que o banco existe.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: TECNOLOGIAS -->
+  <div class="slide slide-tech" id="slide-2">
+    <div class="slide-title">
+      <span class="tag">03 — Stack</span>
+      <h2>Tecnologias</h2>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-col">
+        <div class="tech-col-title backend">Backend</div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">Node.js + Express 5</span><span class="tech-detail">Runtime & Framework</span></div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">PostgreSQL</span><span class="tech-detail">Banco de dados</span></div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">JWT + bcrypt</span><span class="tech-detail">Auth & segurança</span></div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">Helmet + Rate Limit</span><span class="tech-detail">Proteção de API</span></div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">Swagger / OpenAPI 3</span><span class="tech-detail">Documentação</span></div>
+        <div class="tech-item"><div class="tech-dot backend"></div><span class="tech-name">Brevo API</span><span class="tech-detail">E-mails transacionais</span></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title frontend">Frontend</div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">React 19</span><span class="tech-detail">UI Library</span></div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">Vite 8</span><span class="tech-detail">Build tool</span></div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">React Router v7</span><span class="tech-detail">SPA routing</span></div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">Context API</span><span class="tech-detail">State management</span></div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">Google OAuth</span><span class="tech-detail">Login social</span></div>
+        <div class="tech-item"><div class="tech-dot frontend"></div><span class="tech-name">SSE</span><span class="tech-detail">Tempo real</span></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title infra">Deploy & CI/CD</div>
+        <div class="tech-item"><div class="tech-dot infra"></div><span class="tech-name">Render</span><span class="tech-detail">Backend</span></div>
+        <div class="tech-item"><div class="tech-dot infra"></div><span class="tech-name">Vercel</span><span class="tech-detail">Frontend</span></div>
+        <div class="tech-item"><div class="tech-dot infra"></div><span class="tech-name">GitHub Actions</span><span class="tech-detail">Pipeline de CI</span></div>
+        <div class="tech-item"><div class="tech-dot infra"></div><span class="tech-name">Deploy automático</span><span class="tech-detail">A cada push no main</span></div>
+      </div>
+      <div class="tech-col">
+        <div class="tech-col-title tests">Testes & Qualidade</div>
+        <div class="tech-item"><div class="tech-dot tests"></div><span class="tech-name">Vitest</span><span class="tech-detail">Test runner</span></div>
+        <div class="tech-item"><div class="tech-dot tests"></div><span class="tech-name">175 testes unitários</span><span class="tech-detail">Services, middlewares, VOs</span></div>
+        <div class="tech-item"><div class="tech-dot tests"></div><span class="tech-name">ESLint</span><span class="tech-detail">Code quality</span></div>
+        <div class="tech-item"><div class="tech-dot tests"></div><span class="tech-name">npm audit</span><span class="tech-detail">Zero vulnerabilidades</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: SEGURANÇA -->
+  <div class="slide slide-security" id="slide-3">
+    <div class="slide-title">
+      <span class="tag">04 — Segurança</span>
+      <h2>Proteção em Múltiplas Camadas</h2>
+    </div>
+    <div class="security-grid">
+      <div class="security-card">
+        <div class="sec-icon">🔑</div>
+        <div class="sec-title">JWT + Token Versioning</div>
+        <div class="sec-desc">Ao trocar a senha, todos os tokens antigos são invalidados imediatamente — não espera expirar.</div>
+        <div class="sec-tag">Auth</div>
+      </div>
+      <div class="security-card">
+        <div class="sec-icon">🔒</div>
+        <div class="sec-title">bcrypt nas Senhas</div>
+        <div class="sec-desc">Hash com salt automático, resistente a rainbow table. Nunca texto puro, nunca MD5.</div>
+        <div class="sec-tag">Criptografia</div>
+      </div>
+      <div class="security-card">
+        <div class="sec-icon">🛡️</div>
+        <div class="sec-title">Força Bruta</div>
+        <div class="sec-desc">5 tentativas erradas → conta bloqueada por 15 min, salvo no banco. Sobrevive a reinicialização do servidor.</div>
+        <div class="sec-tag">Rate Limiting</div>
+      </div>
+      <div class="security-card">
+        <div class="sec-icon">💉</div>
+        <div class="sec-title">SQL Injection: Zero Risco</div>
+        <div class="sec-desc">Todas as queries usam parâmetros. Nunca concatenamos strings para montar SQL.</div>
+        <div class="sec-tag">Queries</div>
+      </div>
+      <div class="security-card">
+        <div class="sec-icon">✅</div>
+        <div class="sec-title">Validação de Propriedade</div>
+        <div class="sec-desc">Uma cantina não edita produtos de outra. Verificamos o dono do recurso em toda operação de escrita.</div>
+        <div class="sec-tag">Autorização</div>
+      </div>
+      <div class="security-card">
+        <div class="sec-icon">🌍</div>
+        <div class="sec-title">Segredos Isolados</div>
+        <div class="sec-desc">JWT, API keys e senha do banco só em variáveis de ambiente. O servidor nem sobe sem JWT_SECRET.</div>
+        <div class="sec-tag">Env Vars</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: FRONTEND -->
+  <div class="slide slide-frontend" id="slide-4">
+    <div class="slide-title">
+      <span class="tag">05 — Frontend</span>
+      <h2>React 19 + Arquitetura de Componentes</h2>
+    </div>
+    <div class="frontend-layout">
+      <div class="frontend-main">
+        <div class="frontend-card">
+          <div class="fc-icon">🚦</div>
+          <div>
+            <div class="fc-title">Rotas Protegidas por Perfil</div>
+            <div class="fc-desc">Aluno não acessa o painel da cantina — e vice-versa. Componentes RotaAluno e RotaVendedor envolvem cada página protegida.</div>
+          </div>
+        </div>
+        <div class="frontend-card">
+          <div class="fc-icon">⚡</div>
+          <div>
+            <div class="fc-title">Notificações em Tempo Real</div>
+            <div class="fc-desc">SSE conectado ao backend. Quando a cantina atualiza um pedido, o aluno recebe na hora — sem recarregar a página. Salva até 30 notificações no localStorage.</div>
+          </div>
+        </div>
+        <div class="frontend-card">
+          <div class="fc-icon">🛡️</div>
+          <div>
+            <div class="fc-title">Error Boundary</div>
+            <div class="fc-desc">Captura erros de renderização que causariam tela branca. Mostra mensagem amigável com botão para recarregar.</div>
+          </div>
+        </div>
+      </div>
+      <div class="contexts-panel">
+        <div class="panel-title">5 Contextos Globais</div>
+        <div class="ctx-item">
+          <span class="ctx-name">NotificacoesContext</span>
+          <span class="ctx-desc">SSE + som + localStorage</span>
+        </div>
+        <div class="ctx-item">
+          <span class="ctx-name">ThemeContext</span>
+          <span class="ctx-desc">Dark / Light mode persistido</span>
+        </div>
+        <div class="ctx-item">
+          <span class="ctx-name">ToastContext</span>
+          <span class="ctx-desc">Avisos sem bloquear navegação</span>
+        </div>
+        <div class="ctx-item">
+          <span class="ctx-name">ConfirmContext</span>
+          <span class="ctx-desc">Diálogos de confirmação global</span>
+        </div>
+        <div class="ctx-item">
+          <span class="ctx-name">ReservasContext</span>
+          <span class="ctx-desc">Cache de pedidos do aluno</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: ENCERRAMENTO -->
+  <div class="slide slide-end" id="slide-5">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="68" fill="none" stroke="#1a1a26" stroke-width="12"/>
+        <circle cx="80" cy="80" r="68" fill="none" stroke="url(#grad)" stroke-width="12"
+          stroke-dasharray="427" stroke-dashoffset="64" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00d4aa"/>
+            <stop offset="100%" stop-color="#6c63ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-text">
+        <span class="score-num">8,5</span>
+        <span class="score-label">/ 10</span>
+      </div>
+    </div>
+
+    <div class="end-checklist">
+      <div class="check-item"><div class="check-icon">✓</div>Zero vulnerabilidades nas dependências</div>
+      <div class="check-item"><div class="check-icon">✓</div>Autenticação robusta com JWT + token versioning</div>
+      <div class="check-item"><div class="check-icon">✓</div>Proteção contra força bruta persistente</div>
+      <div class="check-item"><div class="check-icon">✓</div>175 testes unitários garantindo as regras de negócio</div>
+    </div>
+
+    <div class="end-thanks">Obrigado.</div>
+    <div class="end-sub">Para nota 10: pentest externo com OWASP ZAP — próximo passo se fosse para produção real.</div>
+  </div>
+
+</div>
+
+<!-- NAVEGAÇÃO -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <span class="nav-counter" id="navCounter">1 / 6</span>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">→</button>
+</div>
+
+<script>
+  const total = 6;
+  let current = 0;
+
+  const slidesEl = Array.from(document.querySelectorAll('.slide'));
+  const dotsContainer = document.getElementById('navDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const slideNum = document.getElementById('slideNum');
+  const navCounter = document.getElementById('navCounter');
+
+  // cria dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  }
+
+  function goTo(n) {
+    slidesEl[current].classList.remove('active');
+    slidesEl[current].classList.add('exit');
+    setTimeout(() => slidesEl[current - (current !== n ? 0 : 0)].classList.remove('exit'), 400);
+
+    const prev = current;
+    current = n;
+
+    slidesEl[prev].classList.remove('active');
+    setTimeout(() => slidesEl[prev].classList.remove('exit'), 400);
+    slidesEl[prev].classList.add('exit');
+    slidesEl[current].classList.add('active');
+
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    slideNum.textContent = `${current + 1} / ${total}`;
+    navCounter.textContent = `${current + 1} / ${total}`;
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next >= 0 && next < total) goTo(next);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+</script>
+</body>
+</html>
